@@ -12,6 +12,8 @@ class CreateArmiesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('armies')) { return; }
+
         Schema::create('armies', function (Blueprint $table) {
             $table->increments('id');
 
@@ -36,6 +38,8 @@ class CreateArmiesTable extends Migration
      */
     public function down()
     {
+        if (!Schema::hasTable('armies')) { return; }
+
         Schema::table('armies', function(Blueprint $table) {
             $table->dropForeign('armies_castle_id_foreign');
         });

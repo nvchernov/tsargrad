@@ -12,6 +12,8 @@ class CreateSquadsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('squads')) { return; }
+
         Schema::create('squads', function (Blueprint $table) {
             $table->increments('id');
 
@@ -22,7 +24,7 @@ class CreateSquadsTable extends Migration
             $table->dateTime('crusade_end_at')->nullable();
             $table->integer('army_id')->unsigned();
 
-            $table->morphs('crusadable');
+            $table->morphs('crusadeable');
 
             $table->timestamps();
             $table->softDeletes();
@@ -40,6 +42,8 @@ class CreateSquadsTable extends Migration
      */
     public function down()
     {
+        if (!Schema::hasTable('squads')) { return; }
+
         Schema::table('squads', function(Blueprint $table) {
             $table->dropForeign('squads_army_id_foreign');
         });

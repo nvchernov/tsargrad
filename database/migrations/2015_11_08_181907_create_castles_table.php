@@ -12,6 +12,8 @@ class CreateCastlesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('castles')) { return; }
+
         Schema::create('castles', function (Blueprint $table) {
             $table->increments('id');
 
@@ -30,6 +32,6 @@ class CreateCastlesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('castles');
+        Schema::dropIfExists('castles');
     }
 }
