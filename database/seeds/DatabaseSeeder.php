@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
+use Database\Seeders\CastlesTableSeeder, Database\Seeders\ArmiesTableSeeder, Database\Seeders\SquadsTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,7 +15,9 @@ class DatabaseSeeder extends Seeder
     {
         Model::unguard();
 
-        // $this->call(UserTableSeeder::class);
+        $this->call(CastlesTableSeeder::class);
+        $this->call(ArmiesTableSeeder::class);
+        $this->call(SquadsTableSeeder::class);
 
         Model::reguard();
     }
