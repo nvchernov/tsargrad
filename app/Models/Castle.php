@@ -20,6 +20,15 @@ class Castle extends Model
     protected $table = 'castles';
 
     /**
+     * Casts.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'location' => 'array',
+    ];
+
+    /**
      * Get all enemies attacking the castle.
      * One to Many relation via Morphing.
      *

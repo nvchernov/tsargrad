@@ -30,9 +30,15 @@ return [
     ],
 
     'stripe' => [
-        'model'  => App\User::class,
+        'model'  => App\Models\User::class,
         'key'    => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    // A gamefield.
+    'gamefield' => [
+        'model'  => App\Models\Castle::class,  // A model in which are stored the coordinates (location).
+        'height' => env('GAMEFIELD_HEIGHT'),  // A height of gamefield.
+        'width'  => env('GAMEFIELD_WIDTH'),   // A width of gamefield.
+    ]
 ];
