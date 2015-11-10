@@ -40,5 +40,6 @@ return [
         'model'  => App\Models\Castle::class,  // A model in which are stored the coordinates (location).
         'height' => env('GAMEFIELD_HEIGHT'),  // A height of gamefield.
         'width'  => env('GAMEFIELD_WIDTH'),   // A width of gamefield.
+        'bounds' => env('CASTLE_BOUNDS')      // A bounds between castles.
     ]
 ];

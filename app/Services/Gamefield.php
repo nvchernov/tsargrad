@@ -9,6 +9,7 @@
 namespace App\Services;
 
 use Config;
+use Log;
 
 /**
  * Gamefield of the tsargrad game.
@@ -33,6 +34,13 @@ class Gamefield
     protected $maxWidth = 0;
 
     /**
+     * A bounds between castles.
+     *
+     * @var int
+     */
+    protected $castleBounds = 0;
+
+    /**
      * A Class of model in which are stored the location.
      *
      * @var \Illuminate\Database\Eloquent\Model
@@ -41,10 +49,11 @@ class Gamefield
 
     public function __construct()
     {
-        $this->height = Config::get('services.locator.height', 2);
-        $this->width  = Config::get('services.locator.width', 2);
+        $this->height = Config::get('services.gamefield.height', 2);
+        $this->width  = Config::get('services.gamefield.width', 2);
+        $this->castleBounds = Config::get('services.gamefield.bounds', 0);
 
-        $this->Model = Config::get('services.locator.model');
+        $this->Model = Config::get('services.gamefield.model');
     }
 
     /**
@@ -67,10 +76,10 @@ class Gamefield
      */
     public function uniqueLocation()
     {
-        $count = $this->width * $this->height * 10;
+        $count = $this->width * $this->height * 10; // why?
         for($i = 0; $i < $count; ++$i) {
             $location = $this->randomLocation();
-            if (!$this->hasLocation($location)) {
+            if (!$this->hasLocation($location, $this->castleBounds)) {
                 return $location;
             }
         }
@@ -82,13 +91,21 @@ class Gamefield
      * Check the existence of location on the gamefield.
      *
      * @param array $location
+     * @param int $withBounds
      * @return bool
      */
-    public function hasLocation(array $location)
+    public function hasLocation(array $location, $withBounds = 0)
     {
-        $sl = json_encode($location);
         $instance = $this->Model;
-        return ! is_null($instance::whereLocation($sl)->get());
+        $query = $instance::query();
+        // Check a location on bounds of a gamefield area.
+        for ($i = $location['x'] - $withBounds; $i <= $location['x'] + $withBounds; $i++) {
+            for ($j = $location['y'] - $withBounds; $j <= $location['y'] + $withBounds; $j++) {
+                $query->orWhere('location', '=', json_encode(['x' => $i, 'y' => $j]));
+            }
+        }
+
+        return count($query->get()) > 0;
     }
 
     /**
