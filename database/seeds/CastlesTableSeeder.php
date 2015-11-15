@@ -18,7 +18,7 @@ class CastlesTableSeeder extends Seeder
     {
         $faker = Factory::create();
 
-        foreach(range(1, 10) as $i) {
+        foreach(range(1, 5) as $i) {
             Castle::create(['name' => $faker->colorName]);
         }
     }

@@ -25,7 +25,7 @@ class CastleObserver
         if (!isset($model->location)) {
             $location = Gamefield::uniqueLocation();
             if ($location === false) {
-                throw new GameExecption('Невозможно создать новый замок. Все игровое поле занято!');
+                throw new GameExecption('You cannot create a new castle. All the playing field is occupied.');
             }
             $model->location = $location;
         }
