@@ -8,7 +8,6 @@
 
 namespace App\Services;
 
-use App\Exceptions\GameExecption;
 use Config;
 
 /**
@@ -24,14 +23,14 @@ class Gamefield
      *
      * @var int
      */
-    protected $maxHeight = 0;
+    protected $height = 0;
 
     /**
      * A max width of the gamefield.
      *
      * @var int
      */
-    protected $maxWidth = 0;
+    protected $width = 0;
 
     /**
      * A bounds between castles.
@@ -52,49 +51,54 @@ class Gamefield
      *
      * @var \Illuminate\Database\Eloquent\Model
      */
-    protected $Model;
+    protected $model;
 
     /**
-     * Get a location.
+     * Extract a location from model, json or array.
      *
-     * @param $l
-     * @return array|mixed
-     * @throws GameExecption
+     * @param $loc
+     * @return array
      */
-    protected function getLocation($l)
+    public static function extractLocation($loc)
     {
-        if ($l instanceof \Illuminate\Database\Eloquent\Model) {
-            return $l->location;
+        if ($loc instanceof \Illuminate\Database\Eloquent\Model) {
+            $loc = $loc->location;
         }
 
-        if (is_array($l)) {
-            return ['x' => $l[0], 'y' => $l[1]];
+        if (is_array($loc)) {
+            if (count($loc) >= 2) {
+                return ['x' => $loc[0], 'y' => $loc[1]];
+            }
+            return false;
         }
 
-        $obj = json_encode($l);
-        if (is_string($l) && $obj == false) {
-            throw new GameExecption('Error! No locations.');
+        if (is_string($loc)) {
+            $loc = json_decode($loc);
         }
 
-        if (is_object($l)) {
-            $obj = $l;
+        if (is_object($loc)) {
+            if (!array_key_exists('x', $loc) || !array_key_exists('y', $loc)) {
+                return false;
+            }
+            return ['x' => $loc['x'], 'y' => $loc['y']];
         }
 
-        if (!array_key_exists('x', $obj) || !array_key_exists('y', $obj)) {
-            throw new GameExecption('Error! No locations.');
-        }
-
-        return ['x' => $obj['x'], 'y' => $obj['y']];
+        return false;
     }
 
     public function __construct()
     {
-        $this->maxHeight = Config::get('services.gamefield.height', $this->maxHeight);
-        $this->maxWidth = Config::get('services.gamefield.width', $this->maxWidth);
-        $this->bounds = Config::get('services.gamefield.bounds', $this->bounds);
-        $this->speed = Config::get('services.gamefield.speed', $this->speed);
+        $options = Config::get('services.game.gamefield');
+        foreach ($options as $k => $v) {
+            if (property_exists(static::class, $k)) {
+                $this->$k = $v;
+            }
+        }
+    }
 
-        $this->Model = Config::get('services.gamefield.model');
+    public function __get($key)
+    {
+        return $this->$key;
     }
 
     /**
@@ -105,10 +109,11 @@ class Gamefield
     protected function allLocations()
     {
         $arr = [];
-        for ($x = 0; $x < $this->maxWidth; $x++) {
+        for ($x = 0; $x < $this->width; $x++) {
 
-            for ($y = 0; $y < $this->maxHeight; $y++) {
-                array_push($arr, ['x' => $x, 'y' => $y]);
+            for ($y = 0; $y < $this->height; $y++) {
+                //array_push($arr, ['x' => $x, 'y' => $y]);
+                $arr[] = "{\"x\":$x, \"y\":$y}";
             }
         }
 
@@ -118,7 +123,7 @@ class Gamefield
     /**
      * Get random location on the gamefield.
      *
-     * @return array - {x, y}
+     * @return string - json {x, y}
      */
     public function randomLocation()
     {
@@ -128,21 +133,24 @@ class Gamefield
     /**
      * Get busy locations of the gamefield.
      *
-     * @param int $withBounds bounds
      * @return \Illuminate\Support\Collection
      */
-    public function busyLocations($withBounds = 0)
+    public function busyLocations()
     {
-        $width = $this->maxWidth;
-        $height = $this->maxHeight;
+        $gfield = $this;
 
-        $instance = $this->Model;
+        $instance = $gfield->model;
         $collection = $instance::all(['location'])->pluck('location');
 
         $busy = collect();
-        $collection->each(function ($val) use ($width, $height, $withBounds, &$busy) {
-            for ($i = max($val['x'] - $withBounds, 0); $i <= min($val['x'] + $withBounds, $width); $i++) {
-                for ($j = max($val['y'] - $withBounds, 0); $j <= min($val['y'] + $withBounds, $height); $j++) {
+        $collection->each(function ($val) use ($gfield, &$busy) {
+            $loc = $gfield::extractLocation($val);
+            if ($loc == false) {
+                return;
+            }
+
+            for ($i = max($loc['x'] - $gfield->bounds, 0); $i <= min($loc['x'] + $gfield->bounds, $gfield->width); $i++) {
+                for ($j = max($loc['y'] - $gfield->bounds, 0); $j <= min($loc['y'] + $gfield->bounds, $gfield->height); $j++) {
                     if (!$busy->contains(function ($k, $v) use ($i, $j) {
                         return $v['x'] == $i && $v['y'] == $j;
                     })
@@ -159,39 +167,29 @@ class Gamefield
     /**
      * Get unique location on the gamefield.
      *
-     * @return array|false - {x, y}
+     * @return array|false - json {x, y}
      */
     public function uniqueLocation()
     {
-        $busy = $this->busyLocations($this->bounds);
-        $all = $this->allLocations();
-
-        $free = $all->transform(function ($val) {
-            return json_encode($val);
-        })
-            ->diff($busy->transform(function ($val) {
-                return json_encode($val);
-            }));
-
-        return count($free) > 0 ? json_decode($free->random()) : false;
+        $free = $this->allLocations()->diff($this->busyLocations());
+        return count($free) > 0 ? $free->random() : false;
     }
 
     /**
      * Check the existence of location on the gamefield.
      *
      * @param $location
-     * @param int $withBounds
      * @return bool
      */
-    public function hasBusy($location, $withBounds = 0)
+    public function hasBusy($location)
     {
-        $l = $this->getLocation($location);
+        $loc = self::extractLocation($location);
 
-        $instance = $this->Model;
+        $instance = $this->model;
         $query = $instance::query();
         // Check a location on bounds of a gamefield area.
-        for ($i = max($l['x'] - $withBounds, 0); $i <= min($l['x'] + $withBounds, $this->maxWidth); $i++) {
-            for ($j = max($l['y'] - $withBounds, 0); $j <= min($l['y'] + $withBounds, $this->maxHeight); $j++) {
+        for ($i = max($loc['x'] - $this->bounds, 0); $i <= min($loc['x'] + $this->bounds, $this->width); $i++) {
+            for ($j = max($loc['y'] - $this->bounds, 0); $j <= min($loc['y'] + $this->bounds, $this->height); $j++) {
                 $query->orWhere('location', '=', json_encode(['x' => $i, 'y' => $j]));
             }
         }
@@ -205,56 +203,26 @@ class Gamefield
      * @param $a
      * @param $b
      * @return float
-     * @throws GameExecption
      */
     public function distance($a, $b)
     {
-        $l1 = $this->getLocation($a);
-        $l2 = $this->getLocation($b);
+        $a = self::extractLocation($a);
+        $b = self::extractLocation($b);
 
-        return sqrt(pow($l1['x'] - $l2['x'], 2) + pow($l1['y'] - $l2['y'], 2));
+        return sqrt(pow($a['x'] - $b['x'], 2) + pow($a['y'] - $b['y'], 2));
     }
 
     /**
      * How much time has passed for a given distance.
      *
-     * @return float|mixed
+     * @return int minutes
      */
     public function howMuchTime()
     {
         $distance = func_get_arg(0);
-        if (func_num_args() == 2) {
+        if (func_num_args() >= 2) {
             $distance = $this->distance(func_get_arg(0), func_get_arg(1));
         }
-        return $distance * abs(1 - $this->speed);
-    }
-
-    /**
-     * Get Class of model in which are stored the location.
-     *
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function getLocationModel()
-    {
-        return $this->Model;
-    }
-
-    /**
-     * Get a max height of the gamefield.
-     *
-     * @return int
-     */
-    public function getMaxHeight()
-    {
-        return $this->maxHeight;
-    }
-
-    /**
-     * Get a max width of the gamefield.
-     * @return int
-     */
-    public function getMaxWidth()
-    {
-        return $this->maxWidth;
+        return intval(5.0 * ($distance + $this->speed - 1.0));
     }
 }

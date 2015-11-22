@@ -32,12 +32,38 @@ class Army extends Model
 
     /**
      * Get a castle.
-     * One to Many relation.
+     * One to One relation.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function castle()
     {
         return $this->belongsTo('App\Models\Castle');
+    }
+
+    /**
+     * Magic getter!
+     *
+     * @param string $key
+     * @return int|mixed
+     */
+    public function __get($key)
+    {
+        $value = parent::__get($key);
+        if (!isset($value)) {
+            // Get a size of all squads of army.
+            if ($key == 'sizeSquads') {
+                $value = 0;
+                foreach ($this->squads as $s) {
+                    $value += $s->size;
+                }
+            }
+            // Get a size of a the army with all squads.
+            if ($key == 'sizeAll') {
+                $value = $this->size + $this->sizeSquads;
+            }
+        }
+
+        return $value;
     }
 }

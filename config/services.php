@@ -35,12 +35,19 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
-    // A gamefield.
-    'gamefield' => [
-        'model'  => App\Models\Castle::class,  // A model in which are stored the coordinates (location).
-        'height' => env('GAMEFIELD_HEIGHT'),  // A height of gamefield.
-        'width'  => env('GAMEFIELD_WIDTH'),   // A width of gamefield.
-        'speed'  => env('GAMEFIELD_SPEED'),   // A speed of movement of.
-        'bounds' => env('CASTLE_BOUNDS')      // A bounds between castles.
+    // Tsargrad game.
+    'game' => [
+
+        'baseArmyLevel' => 1,
+        'baseArmySize'  => 100,
+
+        // Gamefield options
+        'gamefield' => [
+            'model'  => App\Models\Castle::class,  // A model in which are stored the coordinates (location).
+            'height' => env('GAMEFIELD_HEIGHT'),
+            'width'  => env('GAMEFIELD_WIDTH'),
+            'speed'  => env('GAMEFIELD_SPEED'),
+            'bounds' => env('CASTLE_BOUNDS')
+        ]
     ]
 ];

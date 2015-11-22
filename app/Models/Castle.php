@@ -25,7 +25,8 @@ class Castle extends Model
      * @var array
      */
     protected $casts = [
-        'location' => 'array',
+    //
+    //    'location' => 'array',
     ];
 
     /**
@@ -51,13 +52,13 @@ class Castle extends Model
     }
 
     /**
-     * Get all armies.
-     * One to Many relation.
+     * Get army.
+     * One to One relation.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function armies()
+    public function army()
     {
-        return $this->hasMany('App\Models\Army');
+        return $this->hasOne('App\Models\Army');
     }
 }

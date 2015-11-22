@@ -148,8 +148,7 @@ return [
         /*
          * A game providers ...
          */
-        App\Providers\GamefieldServiceProvider::class,
-        App\Providers\ObserverServiceProvider::class,
+        App\Providers\GameServiceProvider::class,
 
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
 

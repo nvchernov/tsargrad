@@ -19,6 +19,10 @@ class Squad extends Model
      */
     protected $table = 'squads';
 
+    protected $dates = [
+        'deleted_at', 'updated_at', 'created_at', 'crusade_at', 'crusade_end_at', 'battle_at'
+    ];
+
     /**
      * Get an army.
      * One to Many relation.

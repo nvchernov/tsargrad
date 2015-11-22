@@ -9,9 +9,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\Gamefield;
+use App\Services\Game;
 
-class GamefieldServiceProvider extends ServiceProvider
+class GameServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the services provider.
@@ -30,9 +30,9 @@ class GamefieldServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('gamefield', function()
+        $this->app->singleton('game', function()
         {
-            return new Gamefield;
+            return new Game;
         });
     }
 }
