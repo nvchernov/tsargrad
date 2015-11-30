@@ -2,16 +2,17 @@
 /**
  * Created by PhpStorm.
  * User: Роман
- * Date: 10.11.2015
- * Time: 0:07
+ * Date: 30.11.2015
+ * Time: 19:37
  */
 
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\Game;
+use App\Services\GameArmy;
 
-class GameServiceProvider extends ServiceProvider
+
+class GameArmyServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the services provider.
@@ -30,9 +31,9 @@ class GameServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('game', function()
+        $this->app->singleton('gamearmy', function()
         {
-            return new Game;
+            return new GameArmy;
         });
     }
 }

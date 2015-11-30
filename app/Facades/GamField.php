@@ -2,18 +2,18 @@
 /**
  * Created by PhpStorm.
  * User: Роман
- * Date: 15.11.2015
- * Time: 23:44
+ * Date: 28.11.2015
+ * Time: 10:00
  */
 
 namespace App\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class Game extends Facade
+class GameField extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'game';
+        return 'gamefield';
     }
 }

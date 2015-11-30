@@ -8,16 +8,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
 
 class Castle extends Model
 {
+    use SoftDeletes;
+
     /**
      * The database table used by the model.
      *
      * @var string
      */
     protected $table = 'castles';
+
+    protected $dates = ['deleted_at', 'updated_at', 'created_at'];
 
     /**
      * Casts.

@@ -9,14 +9,15 @@
 namespace App\Services;
 
 use Config;
+use App\Exceptions\GameExecption;
 
 /**
  * Gamefield of the tsargrad game.
  *
- * Class Gamefield
+ * Class GameField
  * @package App\Services
  */
-class Gamefield
+class GameField
 {
     /**
      * A max height of the gamefield.
@@ -59,17 +60,17 @@ class Gamefield
      * @param $loc
      * @return array
      */
-    public static function extractLocation($loc)
+    public function extractLocation($loc)
     {
         if ($loc instanceof \Illuminate\Database\Eloquent\Model) {
             $loc = $loc->location;
         }
 
         if (is_array($loc)) {
-            if (count($loc) >= 2) {
-                return ['x' => $loc[0], 'y' => $loc[1]];
+            if (!array_key_exists('x', $loc) || !array_key_exists('y', $loc)) {
+                return false;
             }
-            return false;
+            return ['x' => $loc['x'], 'y' => $loc['y']];
         }
 
         if (is_string($loc)) {
@@ -77,10 +78,10 @@ class Gamefield
         }
 
         if (is_object($loc)) {
-            if (!array_key_exists('x', $loc) || !array_key_exists('y', $loc)) {
+            if (!property_exists($loc, 'x') || !property_exists($loc, 'y')) {
                 return false;
             }
-            return ['x' => $loc['x'], 'y' => $loc['y']];
+            return ['x' => $loc->x, 'y' => $loc->y];
         }
 
         return false;
@@ -88,7 +89,7 @@ class Gamefield
 
     public function __construct()
     {
-        $options = Config::get('services.game.gamefield');
+        $options = Config::get('services.gamefield');
         foreach ($options as $k => $v) {
             if (property_exists(static::class, $k)) {
                 $this->$k = $v;
@@ -99,6 +100,31 @@ class Gamefield
     public function __get($key)
     {
         return $this->$key;
+    }
+
+    /**
+     * Add a object to gamefield if he not already exists.
+     *
+     * @param $model
+     * @return mixed
+     * @throws GameExecption
+     */
+    public function add($model)
+    {
+        if ($model instanceof $this->model) {
+
+            if (!isset($model->location)) {
+                $loc = $this->uniqueLocation();
+
+                if ($loc === false) {
+                    throw new GameExecption('You cannot add a castle. All the playing field is occupied.');
+                }
+
+                $model->location = $loc;
+            }
+        }
+
+        return $model;
     }
 
     /**
@@ -137,31 +163,24 @@ class Gamefield
      */
     public function busyLocations()
     {
-        $gfield = $this;
-
-        $instance = $gfield->model;
+        $instance = $this->model;
         $collection = $instance::all(['location'])->pluck('location');
 
-        $busy = collect();
-        $collection->each(function ($val) use ($gfield, &$busy) {
-            $loc = $gfield::extractLocation($val);
-            if ($loc == false) {
-                return;
-            }
+        $gfield = $this;
+        $arr = [];
+        $collection->each(function ($val) use ($gfield, &$arr) {
+            $loc = $gfield->extractLocation($val);
+            if ($loc == false) { return; }
 
             for ($i = max($loc['x'] - $gfield->bounds, 0); $i <= min($loc['x'] + $gfield->bounds, $gfield->width); $i++) {
                 for ($j = max($loc['y'] - $gfield->bounds, 0); $j <= min($loc['y'] + $gfield->bounds, $gfield->height); $j++) {
-                    if (!$busy->contains(function ($k, $v) use ($i, $j) {
-                        return $v['x'] == $i && $v['y'] == $j;
-                    })
-                    ) {
-                        $busy->push(['x' => $i, 'y' => $j]);
-                    }
+                    $l = "{\"x\":$i, \"y\":$j}";
+                    if (!in_array($l, $arr)) { $arr[] = $l; }
                 }
             }
         });
 
-        return $busy;
+        return collect($arr);
     }
 
     /**
@@ -190,7 +209,7 @@ class Gamefield
         // Check a location on bounds of a gamefield area.
         for ($i = max($loc['x'] - $this->bounds, 0); $i <= min($loc['x'] + $this->bounds, $this->width); $i++) {
             for ($j = max($loc['y'] - $this->bounds, 0); $j <= min($loc['y'] + $this->bounds, $this->height); $j++) {
-                $query->orWhere('location', '=', json_encode(['x' => $i, 'y' => $j]));
+                $query->orWhere('location', '=', "{\"x\":$i, \"y\":$j}");
             }
         }
 
@@ -206,8 +225,8 @@ class Gamefield
      */
     public function distance($a, $b)
     {
-        $a = self::extractLocation($a);
-        $b = self::extractLocation($b);
+        $a = $this->extractLocation($a);
+        $b = $this->extractLocation($b);
 
         return sqrt(pow($a['x'] - $b['x'], 2) + pow($a['y'] - $b['y'], 2));
     }

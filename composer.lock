@@ -496,12 +496,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "c83a43c34878ce5427202bf1d4d92edfae11ac33"
+                "reference": "2241ee4b3aaed07194fc44e103050dda618e93c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/c83a43c34878ce5427202bf1d4d92edfae11ac33",
-                "reference": "c83a43c34878ce5427202bf1d4d92edfae11ac33",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/2241ee4b3aaed07194fc44e103050dda618e93c8",
+                "reference": "2241ee4b3aaed07194fc44e103050dda618e93c8",
                 "shasum": ""
             },
             "require": {
@@ -559,7 +559,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2015-10-24 11:06:39"
+            "time": "2015-11-28 01:55:57"
         },
         {
             "name": "doctrine/inflector",

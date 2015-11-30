@@ -9,17 +9,17 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Castle;
-use Faker\Factory;
+use App\Facades\GameField;
+use Log;
 
 class CastlesTableSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Factory::create();
+        $a = '{"x":5, "y":6}';
+        $b = '{"x":1, "y":2}';
 
-        foreach(range(1, 5) as $i) {
-            Castle::create(['name' => $faker->colorName]);
-        }
+        $result = GameField::distance($a, $b);
+        Log::info("Result = $result");
     }
 }

@@ -148,7 +148,9 @@ return [
         /*
          * A game providers ...
          */
-        App\Providers\GameServiceProvider::class,
+        App\Providers\GameArmyServiceProvider::class,
+        App\Providers\GameFieldServiceProvider::class,
+        // ...end
 
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
 
@@ -201,6 +203,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
 
+        'GameArmy'  => App\Facades\GameArmy::class,
+        'GameField' => App\Facades\GameField::class
     ],
 
 ];

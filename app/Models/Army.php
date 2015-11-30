@@ -8,16 +8,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Army extends Model
 {
+    use SoftDeletes;
+
     /**
      * The database table used by the model.
      *
      * @var string
      */
     protected $table = 'armies';
+
+    protected $dates = ['deleted_at', 'updated_at', 'created_at'];
 
     /**
      * Get all squads.
@@ -59,7 +64,7 @@ class Army extends Model
                 }
             }
             // Get a size of a the army with all squads.
-            if ($key == 'sizeAll') {
+            if ($key == 'strength') {
                 $value = $this->size + $this->sizeSquads;
             }
         }
