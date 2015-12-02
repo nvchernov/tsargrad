@@ -1,25 +1,33 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Роман
+ * User: пїЅпїЅпїЅпїЅпїЅ
  * Date: 09.11.2015
  * Time: 16:03
  */
 
 namespace Database\Seeders;
 
+use App\Models\Castle, App\Models\Resource, App\Facades\GameField;
 use Illuminate\Database\Seeder;
-use App\Facades\GameField;
 use Log;
 
 class CastlesTableSeeder extends Seeder
 {
     public function run()
     {
-        $a = '{"x":5, "y":6}';
-        $b = '{"x":1, "y":2}';
+        // Base...
+        $m = GameField::addIfNotExist(Castle::firstOrNew(['name' => 'Moscow'])); $m->save();
+        $v = GameField::addIfNotExist(Castle::firstOrNew(['name' => 'Volgograd'])); $v->save();
 
-        $result = GameField::distance($a, $b);
-        Log::info("Result = $result");
+        // Resources...
+        $gold = Resource::firstOrCreate(['name' => 'gold']);
+        $iron = Resource::firstOrCreate(['name' => 'iron']);
+        $food = Resource::firstOrCreate(['name' => 'food']);
+
+        // Score...
+        //$m->scores()->create(['resource_id' => $gold->id, 'count' => 150]);
+        //$m->scores()->create(['resource_id' => $iron->id, 'count' => 250]);
+        //$v->scores()->create(['resource_id' => $gold->id, 'count' => 150]);
     }
 }
