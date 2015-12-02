@@ -18,18 +18,17 @@ class CreateScoresTable extends Migration
             $table->increments('id');
 
             $table->integer('count')->unsigned();
-            $table->integer('castle_id')->unsigned();
-            $table->integer('resource_id')->unsigned();
+            $table->integer('castle_id')->unsigned()->index();
+            $table->integer('resource_id')->unsigned()->index();
 
             $table->timestamps();
-            $table->softDeletes();
         });
 
         Schema::table('scores', function (Blueprint $table) {
             $table->unique(['castle_id', 'resource_id']);
 
-            $table->foreign('castle_id')->references('id')->on('castles')->onDelete('restrict')->onUpdate('restrict');
-            $table->foreign('resource_id')->references('id')->on('resources')->onDelete('restrict')->onUpdate('restrict');
+            $table->foreign('castle_id')->references('id')->on('castles')->onDelete('cascade');
+            $table->foreign('resource_id')->references('id')->on('resources')->onDelete('cascade');
         });
     }
 
