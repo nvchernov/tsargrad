@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Роман
+ * User: Р РѕРјР°РЅ
  * Date: 09.11.2015
  * Time: 21:38
  */
@@ -109,7 +109,7 @@ class GameField
      * @return mixed
      * @throws GameExecption
      */
-    public function add($model)
+    public function addIfNotExist($model)
     {
         if ($model instanceof $this->model) {
 

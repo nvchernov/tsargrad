@@ -11,11 +11,11 @@
 |
 */
 
-/*
+
 Route::get('/', function () {
     return view('welcome');
 });
-*/
+
 
 /* GAME EVENTS. Army and gamefield modules...  */
 

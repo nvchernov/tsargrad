@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Ğîìàí
+ * User: Ğ Ğ¾Ğ¼Ğ°Ğ½
  * Date: 15.11.2015
  * Time: 23:38
  */
@@ -63,7 +63,7 @@ class GameArmy
             return $a;
         }
 
-        return $this->addArmy($c);
+        return $this->addIfNotExist($c);
     }
 
     /**
@@ -72,7 +72,7 @@ class GameArmy
      * @param Castle $c
      * @return Army|false
      */
-    public function addArmy(Castle $c)
+    public function addIfNotExist(Castle $c)
     {
         $army = false;
         if ($c->exists && !isset($c->army)) {
