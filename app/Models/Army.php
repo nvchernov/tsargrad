@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: �����
+ * User: �����
  * Date: 09.11.2015
  * Time: 16:24
  */
@@ -54,21 +54,25 @@ class Army extends Model
      */
     public function __get($key)
     {
-        $value = parent::__get($key);
-        if (!isset($value)) {
-            // Get a size of all squads of army.
-            if ($key == 'sizeSquads') {
-                $value = 0;
-                foreach ($this->squads as $s) {
-                    $value += $s->size;
-                }
-            }
-            // Get a size of a the army with all squads.
-            if ($key == 'strength') {
-                $value = $this->size + $this->sizeSquads;
-            }
+        // Получить состояния всех отрядов армии...
+        if ($key == 'squadsStates') {
+            $states = [];
+            foreach ($this->squads()->get() as $s) { $states[$s->id] = $s->state; }
+            return collect($states);
         }
 
-        return $value;
+        // Получить размер всех отрядов армии...
+        if ($key == 'squadsSize') {
+            $size = 0;
+            foreach ($this->squads()->get() as $s) { $size += $s->size; }
+            return $size;
+        }
+
+        // Получить силу армии...
+        if ($key == 'strength') {
+            return $this->size + $this->squadsSize;
+        }
+
+        return parent::__get($key);
     }
 }

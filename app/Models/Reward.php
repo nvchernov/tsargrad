@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Роман
+ * User: пїЅпїЅпїЅпїЅпїЅ
  * Date: 30.11.2015
  * Time: 23:13
  */
@@ -12,16 +12,12 @@ use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes
 
 class Reward extends Model
 {
-    use SoftDeletes;
-
     /**
      * The database table used by the model.
      *
      * @var string
      */
     protected $table = 'rewards';
-
-    protected $dates = ['deleted_at', 'updated_at', 'created_at'];
 
     public function resource()
     {

@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Роман
+ * User: пїЅпїЅпїЅпїЅпїЅ
  * Date: 09.11.2015
  * Time: 23:22
  */
@@ -13,10 +13,10 @@ use Exception;
 /**
  * A base exception of game.
  *
- * Class GameExecption
+ * Class GameException
  * @package App\Exceptions
  */
-class GameExecption extends Exception
+class GameException extends Exception
 {
 
 }

@@ -9,7 +9,7 @@
 namespace App\Services;
 
 use Config;
-use App\Exceptions\GameExecption;
+use App\Exceptions\GameException;
 
 /**
  * Gamefield of the tsargrad game.
@@ -107,7 +107,7 @@ class GameField
      *
      * @param $model
      * @return mixed
-     * @throws GameExecption
+     * @throws GameException
      */
     public function addIfNotExist($model)
     {
@@ -117,7 +117,7 @@ class GameField
                 $loc = $this->uniqueLocation();
 
                 if ($loc === false) {
-                    throw new GameExecption('You cannot add a castle. All the playing field is occupied.');
+                    throw new GameException('Нельзя добавить новый замок. Все поля уже занято.');
                 }
 
                 $model->location = $loc;

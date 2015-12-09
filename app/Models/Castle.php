@@ -9,7 +9,7 @@
 
 namespace App\Models;
 
-use App\Exceptions\GameExecption;
+use App\Exceptions\GameException;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
 
 class Castle extends Model
@@ -36,25 +36,6 @@ class Castle extends Model
     ];
 
     /**
-     * Извлечь ресурс из БД если это возможно.
-     *
-     * @param $obj
-     * @return Resource|null
-     */
-    protected function extractResource($obj)
-    {
-        $res = null;
-        if ($obj instanceof Resource) {
-            $res = $obj;
-        } elseif (is_string($obj)) {
-            $res = Resource::where(['name' => $obj])->first();
-        } elseif (is_integer($obj)) {
-            $res = Resource::find($obj);
-        }
-        return $res;
-    }
-
-    /**
      * Добавить некоторое количество ресурса в замок.
      * Если такого ресурса еще не было в замке, то сначала создается новый ресурс в БД, а затем он появляется и в замке.
      *
@@ -74,7 +55,7 @@ class Castle extends Model
             return $this->subResource($resource, abs($count));
         }
         // Попытаться извлечь ресурс...
-        $res = $this->extractResource($resource);
+        $res = Resource::extract($resource);
         if (isset($res)) {
 
             // Если существует такой ресурс, то попробывать получить эту свзяь...
@@ -107,7 +88,7 @@ class Castle extends Model
      * @param Resource|string|int $resource
      * @param $count
      * @return bool
-     * @throws GameExecption
+     * @throws GameException
      */
     public function subResource($resource, $count)
     {
@@ -121,7 +102,8 @@ class Castle extends Model
             return $this->addResource($resource, abs($count));
         }
 
-        $res = $this->extractResource($resource);
+        // Извлечь ресурс...
+        $res = Resource::extract($resource);
         if (!isset($res)) {
             return false;
         }
@@ -133,7 +115,7 @@ class Castle extends Model
         }
 
         if ($res->pivot->count - $count < 0) {
-            throw new GameExecption('Not enough resources...');
+            throw new GameException('Не достаточно ресурсов...');
         }
         // Уменьшить ресурс...
         $res->pivot->count -= $count;
@@ -146,22 +128,21 @@ class Castle extends Model
      * Извлечь все ресурсы или ресурс замка.
      *
      * @param Resource|string|int|null $resource
-     * @return array|\Illuminate\Support\Collection|bool
+     * @return int|\Illuminate\Support\Collection|null
      */
     public function getResources($resource = null)
     {
         if (isset($resource)) {
             // Извлечь ресурс из БД...
-            $res = $this->extractResource($resource);
+            $res = Resource::extract($resource);
             if (isset($res)) {
-                $arr = ['name' => $res->name, 'count' => 0];
-
+                $count = 0; // Количество ресурса...
                 // Если существует такой ресурс, то попробывать получить эту свзяь...
                 $res = $this->resources()->find($res->id);
                 if (isset($res)) {
-                    $arr['count'] = $res->pivot->count;
+                    $count = $res->pivot->count;
                 }
-                return $arr;
+                return $count;
             }
         } else {
             $arr = [];
@@ -172,7 +153,7 @@ class Castle extends Model
             return collect($arr);
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -201,13 +182,13 @@ class Castle extends Model
 
     /**
      * Get all enemies attacking the castle.
-     * One to Many relation via Morphing.
+     * One to Many.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function attackers()
     {
-        return $this->morphMany('App\Models\Squad', 'crusadeable');
+        return $this->hasMany('App\Models\Squad', 'goal_id');
     }
 
     /**

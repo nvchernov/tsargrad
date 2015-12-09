@@ -26,6 +26,25 @@ class Resource extends Model
     protected $dates = ['deleted_at', 'updated_at', 'created_at'];
 
     /**
+     * Извлечь ресурс из БД если это возможно.
+     *
+     * @param $attr
+     * @return Resource|null
+     */
+    public static function extract($attr)
+    {
+        $res = null;
+        if ($attr instanceof static) {
+            $res = $attr;
+        } elseif (is_string($attr)) {
+            $res = static::where(['name' => $attr])->first();
+        } elseif (is_integer($attr)) {
+            $res = static::find($attr);
+        }
+        return $res;
+    }
+
+    /**
      * Get scores for the resource...
      * One to Many.
      *
@@ -56,6 +75,18 @@ class Resource extends Model
     public function castles()
     {
         return $this->belongsToMany('App\Models\Castle', 'scores', 'resource_id', 'castle_id')
+            ->withTimestamps()
+            ->withPivot('count');
+    }
+
+    /**
+     * Получить все отряды...
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function squads()
+    {
+        return $this->belongsToMany('App\Models\Squad', 'rewards', 'resource_id', 'squad_id')
             ->withTimestamps()
             ->withPivot('count');
     }
