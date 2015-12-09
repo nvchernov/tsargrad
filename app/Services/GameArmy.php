@@ -143,12 +143,14 @@ class GameArmy
 
         $squad = new Squad(['name' => $name, 'size' => $count]);
         $squad->crusade_at = Carbon::now(); // Crusade begin...
+        // Время на поход...
         $minutes = GameField::howMuchTime($home, $goal); // Battle will happen on time ...
         $squad->battle_at = Carbon::now()->addMinutes($minutes);
 
         DB::beginTransaction();
         try {
-            $squad->crusadeable()->associate($goal);
+            $squad->goal()->associate($goal); // Вражеский замок
+            // Сохранить отряд...
             $army->squads()->save($squad);
         } catch (\Exception $ex) {
             DB::rollBack();
