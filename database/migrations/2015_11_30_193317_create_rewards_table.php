@@ -18,18 +18,17 @@ class CreateRewardsTable extends Migration
             $table->increments('id');
 
             $table->integer('count')->unsigned();
-            $table->integer('squad_id')->unsigned();
-            $table->integer('resource_id')->unsigned();
+            $table->integer('squad_id')->unsigned()->index();
+            $table->integer('resource_id')->unsigned()->index();
 
             $table->timestamps();
-            $table->softDeletes();
         });
 
         Schema::table('rewards', function (Blueprint $table) {
             $table->unique(['squad_id', 'resource_id']);
 
-            $table->foreign('squad_id')->references('id')->on('squads')->onDelete('restrict')->onUpdate('restrict');
-            $table->foreign('resource_id')->references('id')->on('resources')->onDelete('restrict')->onUpdate('restrict');
+            $table->foreign('squad_id')->references('id')->on('squads')->onDelete('cascade');
+            $table->foreign('resource_id')->references('id')->on('resources')->onDelete('cascade');
         });
     }
 
