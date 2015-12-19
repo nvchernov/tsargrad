@@ -12,7 +12,7 @@ use App\Exceptions\GameException;
 use App\Facades\GameField;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use DB;
+use DB, Log;
 
 class Army extends Model
 {
@@ -25,6 +25,8 @@ class Army extends Model
      */
     protected $table = 'armies';
 
+    protected $fillable = ['name', 'size', 'level'];
+
     protected $dates = ['deleted_at', 'updated_at', 'created_at'];
 
     /**
@@ -36,7 +38,7 @@ class Army extends Model
      */
     private static function formulaBuy($level, $count)
     {
-        return intval(exp($level / 10) * 2 * $count);
+        return intval(exp($level / 10) * 3 * $count);
     }
 
     /**
@@ -48,7 +50,7 @@ class Army extends Model
      */
     private static function formulaUpgrade($level, $strength)
     {
-        return intval(exp($level / 10) * 15 * ($strength + 1));
+        return intval(exp($level / 10) * 12 * ($strength + 1));
     }
 
     /**
@@ -110,8 +112,13 @@ class Army extends Model
      */
     public function crusade($name, $count, Castle $goal)
     {
+        if ($goal->id === $this->id) {
+            throw new GameException('Нельзя отправить отряд на собственный замок.');
+        }
+
         // Есть ли возможность создать отряд?
-        if ($this->size - $count < 0) {
+        $diff = $this->size - $count;
+        if ($diff < 0) {
             throw new GameException('Нельзя создать отряд для похода. Не хватает храбрых воинов.');
         }
 
@@ -123,9 +130,16 @@ class Army extends Model
 
         DB::beginTransaction();
         try {
+            $this->update(['size' => $diff]);
             $squad->goal()->associate($goal); // Вражеский замок
             // Сохранить отряд...
             $this->squads()->save($squad);
+
+            $now = Carbon::now();
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
+            Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
+            Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -158,7 +172,7 @@ class Army extends Model
 
         // Хватает ресурсов?
         if ($wood < $cost || $food < $cost) {
-            $mw = "ДЕРЕВО ({$wood} / {$cost})";
+            $mw = "ДЕРЕВА ({$wood} / {$cost})";
             $mf = "ЕДЫ ({$food} / {$cost})";
             $des = $wood < $cost && $food < $cost ? $mw . ' и ' . $mf : $wood < $cost ? $mw : $mf;
             throw new GameException("Нельзя купить новых воинов. Не хватает $des");
@@ -171,6 +185,10 @@ class Army extends Model
             $castle->subResource('food', $cost);
             $this->size += $count;
             $this->save();
+
+            $now = Carbon::now();
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -190,7 +208,7 @@ class Army extends Model
      */
     public function upgrade($addLevel = 1)
     {
-        if (!(is_integer($addLevel) && $addLevel > 1)) {
+        if (!(is_integer($addLevel) && $addLevel > 0)) {
             return false;
         }
         $castle = $this->castle;
@@ -215,6 +233,10 @@ class Army extends Model
             $castle->subResource('gold', $cost);
             $this->level += $addLevel;
             $this->save();
+
+            $now = Carbon::now();
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...

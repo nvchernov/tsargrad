@@ -24,6 +24,8 @@ class Castle extends Model
      */
     protected $table = 'castles';
 
+    protected $fillable = ['name'];
+
     protected $dates = ['deleted_at', 'updated_at', 'created_at'];
 
     /**
@@ -41,15 +43,20 @@ class Castle extends Model
      */
     public function armyOrCreate()
     {
-        return $this->army()->firstOrCreate(['name' => "{$this->name}'s army", 'size' => 0, 'level' => 1]);
+        $army = $this->army()->getResults();
+        if (is_null($army)) {
+            $army = $this->army()->create(['name' => "{$this->name}'s army", 'size' => 0, 'level' => 1]);
+        }
+        return $army;
     }
 
     public function save(array $options = [])
     {
         // Добавить на поле замок если еще не добавлен...
-        if (!isset($this->location)) {
+        $loc = $this->location;
+        if (is_null($loc)) {
             $loc = GameField::uniqueLocation();
-            if ($loc === false) {
+            if ($loc == false) {
                 throw new GameException('Нельзя добавить новый замок. Все поле уже занято.');
             }
             $this->location = $loc;
@@ -80,7 +87,6 @@ class Castle extends Model
         // Попытаться извлечь ресурс...
         $res = Resource::extract($resource);
         if (isset($res)) {
-
             // Если существует такой ресурс, то попробывать получить эту свзяь...
             $r = $this->resources()->find($res->id);
             if (isset($r)) {
@@ -126,13 +132,13 @@ class Castle extends Model
 
         // Извлечь ресурс...
         $res = Resource::extract($resource);
-        if (!isset($res)) {
+        if (is_null($res)) {
             return false;
         }
 
         // Если существует такой ресурс, то попробывать получить эту свзяь...
         $res = $this->resources()->find($res->id);
-        if (!isset($res)) {
+        if (is_null($res)) {
             return false;
         }
 
@@ -167,7 +173,7 @@ class Castle extends Model
         } else {
             $arr = [];
             // Извлечь все ресурсы этого замка...
-            foreach ($this->resources()->get() as $r) {
+            foreach ($this->resources()->getResults() as $r) {
                 $arr[] = ['name' => $r->name, 'count' => $r->pivot->count];
             }
             return collect($arr);
