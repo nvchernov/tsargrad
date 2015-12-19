@@ -76,14 +76,23 @@ class Squad extends Model
      */
     private function continueOrException()
     {
+        if (!isset($this->army)) {
+            throw new GameException('Отряд не может существовать без армии.');
+        }
         if (!isset($this->goal)) {
-            throw new GameException('Отряду некого грабить. Не указан замок.');
+            throw new GameException('Отряду некого грабить. Не указан вражеский замок.');
         }
         if ($this->size == 0) {
             throw new GameException('В отряде нет людей.');
         }
     }
 
+    /**
+     * Штурмовать вражеский замок.
+     * 
+     * @throws GameException
+     * @throws \Exception
+     */
     public function assault()
     {
         $this->continueOrException();
@@ -91,6 +100,54 @@ class Squad extends Model
         if ($this->state !== 'assault') {
             throw new GameException('Отряд: невозможно штурмовать.');
         }
+
+        // Расчет победителя сражения...
+        $aArmy = $this->army; // атакующая армия
+        $dArmy = $this->goal->armyOrCreate(); // защищающиеся армия
+        // xa, ya - кол-во и уровень атакующих.
+        // xd, yd, zd - кол-во, уровень войск и уровень фортификации защищающихся.
+        $xa = $this->size;
+        $ya = $aArmy->level;
+        $xd = $dArmy->size;
+        $yd = $dArmy->level;
+        $zd = 0; // Уровень фортификации, пока остается 0;
+
+        // Рассчет мощностей каждой из армий и их разницы...
+        $rand = rand(0-$xd / 2, $xa / 2); // рандом при расчете мощностей
+        $diff = intval($xa * $ya - $xd * $yd * (1 + $zd / 100) + $rand);
+
+        $rand = rand(0, 200) / 1000; // рандом при вычилсение сил победителей
+        // Расчет сил победителей и награды, в случаи победы атакующих...
+        DB::beginTransaction();
+        try {
+            if ($diff > 0) {
+                // Атакующий отряд победил...
+                $left = ($diff / $ya) * (1 + $rand);
+                $left = intval($left);
+                // Оставить только выживших...
+                $this->update(['size' => $left]);
+                $dArmy->reset();
+
+                $this->rob(); // начать грабить.
+                $this->comeback(); // вернуться назад в замок.
+            } elseif ($diff < 0) {
+                // Защитники победили...
+                $left = ($diff / $yd) * (1 - $zd / 100) * (1 + $rand);
+                $left = abs(intval($left));
+                // Оставить только выживших...
+                $this->delete();
+                $dArmy->update(['size' => $left]);
+            } else {
+                // Ничья.
+                // Удалить атакующий отряд и сбросить армию защитников...
+                $this->delete();
+                $dArmy->reset();
+            }
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            throw($ex); // next...
+        }
+        DB::commit();
     }
 
     /**
