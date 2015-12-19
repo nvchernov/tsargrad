@@ -11,6 +11,7 @@ namespace App\Models;
 
 use App\Exceptions\GameException;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
+use App\Facades\GameField;
 
 class Castle extends Model
 {
@@ -34,6 +35,28 @@ class Castle extends Model
         //
         //    'location' => 'array',
     ];
+
+    /**
+     * Получить армию или создать новую....
+     */
+    public function armyOrCreate()
+    {
+        return $this->army()->firstOrCreate(['name' => "{$this->name}'s army", 'size' => 0, 'level' => 1]);
+    }
+
+    public function save(array $options = [])
+    {
+        // Добавить на поле замок если еще не добавлен...
+        if (!isset($this->location)) {
+            $loc = GameField::uniqueLocation();
+            if ($loc === false) {
+                throw new GameException('Нельзя добавить новый замок. Все поле уже занято.');
+            }
+            $this->location = $loc;
+        }
+
+        return parent::save($options);
+    }
 
     /**
      * Добавить некоторое количество ресурса в замок.
@@ -63,8 +86,7 @@ class Castle extends Model
             if (isset($r)) {
                 // Увеличить ресурс...
                 $r->pivot->count += $count;
-                $r->pivot->save();
-                return true;
+                return $r->pivot->save();
             }
         } else {
             // Если нет ресурса...
@@ -115,13 +137,11 @@ class Castle extends Model
         }
 
         if ($res->pivot->count - $count < 0) {
-            throw new GameException('Не достаточно ресурсов...');
+            throw new GameException('Не достаточно ресурсов.');
         }
         // Уменьшить ресурс...
         $res->pivot->count -= $count;
-        $res->pivot->save();
-
-        return true;
+        return $res->pivot->save();
     }
 
     /**
@@ -152,7 +172,7 @@ class Castle extends Model
             }
             return collect($arr);
         }
-
+        // Если такого ресурса нет в БД...
         return null;
     }
 

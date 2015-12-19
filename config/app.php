@@ -148,7 +148,6 @@ return [
         /*
          * A game providers ...
          */
-        App\Providers\GameArmyServiceProvider::class,
         App\Providers\GameFieldServiceProvider::class,
         // ...end
 
@@ -202,8 +201,6 @@ return [
         'URL'       => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
-
-        'GameArmy'  => App\Facades\GameArmy::class,
         'GameField' => App\Facades\GameField::class
     ],
 

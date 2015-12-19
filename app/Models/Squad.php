@@ -8,6 +8,10 @@
 
 namespace App\Models;
 
+use App\Exceptions\GameException;
+use App\Facades\GameField;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
 
 class Squad extends Model
@@ -67,6 +71,148 @@ class Squad extends Model
     }
 
     /**
+     * Проверить на возможность продолжение или выбросить исключение
+     * @throws GameException
+     */
+    private function continueOrException()
+    {
+        if (!isset($this->goal)) {
+            throw new GameException('Отряду некого грабить. Не указан замок.');
+        }
+        if ($this->size == 0) {
+            throw new GameException('В отряде нет людей.');
+        }
+    }
+
+    public function assault()
+    {
+        $this->continueOrException();
+
+        if ($this->state !== 'assault') {
+            throw new GameException('Отряд: невозможно штурмовать.');
+        }
+    }
+
+    /**
+     * Ограбить замок и унести награбленное с собой.
+     *
+     * @throws GameException
+     * @throws \Exception
+     */
+    public function rob()
+    {
+        $this->continueOrException();
+
+        if ($this->state !== 'assault') {
+            throw new GameException('Отряд: невозможно ограбить.');
+        }
+
+        // Вражеский замок...
+        $goal = $this->goal;
+
+        // Ресурсы, которые может унести отряд...
+        $resAvailable = ['wood', 'gold', 'food'];
+        // Количество каждого ресурса, которого может унести весь отряд...
+        $resOnSquad = 5 * $this->size;
+        // Остаток. Если недостаточно забрано ресурсов определенного типа,
+        // то попытаться возместить это ресурсами другого типа.
+        $residue = 0;
+
+        DB::beginTransaction();
+        try {
+            // Извлечь все ресурсы этого замка...
+            foreach ($goal->resources()->get() as $res) {
+                $exists = $res->pivot->count; // Имеющиеся ресурсы замка.
+                // Ресурс который подлежит грабежу?
+                if (in_array($res->name, $resAvailable)) {
+                    // Расчитать возможность забрать весь ресурс данного типа...
+                    $diff = $exists - $resOnSquad - $residue;
+                    if ($diff < 0) {
+                        // ... иначе расчитать остаток, который будет использован для следующего ресурса...
+                        $residue = abs($exists - $resOnSquad - $residue);
+                        $loot = $exists;
+                    } else {
+                        // ...обнулить остаток и присвоить добычу.
+                        $residue = 0;
+                        $loot = $diff;
+                    }
+
+                    // Забрать ресурс из замка и добавить в награды...
+                    if ($goal->subResource($res, $loot)) {
+                        $this->resources()->attach($res->id, ['count' => $loot]);
+                    }
+                }
+            }
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            throw($ex); // next...
+        }
+        DB::commit();
+    }
+
+    /**
+     * Расформировать отряд. Положить награбленное в казну замка и отпустить храбрых воинов отряда на покой.
+     *
+     * @throws \Exception
+     */
+    public function disband()
+    {
+        // Армия и замок отряда...
+        $army = $this->army;
+        $castle = $army->castle;
+
+        DB::beginTransaction();
+        try {
+            // Добавить все награбленное отрядом в замок...
+            foreach ($this->resources()->get() as $res) {
+                $count = $res->pivot->count; // Имеющиеся ресурс из награбленного отрядом...
+                $castle->addResource($res, $count); // ...теперь в замке
+            }
+            // Удалить все награбленное из отряда...
+            $this->rewards()->delete();
+            // Вернуть людей в замок...
+            $army->size += $this->size;
+            // Расформировать храбрый отряд...
+            $this->delete();
+
+            $army->save();
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            throw($ex); // next...
+        }
+        DB::commit();
+    }
+
+    /**
+     * Вернуться обратно в свой замок если это возможно.
+     *
+     * @throws GameException
+     */
+    public function comeback()
+    {
+        $this->continueOrException();
+
+        if ($this->state !== 'assault') {
+            throw new GameException('Отряд: невозможно вернуться домой.');
+        }
+
+        $goal = $this->goal;
+        $castle = $this->army->castle;
+
+        // Поход уже закончился или еще не начался...
+        if (isset($this->crusade_end_at) || !(isset($this->crusade_at) && isset($this->battle_at))) {
+            throw new GameException('Отряд уже закончил поход или похода не существует.');
+        }
+
+        // Рассчитать время возвращения домой отряда...
+        $minutes = GameField::howMuchTime($castle, $goal);
+        $minutes = intval($minutes * 1.2); // С учетом усталости отряда...
+        $this->crusade_end_at = Carbon::now()->addMinutes($minutes);
+
+        $this->save();
+    }
+
+    /**
      * Получить награбленные ресурсы или ресурс отряда.
      *
      * @param null $resource
@@ -102,20 +248,39 @@ class Squad extends Model
     {
         // Получить состояние отряда...
         if ($key == 'state') {
-            $now = \Carbon\Carbon::now();
+            $now = Carbon::now();
+            $end = $this->crusade_end_at; // конец похода
+            $start = $this->crusade_at;  // начало похода
+            $battle = $this->battle_at; // время битвы
+            $crusade = isset($start) && isset($battle) && $start->lt($battle);// поход существует?
 
-            $state = 'Отряд собирается напасть на замок';
-            if (isset($this->crusade_end_at) && $now->gte($this->crusade_end_at)) {
-                $state = "Отряд успешно вернулся из похода {$this->crusade_end_at->toDateTimeString()}";
-            } elseif (isset($this->crusade_end_at) && $now->lt($this->crusade_end_at)) {
-                $state = "Отряд вернется из похода {$this->crusade_end_at->toDateTimeString()}";
-            } elseif ($now->eq($this->battle_at)) {
-                $state = "Отряд сейчас сражается!";
-            } elseif ($now->lt($this->battle_at) && $now->gte($this->crusade_at)) {
-                $state = "Отряд вышел в поход {$this->crusade_at->toDateTimeString()}, " .
-                    "Сражение состоится {$this->battle_at->toDateTimeString()}";
+            if ($crusade && isset($end) && $now->lte($end)) {
+                $state = 'comeback';
+            } elseif ($crusade && !isset($end) && $now->gte($battle)) {
+                $state = 'assault';
+            } elseif ($crusade && !isset($end) && $now->lt($battle) && $now->gte($start)) {
+                $state = 'crusade';
+            } else {
+                $state = 'wait';
             }
             return $state;
+        }
+
+        // Получить подробное человеческое описание состояния отряда...
+        if ($key == 'hstate') {
+            $state = $this->state;
+            switch ($state) {
+                case 'comeback':
+                    $hstate = "В пути домой. Вернется из похода {$this->crusade_end_at->toDateTimeString()}"; break;
+                case 'assault':
+                    $hstate = 'Штурмует вражеский замок'; break;
+                case 'crusade':
+                    $hstate = "В походе от {$this->crusade_at->toDateTimeString()}. Штурм состоится {$this->battle_at->toDateTimeString()}"; break;
+                default:
+                    $hstate = 'Ожидает';
+
+            }
+            return $hstate;
         }
 
         return parent::__get($key);
