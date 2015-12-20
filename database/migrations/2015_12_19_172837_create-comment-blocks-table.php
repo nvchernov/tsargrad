@@ -17,6 +17,7 @@ class CreateCommentBlocksTable extends Migration
         Schema::create('comment_blocks', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
