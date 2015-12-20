@@ -102,10 +102,6 @@ class Squad extends Model
     {
         $this->continueOrException();
 
-        if ($this->state !== 'assault') {
-            throw new GameException('Отряд: невозможно штурмовать.');
-        }
-
         $now = Carbon::now();
 
         // Расчет победителя сражения...
@@ -200,10 +196,6 @@ class Squad extends Model
     public function rob()
     {
         $this->continueOrException();
-
-        if ($this->state !== 'assault') {
-            throw new GameException('Отряд: невозможно ограбить.');
-        }
 
         // Вражеский замок...
         $goal = $this->goal;
@@ -310,10 +302,6 @@ class Squad extends Model
     {
         $this->continueOrException();
 
-        if ($this->state !== 'assault') {
-            throw new GameException('Отряд: невозможно вернуться домой.');
-        }
-
         $goal = $this->goal;
         $castle = $this->army->castle;
 
@@ -376,14 +364,14 @@ class Squad extends Model
             $battle = $this->battle_at; // время битвы
             $crusade = isset($start) && isset($battle) && $start->lt($battle);// поход существует?
 
-            if ($crusade && isset($end) && $now->lte($end)) {
+            if ($crusade && isset($end) && $now->lt($end)) {
                 $state = 'comeback';
             } elseif ($crusade && !isset($end) && $now->gte($battle)) {
                 $state = 'assault';
             } elseif ($crusade && !isset($end) && $now->lt($battle) && $now->gte($start)) {
                 $state = 'crusade';
             } else {
-                $state = 'wait';
+                $state = 'idle';
             }
             return $state;
         }
@@ -399,7 +387,7 @@ class Squad extends Model
                 case 'crusade':
                     $hstate = "В походе от {$this->crusade_at->toDateTimeString()}. Штурм состоится {$this->battle_at->toDateTimeString()}"; break;
                 default:
-                    $hstate = 'Ожидает';
+                    $hstate = 'Бездействует';
 
             }
             return $hstate;
