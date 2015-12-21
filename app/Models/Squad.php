@@ -279,9 +279,8 @@ class Squad extends Model
             $this->rewards()->delete();
             // Вернуть людей в замок...
             $army->size += $this->size;
-            // Расформировать храбрый отряд...
+            // Расформировать храбрый отряд и обновить армию...
             $this->delete();
-
             $army->save();
 
             Log::info("После дизбанда воинов стало = {$army->size}");
