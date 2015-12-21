@@ -8,7 +8,8 @@
         "php": ">=5.5.9",
         "laravel/framework": "5.1.*",
         "doctrine/dbal": "2.6.x-dev",
-        "barryvdh/laravel-ide-helper": "v2.1.0"
+        "barryvdh/laravel-ide-helper": "v2.1.0",
+        "sleeping-owl/admin": "2.x"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
