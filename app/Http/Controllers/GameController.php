@@ -20,7 +20,7 @@ class GameController extends Controller
     {
         //$this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['only' => ['armyCrusade', 'armyBuy', 'armyCrusade']]);
+        $this->middleware('ajax', ['only' => ['armyCrusade', 'armyBuy', 'armyUpgrade']]);
     }
 
     /**

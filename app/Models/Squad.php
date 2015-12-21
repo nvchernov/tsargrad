@@ -8,6 +8,9 @@
 
 namespace App\Models;
 
+use App\Events\SquadAssaulted;
+use App\Events\SquadWasAssaulted;
+use App\Events\SquadWasDisbanded;
 use App\Exceptions\GameException;
 use App\Facades\GameField;
 use Carbon\Carbon;
@@ -128,8 +131,11 @@ class Squad extends Model
             try {
                 Log::info("Досрочно победили атакующие. Осталось в живых = $xa");
 
-                $this->rob(); // начать грабить.
+                $loots = $this->rob(); // начать грабить.
                 $this->comeback(); // вернуться назад в замок.
+
+                // Запуск события, что отряд либо победил, либо был разгроблен.
+                event(new SquadAssaulted($this, ['status' => 'win', 'loots' => $loots]));
             } catch (\Exception $ex) {
                 DB::rollBack();
                 throw($ex); // next...
@@ -151,6 +157,7 @@ class Squad extends Model
 
         DB::beginTransaction();
         try {
+            $loots = [];
             if ($diff > 0) {
                 // Атакующий отряд победил...
                 $left = ($diff / $ya) * (1 + $rand);
@@ -161,8 +168,9 @@ class Squad extends Model
 
                 Log::info("Победили атакующие. Осталось в живых = $left");
 
-                $this->rob(); // начать грабить.
+                $loots = $this->rob(); // начать грабить.
                 $this->comeback(); // вернуться назад в замок.
+                $status = 'win';
             } elseif ($diff < 0) {
                 // Защитники победили...
                 $left = ($diff / $yd) * (1 + $zd / 100) * (1 + $rand);
@@ -172,18 +180,23 @@ class Squad extends Model
                 $dArmy->update(['size' => $left]);
 
                 Log::info("Победили защитники. Осталось в живых = $left");
+                $status = 'def';
             } else {
                 // Ничья.
-                // Удалить атакующий отряд и сбросить армию защитников...
                 $this->delete();
                 $dArmy->reset();
 
                 Log::info("Ничья. Все умерли.");
+                $status = 'draw';
             }
+
+            // Запуск события, что отряд либо победил, либо был разгроблен.
+            event(new SquadAssaulted($this, ['status' => $status, 'loots' => $loots]));
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
         }
+
         DB::commit();
     }
 
@@ -204,6 +217,7 @@ class Squad extends Model
         Log::info('---------------------------------------------------------------------------------------------------');
         Log::info("($now) Грабеж замка id={$goal->id} '{$goal->name}' отрядом id={$this->id} '{$this->name}' ({$this->size} в)...");
 
+        $loots = []; // награбленное
         // Ресурсы, которые может унести отряд...
         $resAvailable = ['wood', 'gold', 'food'];
         // Количество каждого ресурса, которого может унести весь отряд...
@@ -234,6 +248,7 @@ class Squad extends Model
                     }
                     // Забрать ресурс из замка и добавить в награды...
                     if ($goal->subResource($res, $loot)) {
+                        $loots[] = [$res->name => $loot];
                         $this->resources()->attach($res->id, ['count' => $loot]);
 
                         Log::info("Имеется $exists ресурса id={$res->id} '{$res->name}'. Изъято отрядом в количестве = {$loot}");
@@ -246,6 +261,8 @@ class Squad extends Model
             throw($ex); // next...
         }
         DB::commit();
+
+        return $loots;
     }
 
     /**
@@ -258,6 +275,7 @@ class Squad extends Model
         // Армия и замок отряда...
         $army = $this->army;
         $castle = $army->castle;
+        $loots = []; // награбленное.
 
         $now = Carbon::now();
         Log::info('---------------------------------------------------------------------------------------------------');
@@ -267,13 +285,13 @@ class Squad extends Model
         try {
             // Добавить все награбленное отрядом в замок...
             foreach ($this->resources()->getResults() as $res) {
-                $count = $res->pivot->count; // Имеющиеся ресурс из награбленного отрядом...
-                $castle->addResource($res, $count); // ...теперь в замке
+                $loot = $res->pivot->count; // Имеющиеся ресурс из награбленного отрядом...
+                $castle->addResource($res, $loot); // ...теперь в замке
 
-                Log::info("Добавлено $count ресурса id={$res->id} '{$res->name}' в замок");
+                $loots[] = [$res->name => $loot]; // награбленное
+                Log::info("Добавлено $loot ресурса id={$res->id} '{$res->name}' в замок");
             }
-
-            Log::info("Воинов в замке было = {$army->size}");
+            $beforeSize = $army->size;
 
             // Удалить все награбленное из отряда...
             $this->rewards()->delete();
@@ -283,13 +301,17 @@ class Squad extends Model
             $this->delete();
             $army->save();
 
-            Log::info("После дизбанда воинов стало = {$army->size}");
+            Log::info("Воинов в замке было $beforeSize. После дизбанда воинов стало = {$army->size}");
             Log::info("Расформирование закончено.");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
         }
         DB::commit();
+        // Запуск события, что отряд вернулся домой и был расформирован.
+        event(new SquadDisbanded($this, ['loots' => $loots]));
+
+        return $loots;
     }
 
     /**
@@ -312,13 +334,15 @@ class Squad extends Model
         // Рассчитать время возвращения домой отряда...
         $minutes = GameField::howMuchTime($castle, $goal);
         $minutes = intval($minutes * 1.2); // С учетом усталости отряда...
-        $this->crusade_end_at = Carbon::now()->addMinutes($minutes);
+        $end = $this->crusade_end_at = Carbon::now()->addMinutes($minutes); // дата возвращения отряда.
 
         $this->save();
 
         $now = Carbon::now();
         Log::info('---------------------------------------------------------------------------------------------------');
         Log::info("($now) Отряд id={$this->id} '{$this->name}' вернется в замок {$this->crusade_end_at}.");
+
+        return $end;
     }
 
     /**
