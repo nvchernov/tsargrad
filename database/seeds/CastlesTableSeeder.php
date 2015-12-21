@@ -17,8 +17,8 @@ class CastlesTableSeeder extends Seeder
     public function run()
     {
         // Base...
-        $m = GameField::addIfNotExist(Castle::firstOrNew(['name' => 'Moscow'])); $m->save();
-        $v = GameField::addIfNotExist(Castle::firstOrNew(['name' => 'Volgograd'])); $v->save();
+//        $m = GameField::addIfNotExist(Castle::firstOrNew(['name' => 'Moscow'])); $m->save();
+//        $v = GameField::addIfNotExist(Castle::firstOrNew(['name' => 'Volgograd'])); $v->save();
 
         // Resources...
         $gold = Resource::firstOrCreate(['name' => 'gold']);
