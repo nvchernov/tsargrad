@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Auth;
+use Request;
 use App\Models\User;
 use Validator;
 use App\Http\Controllers\Controller;
@@ -61,5 +63,48 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
+    }
+
+    public function getLogin()
+    {
+        if (Auth::check())
+        {
+            return redirect('home');
+        }
+        return view('auth/login');
+    }
+
+    public function postLogin()
+    {
+        $data = Request::all();
+        if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']]))
+        {
+            return redirect('home');
+        }
+        return view('auth/login', ['error_message' => 'Неверный email или пароль']);
+    }
+
+    public function getLogout()
+    {
+        Auth::logout();
+        return view('auth/login');
+    }
+
+    /*public function getRegister()
+    {
+        return redirect('auth/register');
+    }*/
+
+    public function postRegister()
+    {
+        $data = Request::all();
+        if ($data['password'] === $data['password_confirmation'])
+        {
+            if ($this->create($data) !== null)
+            {
+                return redirect('home');
+            }
+        }
+        return redirect('auth/register');
     }
 }
