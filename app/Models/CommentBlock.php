@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommentBlock extends Model
 {
-    use SoftDeletes;
 
     /**
      * The database table used by the model.
@@ -51,11 +50,9 @@ class CommentBlock extends Model
     public function getPage($page)
     {
         return $this->comments()
-            ->getEager()
             ->sortBy('hierarchy')
             ->splice($page*$this->getPerPage())
-            ->take($this->getPerPage())
-            ->all();
+            ->take($this->getPerPage());
     }
 
     /**

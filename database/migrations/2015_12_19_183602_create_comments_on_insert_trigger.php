@@ -15,11 +15,14 @@ class CreateCommentsOnInsertTrigger extends Migration
     public function up()
     {
         DB::unprepared('
-              CREATE TRIGGER CreateCommentsAfterInsertTrigger AFTER INSERT ON `comments` FOR EACH ROW
+              CREATE TRIGGER CreateCommentsAfterInsertTrigger BEFORE INSERT ON `comments` FOR EACH ROW
                     BEGIN
-                        DECLARE hierarchy VARCHAR(255);
-                        SELECT CONCAT(`hierarchy`,`/`,NEW.id) into hierarchy FROM `comments` WHERE `comments`.`id` = NEW.parent_comment_id;
-                        UPDATE `comments` SET `hierarchy` = hierarchy WHERE `id` = NEW.id;
+                        DECLARE h VARCHAR(255);
+                        SET h = (SELECT `hierarchy` FROM `comments` WHERE `comments`.`id` = NEW.parent_comment_id);
+                        IF h IS NULL THEN
+                            SET h = "";
+                        END IF;
+                        SET NEW.hierarchy = CONCAT(h,"-",NEW.id);
                     END
         ');
     }
