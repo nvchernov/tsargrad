@@ -9,7 +9,8 @@
         "laravel/framework": "5.1.*",
         "doctrine/dbal": "2.6.x-dev",
         "barryvdh/laravel-ide-helper": "v2.1.0",
-        "sleeping-owl/admin": "2.x"
+        "sleeping-owl/admin": "2.0.43",
+        "sleeping-owl/with-join": "1.0.11"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
