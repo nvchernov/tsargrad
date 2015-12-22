@@ -77,7 +77,8 @@ class AuthController extends Controller
     public function postLogin()
     {
         $data = Request::all();
-        if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']]))
+        $remember = $data['remember'];
+        if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']], $remember))
         {
             return redirect('home');
         }
