@@ -45,7 +45,7 @@ class SquadDisbanded extends Event
      */
     public function user()
     {
-
+        return $this->squad->army->castle->user;
     }
 
     /**

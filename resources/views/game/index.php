@@ -7,4 +7,10 @@
  */
 ?>
 
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/header.php'); ?>
 
+
+TEST;
+
+
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/footer.php'); ?>

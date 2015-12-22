@@ -118,7 +118,7 @@ class Army extends Model
 
         // Есть ли возможность создать отряд?
         $diff = $this->size - $count;
-        if ($diff < 0) {
+        if ($count <= 0 || $diff < 0) {
             throw new GameException('Нельзя создать отряд для похода. Не хватает храбрых воинов.');
         }
 

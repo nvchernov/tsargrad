@@ -58,7 +58,7 @@ class SquadAssaulted extends Event
      */
     public function userAttacker()
     {
-
+        return $this->squad->army->castle->user;
     }
 
     /**
@@ -66,7 +66,7 @@ class SquadAssaulted extends Event
      */
     public function userDefender()
     {
-
+        return $this->squad->goal->user;
     }
 
     /**
