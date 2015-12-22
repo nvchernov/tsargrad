@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
     {
         Model::unguard();
 
+        $this->call(CommentBlocksTableSeeder::class);
         $this->call(ResourcesTableSeeder::class);
         $this->call(CastlesTableSeeder::class);
         $this->call(ArmiesTableSeeder::class);

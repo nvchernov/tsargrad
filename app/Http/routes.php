@@ -19,6 +19,10 @@ Route::get('/', function () {
 
 Route::resource('news', 'NewsController');
 
+// Комментарии
+Route::post('comments/add', 'CommentBlocksController@add');
+Route::get('comments/{id}', 'CommentBlocksController@index');
+
 // Единый игровой контроллер.
 Route::get('game', ['uses' => 'GameController@index', 'as' => 'gamefield']);
 Route::put('game/army/crusade', 'GameController@armyCrusade');
