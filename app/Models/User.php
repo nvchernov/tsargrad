@@ -36,4 +36,14 @@ class User extends Model implements AuthenticatableContract,
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    /**
+     * Get castle.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function castle()
+    {
+        return $this->hasOne('App\Models\Castle');
+    }
 }

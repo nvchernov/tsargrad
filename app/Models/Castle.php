@@ -238,4 +238,15 @@ class Castle extends Model
     {
         return $this->hasOne('App\Models\Army');
     }
+
+    /**
+     * Get user.
+     * One to One relation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 }
