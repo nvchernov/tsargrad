@@ -7,7 +7,8 @@ use Database\Seeders\CastlesTableSeeder,
     Database\Seeders\SquadsTableSeeder,
     Database\Seeders\ResourcesTableSeeder,
     Database\Seeders\AdministratorsTableSeeder,
-    Database\Seeders\NewsTableSeeder;
+    Database\Seeders\NewsTableSeeder,
+    Database\Seeders\LocationsTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -26,6 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SquadsTableSeeder::class);
         $this->call(AdministratorsTableSeeder::class);
         $this->call(NewsTableSeeder::class);
+        $this->call(LocationsTableSeeder::class);
 
         Model::reguard();
     }

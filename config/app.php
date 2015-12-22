@@ -148,12 +148,6 @@ return [
         'SleepingOwl\Admin\AdminServiceProvider',
         'Illuminate\Html\HtmlServiceProvider',
 
-        /*
-         * A game providers ...
-         */
-        App\Providers\GameFieldServiceProvider::class,
-        // ...end
-
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
 
     ],

@@ -13,6 +13,7 @@
 
     <link href="plugins/bootstrap3/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
-    
+
+    <script src="plugins/jquery/jquery-2.1.4.min.js"></script>
 </head>
 <body>

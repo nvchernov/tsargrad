@@ -9,7 +9,6 @@
 namespace App\Models;
 
 use App\Exceptions\GameException;
-use App\Facades\GameField;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
 use DB, Log;
@@ -125,7 +124,7 @@ class Army extends Model
         $squad = new Squad(['name' => $name, 'size' => $count]);
         $squad->crusade_at = Carbon::now(); // Начало похода
         // Время на поход...
-        $minutes = GameField::howMuchTime($this->castle, $goal);
+        $minutes = Location::howMuchTime($this->castle, $goal);
         $squad->battle_at = Carbon::now()->addMinutes($minutes); // Конец похода
 
         DB::beginTransaction();

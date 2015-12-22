@@ -33,14 +33,5 @@ return [
         'model'  => App\Models\User::class,
         'key'    => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
-    ],
-
-    // Options for Gamefield Module.
-    'gamefield' => [
-        'model' => App\Models\Castle::class,  // Модель в которой хранится координаты положения на игровом поле.
-        'height' => env('GAMEFIELD_HEIGHT'), // Размеры игрового поля - высота.
-        'width' => env('GAMEFIELD_WIDTH'),  // Размеры игрового поля - ширина.
-        'speed' => env('GAMEFIELD_SPEED'),  // Скорость перемешния на игровом поле.
-        'bounds' => env('GAMEFIELD_CASTLE_BOUND') // Границы замка (периметр) вокруг которого не могут располагаться другие замки.
     ]
 ];

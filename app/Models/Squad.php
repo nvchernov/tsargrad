@@ -12,7 +12,6 @@ use App\Events\SquadAssaulted;
 use App\Events\SquadWasAssaulted;
 use App\Events\SquadWasDisbanded;
 use App\Exceptions\GameException;
-use App\Facades\GameField;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
@@ -332,7 +331,7 @@ class Squad extends Model
         }
 
         // Рассчитать время возвращения домой отряда...
-        $minutes = GameField::howMuchTime($castle, $goal);
+        $minutes = Location::howMuchTime($castle, $goal);
         $minutes = intval($minutes * 1.2); // С учетом усталости отряда...
         $end = $this->crusade_end_at = Carbon::now()->addMinutes($minutes); // дата возвращения отряда.
 

@@ -11,7 +11,6 @@ namespace App\Models;
 
 use App\Exceptions\GameException;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use App\Facades\GameField;
 
 class Castle extends Model
 {
@@ -52,17 +51,18 @@ class Castle extends Model
 
     public function save(array $options = [])
     {
-        // Добавить на поле замок если еще не добавлен...
+        $res = parent::save($options);
+
         $loc = $this->location;
-        if (is_null($loc)) {
-            $loc = GameField::uniqueLocation();
-            if ($loc == false) {
+        if ($res && is_null($loc)) {
+            $loc = Location::freeRandom();
+            if (is_null($loc)) {
                 throw new GameException('Нельзя добавить новый замок. Все поле уже занято.');
             }
-            $this->location = $loc;
+            $this->location()->save($loc);
         }
 
-        return parent::save($options);
+        return $res;
     }
 
     /**
@@ -237,6 +237,11 @@ class Castle extends Model
     public function army()
     {
         return $this->hasOne('App\Models\Army');
+    }
+
+    public function location()
+    {
+        return $this->hasOne('App\Models\Location');
     }
 
     /**
