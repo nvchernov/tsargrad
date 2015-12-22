@@ -30,6 +30,7 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'ajax' => \App\Http\Middleware\VerifyAjax::class,
+        'json' => \App\Http\Middleware\VerifyJson::class,
         'game.army' => \App\Http\Middleware\GameArmy::class
     ];
 }
