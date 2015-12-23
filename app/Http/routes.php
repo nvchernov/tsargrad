@@ -26,34 +26,18 @@ Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 
 // General page
-Route::get('home', [
-    'middleware' => 'auth',
-    'uses' => 'HomeController@home'
-]);
+Route::get('home', ['middleware' => 'auth', 'uses' => 'HomeController@home']);
 
-Route::get('user/profile', [
-    'middleware' => 'auth',
-    'uses' => 'UserController@getProfile'
-]);
-Route::post('user/update', [
-    'middleware' => 'auth',
-    'uses' => 'UserController@postUpdate'
-]);
+Route::get('user/profile', ['middleware' => 'auth', 'uses' => 'UserController@getProfile']);
+Route::post('user/update', ['middleware' => 'auth', 'uses' => 'UserController@postUpdate']);
 
-// General page
-Route::get('home', [
-    'middleware' => 'auth',
-    'uses' => 'HomeController@home'
-]);
+// Роуты запроса ссылки для сброса пароля
+Route::get('password/email', 'Auth\PasswordController@getEmail');
+Route::post('password/email', 'Auth\PasswordController@postEmail');
 
-Route::get('user/profile', [
-    'middleware' => 'auth',
-    'uses' => 'UserController@getProfile'
-]);
-Route::post('user/update', [
-    'middleware' => 'auth',
-    'uses' => 'UserController@postUpdate'
-]);
+// Роуты сброса пароля
+Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
+Route::post('password/reset', 'Auth\PasswordController@postReset');
 
 Route::resource('news', 'NewsController');
 
