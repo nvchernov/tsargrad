@@ -8,7 +8,8 @@ use Database\Seeders\CastlesTableSeeder,
     Database\Seeders\ResourcesTableSeeder,
     Database\Seeders\AdministratorsTableSeeder,
     Database\Seeders\NewsTableSeeder,
-    Database\Seeders\LocationsTableSeeder;
+    Database\Seeders\LocationsTableSeeder,
+    Database\Seeders\CommentBlocksTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
