@@ -27,6 +27,27 @@ class Castle extends Model
 
     protected $dates = ['deleted_at', 'updated_at', 'created_at'];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function()
+        {
+            $loc = Location::freeRandom();
+            if (is_null($loc)) {
+                throw new GameException('Нельзя добавить новый замок. Все поле уже занято.');
+            }
+            return true;
+        });
+
+        static::created(function(Castle $castle)
+        {
+            $loc = Location::freeRandom();
+            $loc->castle()->associate($castle);
+            $loc->save();
+        });
+    }
+
     /**
      * Casts.
      *
@@ -47,22 +68,6 @@ class Castle extends Model
             $army = $this->army()->create(['name' => "{$this->name}'s army", 'size' => 0, 'level' => 1]);
         }
         return $army;
-    }
-
-    public function save(array $options = [])
-    {
-        $res = parent::save($options);
-
-        $loc = $this->location;
-        if ($res && is_null($loc)) {
-            $loc = Location::freeRandom();
-            if (is_null($loc)) {
-                throw new GameException('Нельзя добавить новый замок. Все поле уже занято.');
-            }
-            $this->location()->save($loc);
-        }
-
-        return $res;
     }
 
     /**

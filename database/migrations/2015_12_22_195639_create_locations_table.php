@@ -21,7 +21,7 @@ class CreateLocationsTable extends Migration
 
             $table->timestamps();
 
-            $table->foreign('castle_id')->references('id')->on('castles');
+            $table->foreign('castle_id')->references('id')->on('castles')->onDelete('set null');
         });
     }
 

@@ -6,8 +6,9 @@
  * Time: 23:23
  */
 
-namespace app\Models;
+namespace App\Models;
 
+use App\Exceptions\GameException;
 use Illuminate\Database\Eloquent\Model;
 
 class Location extends Model

@@ -8,8 +8,8 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\Models\Castle;
-use App\Models\Location;
 use Illuminate\Http\Request;
 use Mockery\CountValidator\Exception;
 
@@ -21,50 +21,32 @@ class GameController extends Controller
 {
     public function __construct()
     {
-        //$this->middleware('auth');
+        $this->middleware('auth');
         $this->middleware('game.army');
         $this->middleware('ajax', ['only' => ['armyCrusade', 'armyBuy', 'armyUpgrade']]);
-        $this->middleware('json', ['only' => ['armyCrusade', 'armyBuy', 'armyUpgrade']]);
     }
 
-    private function genAreas()
-    {
-        $data = [];
-
-        $de = 93;
+    /* Получить все локации...
+       $de = 93;
         $x1 = $y1 = 95;
         $x2 = $y2 = $x1 + $de;
-
-        $xa = 1; $ya = 19;
-
-        $xn1 = $x1 + $xa * $de;
-        $yn1 = $y1 + $ya * $de;
-        $xn2 = $xn1 + $de;
-        $yn2 = $yn1 + $de;
-        $data[] = "<area state='test' shape='rect' coords='$xn1, $yn1, $xn2, $yn2' href='#'>";
-
-        // Получить все локации...
-        /*
-                $w = sqrt(Location::count()) * $de + $x1;
-                for ($x1 = 95, $y1 = 95; $x1 <= $w && $y1 <= $w; $x1 += $de, $y1 += $de) {
-                    for ($x2 = $x1 + $de, $y2 = $y1 + $de; $x2 <= $w && $y2 <= $w; $x2 += $de, $y2 += $de) {
-                        $data[] = "<area state='$x2-$y2' shape='rect' coords='$x1, $y1, $x2, $y2' href='#'>";
-                    }
+            $w = sqrt(Location::count()) * $de + $x1;
+            for ($x1 = 95, $y1 = 95; $x1 <= $w && $y1 <= $w; $x1 += $de, $y1 += $de) {
+                for ($x2 = $x1 + $de, $y2 = $y1 + $de; $x2 <= $w && $y2 <= $w; $x2 += $de, $y2 += $de) {
+                    $data[] = "<area state='$x2-$y2' shape='rect' coords='$x1, $y1, $x2, $y2' href='#'>";
                 }
-        */
-        $busy = Location::busy();
-        foreach ($busy as $loc) {
-        }
+            }
+    */
 
-        return $data;
-    }
     /**
      * 'game/' - главная страница игры, игровая карта.
      */
     public function index()
     {
         $data = [];
-        $castles = $data['castles'] = Castle::with('location')->get();
+
+        $user = $data['user'] = Auth::user();
+        $data['castles'] = Castle::with('location')->get();
 
         //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
         return view('game/index', $data);

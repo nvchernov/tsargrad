@@ -4,14 +4,12 @@
 $(function () {
     "use strict";
 
-    var $gf = $('section.gamefield');
-
-    $('img').mapster({
-        mapKey: 'state',
+    $('#gamefield').mapster({
+        mapKey: 'user-id',
         staticState: true,
         fill: false,
         stroke: true,
         strokeWidth: 2,
         strokeColor: 'ff0000'
-    }).mapster('set', true, 's');
+    }).mapster('set', true, ''+User.id);
 });
