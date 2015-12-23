@@ -26,12 +26,25 @@
                   <label for="password" class="col-lg-2 control-label">Пароль</label>
                   <div class="col-lg-10">
                     <input class="form-control" id="password" name="password" placeholder="Пароль" type="password">
-                    <div class="checkbox">
-                      <label>
-                        <input type="checkbox" name="remember"> Запомнить меня
-                      </label>
-                    </div>
                   </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-5 col-lg-offset-2">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="remember"> Запомнить меня
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="checkbox">
+                            <label>
+                                <a href="/password/email">Забыли пароль?</a>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <? if (isset ($error_message)) { ?>
