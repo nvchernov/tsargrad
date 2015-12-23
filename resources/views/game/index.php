@@ -1,12 +1,3 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: Роман
- * Date: 22.12.2015
- * Time: 19:04
- */
-?>
-
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/header.php'); ?>
 
 <script src="plugins/image-mapster/jquery.imagemapster.min.js"></script>
@@ -18,8 +9,8 @@
         <div class="col-sm-9">
             <section class="gamefield">
                 <div class="parent">
-                    <div class="panzoom-parent" >
-                        <img id="gamefield" class="panzoom" src="img/gamefield.png" usemap="#castlesmap">
+                    <div class="panzoom-parent">
+                        <img id="gamefield" class="panzoom" src="images/gamefield.png" usemap="#castlesmap">
                     </div>
                 </div>
                 <form class="form-inline">
@@ -34,7 +25,16 @@
 </div>
 
 <map name="castlesmap">
-    <area state="s" href="#" shape="rect" coords="49, 49, 95, 95">
+    <?php
+    $de = 93;
+    $x = $y = 95
+
+    ?>
+    <?php foreach ($castles as $c): ?>
+        <?php $x1 = $x + $c->location->x * $de; $y1 = $y + $c->location->y * $de; $x2 = $x1 + $de; $y2 = $y1 + $de; ?>
+        <area castle-id="<?php $c->id ?>" shape="rect" coords="<?php $x1 ?>, <?php $y1 ?>, <?php $x2 ?>, <?php $y2 ?>">
+        <?php //echo("<area state='$x2-$y2' shape='rect' coords='$x1, $y1, $x2, $y2' href='#'>"); ?>
+    <?php endforeach; ?>
 </map>
 
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/footer.php'); ?>

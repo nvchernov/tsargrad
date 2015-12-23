@@ -208,9 +208,7 @@ return [
         'ModelItem'            => 'SleepingOwl\Admin\Models\ModelItem',
 
         'Form'      => 'Illuminate\Html\FormFacade',
-        'Html'      => 'Illuminate\Html\HtmlFacade',
-
-        'GameField' => App\Facades\GameField::class
+        'Html'      => 'Illuminate\Html\HtmlFacade'
     ],
 
 ];
