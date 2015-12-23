@@ -23,7 +23,7 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['only' => ['armyCrusade', 'armyBuy', 'armyUpgrade']]);
+        $this->middleware('ajax', ['except' => ['getIndex']]);
     }
 
     /* Получить все локации...
@@ -37,20 +37,6 @@ class GameController extends Controller
                 }
             }
     */
-
-    /**
-     * 'game/' - главная страница игры, игровая карта.
-     */
-    public function index()
-    {
-        $data = [];
-
-        $user = $data['user'] = Auth::user();
-        $data['castles'] = Castle::with('location')->get();
-
-        //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
-        return view('game/index', $data);
-    }
 
     /**
      * Ajax success response.
@@ -79,11 +65,37 @@ class GameController extends Controller
     }
 
     /**
+     * 'game/' - главная страница игры, игровая карта.
+     */
+    public function getIndex()
+    {
+        // данные для представления.
+        $data = [];
+
+        $data['user'] = Auth::user();
+        $data['castles'] = Castle::has('location')->with('location')->get();
+
+        //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
+        return view('game/index', $data);
+    }
+
+    public function getCastle($id)
+    {
+        // данные для представления.
+        $data = [];
+        $data['user'] = Auth::user();
+        $data['castle'] = Castle::find($id);
+
+        return response()->view('game/modal-castle', $data);
+    }
+
+    /**
      * 'game/army/crusade - POST AJAX запрос на создание нового отряда для похода.
+     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function armyCrusade(Request $request)
+    public function putArmyCrusade(Request $request)
     {
         $user = $request->user();
         $name = $request->input('name');
@@ -106,18 +118,20 @@ class GameController extends Controller
 
     /**
      * 'game/army/buy' - POST AJAX запрос для покупки воинов в армию.
+     *
      * @param Request $request
      */
-    public function armyBuy(Request $request)
+    public function putArmyBuy(Request $request)
     {
 
     }
 
     /**
      * 'game/army/upgrade' - POST AJAX запрос для улучшения армии.
+     *
      * @param Request $request
      */
-    public function armyUpgrade(Request $request)
+    public function putArmyUpgrade(Request $request)
     {
 
     }

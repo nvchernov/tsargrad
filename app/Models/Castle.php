@@ -42,9 +42,12 @@ class Castle extends Model
 
         static::created(function(Castle $castle)
         {
+            // Задать позицию на карте и армию по-умолчанию.
             $loc = Location::freeRandom();
             $loc->castle()->associate($castle);
             $loc->save();
+
+            $castle->army()->create(['name' => "{$castle->name}'s army", 'size' => 0, 'level' => 1]);
         });
     }
 

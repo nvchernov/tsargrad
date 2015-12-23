@@ -9,13 +9,11 @@
 namespace App\Models;
 
 use App\Events\SquadAssaulted;
-use App\Events\SquadWasAssaulted;
-use App\Events\SquadWasDisbanded;
+use App\Events\SquadDisbanded;
 use App\Exceptions\GameException;
 use Carbon\Carbon;
-use DB;
+use DB, Log;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use Log;
 
 class Squad extends Model
 {

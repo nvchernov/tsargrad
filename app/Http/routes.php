@@ -62,7 +62,8 @@ Route::post('comments/add', 'CommentBlocksController@add');
 Route::get('comments/{id}', 'CommentBlocksController@index');
 
 // Единый игровой контроллер.
-Route::get('game', ['uses' => 'GameController@index', 'as' => 'gamefield']);
-Route::put('game/army/crusade', 'GameController@armyCrusade');
-Route::put('game/army/buy', 'GameController@armyBuy');
-Route::put('game/army/upgrade', 'GameController@armyUpgrade');
+Route::get('game', ['uses' => 'GameController@getIndex', 'as' => 'gamefield']);
+Route::get('game/castles/{id}', 'GameController@getCastle');
+Route::put('game/armies/{id}/crusade', 'GameController@putArmyCrusade');
+Route::put('game/armies/{id}/buy', 'GameController@putArmyBuy');
+Route::put('game/armies/{id}/upgrade', 'GameController@putArmyUpgrade');
