@@ -11,8 +11,8 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 class User extends Model implements AuthenticatableContract,
-                                    AuthorizableContract,
-                                    CanResetPasswordContract
+    AuthorizableContract,
+    CanResetPasswordContract
 {
     use Authenticatable, Authorizable, CanResetPassword;
 
@@ -36,6 +36,21 @@ class User extends Model implements AuthenticatableContract,
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function(User $user)
+        {
+            $user->castle()->create(['name' => $user->caste_name ?: $user->name]);
+        });
+
+        static::updated(function(User $user)
+        {
+            $user->castle->update(['name' => $user->casle_name ?: $user->name]);
+        });
+    }
 
     /**
      * Get castle.

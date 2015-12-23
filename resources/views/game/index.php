@@ -1,5 +1,7 @@
 <? require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_header.php'); ?>
 
+<link rel="stylesheet" href="plugins/bootstrap-slider/bootstrap-slider.min.css">
+
 <div class="container">
     <div class="row">
         <div class="col-sm-9">
@@ -21,6 +23,7 @@
 <div class="modal fade" id="castleModel" tabindex="-1" role="dialog"></div>
 
 <script src="plugins/image-mapster/jquery.imagemapster.min.js"></script>
+<script src="plugins/bootstrap-slider/bootstrap-slider.min.js"></script>
 <script type="text/javascript">
     var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
     var Castles = <?= $castles ? $castles->toJson() : [] ?>;
@@ -42,10 +45,12 @@
         if ($.inArray(id) == -1) {
             castles.push(id);
 
-            var area = {key: id, toolTip: castle.name};
+            var area = {key: ''+id};
             if (isSelf(castle.user_id)) {
                 area.render_select = {fillColor: '0000ff'};
-                area.toolTip = 'Ваш замок "' + area.toolTip + '"';
+                area.toolTip = 'Ваш замок "' + castle.name + '"';
+            } else {
+                area.toolTip = 'Вражеский замок "' + castle.name + '"';
             }
             areas.push(area);
         }
@@ -56,13 +61,11 @@
         staticState: true,
         singleSelect: true,
         render_select: {
-            fill: true,
             fillColor: 'ff0000'
         },
         showToolTip: true,
         areas: areas
     };
-
     options.onClick = function (e) {
         // Свой не показываем...
         if (isSelfCastle(e.key)) { return; }
@@ -75,7 +78,7 @@
     };
 
     $gf.mapster(options);
-    $gf.mapster('set', true, castles.join(',')).mapster('set', true, ''+User.id);
+    $gf.mapster('set', true, castles.join(','));
 
 </script>
 

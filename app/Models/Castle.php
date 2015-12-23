@@ -31,19 +31,13 @@ class Castle extends Model
     {
         parent::boot();
 
-        static::creating(function()
-        {
-            $loc = Location::freeRandom();
-            if (is_null($loc)) {
-                throw new GameException('Нельзя добавить новый замок. Все поле уже занято.');
-            }
-            return true;
-        });
-
         static::created(function(Castle $castle)
         {
             // Задать позицию на карте и армию по-умолчанию.
             $loc = Location::freeRandom();
+            if (is_null($loc)) {
+                throw new GameException('Нельзя добавить новый замок. Все поле уже занято.');
+            }
             $loc->castle()->associate($castle);
             $loc->save();
 
