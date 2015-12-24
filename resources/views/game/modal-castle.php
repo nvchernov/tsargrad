@@ -1,5 +1,5 @@
-<div class="modal-dialog">
-    <div class="modal-content" role="document">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                     aria-hidden="true">&times;</span></button>
@@ -33,7 +33,7 @@
                                 <legend>Подготовить нападение</legend>
                                 <div class="col-sm-12">
                                     <div class='form-group'>
-                                        <label class="col-xs-4 control-label" for="m-squad-name">Имя отряда</label>
+                                        <label class="col-xs-4" for="m-squad-name">Имя отряда</label>
 
                                         <div class="col-xs-8">
                                             <input class="form-control" id="m-squad-name" type="text">
@@ -42,7 +42,7 @@
                                         </div>
                                     </div>
                                     <div class='form-group'>
-                                        <label class="col-xs-4 control-label" for="m-squad-size">Размер отряда</label>
+                                        <label class="col-xs-4" for="m-squad-size">Размер отряда</label>
 
                                         <div class="col-xs-8">
                                             <input class="form-control" id="m-squad-size" data-slider-id="sl-squad-size"
@@ -72,7 +72,7 @@
     $size = $('#m-squad-size');
     $size.slider({tooltip_position: 'bottom'});
 
-    $('#m-crusade').click(function () {
+    $('#m-crusade').click(function (e) {
         var $name = $("#m-squad-name"), $nameHelp = $('#m-squad-name-h');
         if ($name.val() == '') {
             $nameHelp.removeClass('hidden');

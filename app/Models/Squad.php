@@ -410,11 +410,11 @@ class Squad extends Model
             $state = $this->state;
             switch ($state) {
                 case 'comeback':
-                    $hstate = "В пути домой. Вернется из похода {$this->crusade_end_at->toDateTimeString()}"; break;
+                    $hstate = "Вернется из похода {$this->crusade_end_at->format('d.m.Y H:i')}"; break;
                 case 'assault':
                     $hstate = 'Штурмует вражеский замок'; break;
                 case 'crusade':
-                    $hstate = "В походе от {$this->crusade_at->toDateTimeString()}. Штурм состоится {$this->battle_at->toDateTimeString()}"; break;
+                    $hstate = "В походе на {$this->goal->name}. Сражение {$this->battle_at->format('d.m.Y H:i')}"; break;
                 default:
                     $hstate = 'Бездействует';
 
