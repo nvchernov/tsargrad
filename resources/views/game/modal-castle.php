@@ -3,7 +3,7 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                     aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="castleModalLabel">Вражеский замок "<?= $castle->name ?>"</h4>
+            <h4 class="modal-title" id="castleModalLabel">Вражеский замок <strong><?= $castle->name ?></strong></h4>
         </div>
         <div class="modal-body">
             <div class="row">
@@ -28,7 +28,7 @@
                                 </ul>
                             </div>
                         </fieldset>
-                        <? if ($user->castle->army->size > 0): ?>
+                        <? if ($user->army->size > 0): ?>
                             <fieldset class="col-sm-12">
                                 <legend>Подготовить нападение</legend>
                                 <div class="col-sm-12">
@@ -48,7 +48,7 @@
                                             <input class="form-control" id="m-squad-size" data-slider-id="sl-squad-size"
                                                    type="text" data-slider-step="1"
                                                    data-slider-value="1" data-slider-min="1"
-                                                   data-slider-max="<?= $user->castle->army->size ?>">
+                                                   data-slider-max="<?= $user->army->size ?>">
                                         </div>
                                     </div>
                                 </div>
@@ -60,7 +60,7 @@
         </div>
         <div class="modal-footer">
             <form class="form-horizontal">
-                <? if ($user->castle->army->size > 0): ?>
+                <? if ($user->army->size > 0): ?>
                     <button id="m-crusade" type="button" class="btn btn-danger">Напасть</button>
                 <? endif; ?>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
@@ -68,7 +68,6 @@
         </div>
     </div>
 </div>
-<script
 <script type="text/javascript">
     $size = $('#m-squad-size');
     $size.slider({tooltip_position: 'bottom'});
@@ -83,7 +82,7 @@
         $nameHelp.addClass('hidden');
         $name.closest('.form-group').removeClass('has-error');
 
-        $.post('game/armies/<?= $user->castle->army->id ?>/crusade',
+        $.post('game/armies/<?= $user->army->id ?>/crusade',
             {name: $name.val(), count: $size.val(), goal: <?= $castle->id ?>},
             function (resp) {
                 var options = {theme: 'bootstrapTheme', closeWith: ['button']};
@@ -100,6 +99,6 @@
             }, 'json'
         );
 
-        $('#castleModel').modal('hide');
+        $('#castle-modal').modal('hide');
     });
 </script>

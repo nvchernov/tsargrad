@@ -15,15 +15,15 @@
                         <h3>Ресурсы</h3>
                         <ul class="list-group">
                             <li class="list-group-item list-group-item-warning">
-                                <span class="badge"><?= $resources->get('gold') ?: 0 ?></span>
+                                <span class="my-gold badge"><?= $resources->get('gold') ?: 0 ?></span>
                                 Золото
                             </li>
                             <li class="list-group-item list-group-item-success">
-                                <span class="badge"><?= $resources->get('wood') ?: 0 ?></span>
+                                <span class="my-wood badge"><?= $resources->get('wood') ?: 0 ?></span>
                                 Дерево
                             </li>
                             <li class="list-group-item list-group-item-info">
-                                <span class="badge badge-"><?= $resources->get('food') ?: 0 ?></span>
+                                <span class="my-food badge"><?= $resources->get('food') ?: 0 ?></span>
                                 Еда
                             </li>
                         </ul>
@@ -31,7 +31,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
-                        <h3>Постройки</h3
+                        <h3>Строения</h3
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
     <? endforeach; ?>
 </map>
 
-<div class="modal fade" id="castleModel" tabindex="-1" role="dialog"></div>
+<div class="modal fade" id="castle-modal" tabindex="-1" role="dialog"></div>
 
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
 <script src="/plugins/bootstrap-slider/bootstrap-slider.min.js"></script>
@@ -77,7 +77,7 @@
                 area.render_select = {fillColor: '0000ff'};
                 area.toolTip = 'Мой замок';
             } else {
-                area.toolTip = 'Вражеский замок "' + castle.name + '"';
+                area.toolTip = 'Вражеский замок ' + castle.name;
             }
             areas.push(area);
         }
@@ -98,7 +98,7 @@
         if (isSelfCastle(e.key)) { return; }
 
         $.get('game/castles/' + e.key, function (data) {
-            $mod = $('#castleModel');
+            $mod = $('#castle-modal');
             $mod.html(data);
             $mod.modal();
         }, 'html');

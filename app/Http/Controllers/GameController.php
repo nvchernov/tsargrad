@@ -102,6 +102,20 @@ class GameController extends Controller
     }
 
     /**
+     * game/armies/{id}
+     *
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getArmy($id)
+    {
+        // данные для представления.
+        $data = [];
+
+        $data['user'] = Auth::user();
+    }
+
+    /**
      * game/armies/{id}/crusade - POST AJAX запрос на создание нового отряда для похода.
      *
      * @return \Illuminate\Http\JsonResponse
