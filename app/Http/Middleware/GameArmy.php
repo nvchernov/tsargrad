@@ -19,11 +19,9 @@ class GameArmy
      */
     public function handle($request, Closure $next)
     {
-        $now = Carbon::now();
-
         // Получить все отряды, которые пора уже рассформировать...
-        $forDisband = Squad::whereNotNull('crusade_end_at')->where('crusade_end_at', '<=', $now)->get();
-        foreach ($forDisband as $s) {
+        $toDisband = Squad::readyToDisband()->get();
+        foreach ($toDisband as $s) {
             try {
                 $s->disband();
             } catch (GameException $exc) {
@@ -33,8 +31,8 @@ class GameArmy
         }
 
         // Получить все отряды, которым уже должны штурмовать вражеский замок...
-        $forAssault = Squad::whereNull('crusade_end_at')->where('battle_at', '<=', $now)->get();
-        foreach ($forAssault as $s) {
+        $toAssault = Squad::readyToAssault()->get();
+        foreach ($toAssault as $s) {
             try {
                 $s->assault();
             } catch (GameException $exc) {

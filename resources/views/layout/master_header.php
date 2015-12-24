@@ -14,16 +14,16 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="plugins/bootstrap3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/plugins/bootstrap3/css/bootstrap.min.css">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="plugins/bootstrap3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/plugins/bootstrap3/css/bootstrap-theme.min.css">
     <!-- Custom -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
     <!-- Latest compiled and minified JavaScript -->
-    <script src="plugins/jquery/jquery-2.1.4.min.js"></script>
-    <script src="plugins/bootstrap3/js/bootstrap.min.js"></script>
-    <script src="plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
-    <script src="plugins/noty/themes/bootstrap.js"></script>
+    <script src="/plugins/jquery/jquery-2.1.4.min.js"></script>
+    <script src="/plugins/bootstrap3/js/bootstrap.min.js"></script>
+    <script src="/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
+    <script src="/plugins/noty/themes/bootstrap.js"></script>
 </head>
 <body>
 

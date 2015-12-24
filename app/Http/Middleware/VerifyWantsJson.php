@@ -10,7 +10,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 
-class VerifyJson
+class VerifyWantsJson
 {
     /**
      * Handle an incoming request.
@@ -21,7 +21,7 @@ class VerifyJson
      */
     public function handle($request, Closure $next)
     {
-        if ($request->isJson() && $request->wantsJson()) {
+        if ($request->wantsJson()) {
             return $next($request);
         }
 

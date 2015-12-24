@@ -30,6 +30,15 @@ class Squad extends Model
 
     protected $dates = ['deleted_at', 'updated_at', 'created_at', 'crusade_at', 'crusade_end_at', 'battle_at'];
 
+    public function scopeReadyToDisband($query)
+    {
+        return $query->whereNotNull('crusade_end_at')->where('crusade_end_at', '<=', Carbon::now());
+    }
+
+    public function scopeReadyToAssault($query)
+    {
+        return $query->whereNull('crusade_end_at')->where('battle_at', '<=', Carbon::now());
+    }
     /**
      * Get an army.
      * One to Many relation.

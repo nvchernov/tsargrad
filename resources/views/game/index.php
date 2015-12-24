@@ -1,13 +1,40 @@
 <? require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_header.php'); ?>
 
-<link rel="stylesheet" href="plugins/bootstrap-slider/bootstrap-slider.min.css">
+<link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
 
 <div class="container">
-    <div class="row">
-        <div class="col-sm-9">
-            <img id="gamefield" src="images/gamefield.png" width="700" height="700" usemap="#gamefield-map">
-        </div>
-        <div class="col-sm-3">
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-9">
+                <img id="gamefield" src="images/gamefield.png" width="700" height="700" usemap="#gamefield-map">
+            </div>
+            <div class="col-sm-3">
+                <h2> Мой замок <strong><?= $user->castle->name ?></strong></h2>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3>Ресурсы</h3>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-warning">
+                                <span class="badge"><?= $resources->get('gold') ?: 0 ?></span>
+                                Золото
+                            </li>
+                            <li class="list-group-item list-group-item-success">
+                                <span class="badge"><?= $resources->get('wood') ?: 0 ?></span>
+                                Дерево
+                            </li>
+                            <li class="list-group-item list-group-item-info">
+                                <span class="badge badge-"><?= $resources->get('food') ?: 0 ?></span>
+                                Еда
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h3>Постройки</h3
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -22,8 +49,8 @@
 
 <div class="modal fade" id="castleModel" tabindex="-1" role="dialog"></div>
 
-<script src="plugins/image-mapster/jquery.imagemapster.min.js"></script>
-<script src="plugins/bootstrap-slider/bootstrap-slider.min.js"></script>
+<script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
+<script src="/plugins/bootstrap-slider/bootstrap-slider.min.js"></script>
 <script type="text/javascript">
     var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
     var Castles = <?= $castles ? $castles->toJson() : [] ?>;
@@ -48,7 +75,7 @@
             var area = {key: ''+id};
             if (isSelf(castle.user_id)) {
                 area.render_select = {fillColor: '0000ff'};
-                area.toolTip = 'Ваш замок "' + castle.name + '"';
+                area.toolTip = 'Мой замок';
             } else {
                 area.toolTip = 'Вражеский замок "' + castle.name + '"';
             }

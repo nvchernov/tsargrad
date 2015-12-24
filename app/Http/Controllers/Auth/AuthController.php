@@ -69,7 +69,7 @@ class AuthController extends Controller
     {
         if (Auth::check())
         {
-            return redirect('home');
+            return redirect('game');
         }
         return view('auth/login');
     }
@@ -81,7 +81,7 @@ class AuthController extends Controller
         $remember =isset($data['remember']) ? $data['remember'] : false;
         if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']], $remember))
         {
-            return redirect('home');
+            return redirect('game');
         }
         return view('auth/login', ['error_message' => 'Неверный email или пароль']);
     }
@@ -104,7 +104,7 @@ class AuthController extends Controller
         {
             if ($this->create($data) !== null)
             {
-                return redirect('home');
+                return redirect('game');
             }
         }
         return redirect('auth/register');

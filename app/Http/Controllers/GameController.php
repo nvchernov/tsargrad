@@ -10,7 +10,8 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Models\Castle;
-use Illuminate\Http\Request;
+use App\Models\Army;
+use Input;
 use Mockery\CountValidator\Exception;
 
 /**
@@ -24,6 +25,7 @@ class GameController extends Controller
         $this->middleware('auth');
         $this->middleware('game.army');
         $this->middleware('ajax', ['except' => ['getIndex']]);
+        $this->middleware('wants.json', ['only' => ['postArmyCrusade', 'postArmyBuy', 'postArmyUpgrade']]);
     }
 
     /* Получить все локации...
@@ -65,55 +67,60 @@ class GameController extends Controller
     }
 
     /**
-     * 'game/' - главная страница игры, игровая карта.
+     * game - главная страница игры, игровая карта.
      */
     public function getIndex()
     {
         // данные для представления.
         $data = [];
 
-        $data['user'] = Auth::user();
+        $user = $data['user'] = Auth::user();
         $data['castles'] = Castle::has('location')->with('location')->get();
+        $c = $data['castle'] = $user->castle;
+        $data['resources'] = $c->getResources();
 
         //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
         return view('game/index', $data);
     }
 
+    /**
+     * game/castles/{id}
+     *
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
     public function getCastle($id)
     {
         // данные для представления.
         $data = [];
+
         $data['user'] = Auth::user();
-        $data['castle'] = Castle::find($id);
+        $c = $data['castle'] = Castle::find($id);
+        $data['resources'] = $c->getResources();
 
         return response()->view('game/modal-castle', $data);
     }
 
     /**
-     * 'game/army/crusade - POST AJAX запрос на создание нового отряда для похода.
+     * game/armies/{id}/crusade - POST AJAX запрос на создание нового отряда для похода.
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function putArmyCrusade(Request $request)
+    public function postArmyCrusade($id)
     {
-        $user = $request->user();
-        $name = $request->input('name');
-        $goal_id = $request->input('goal_id');
-        $count = $request->input('count');
-
-        if (isset($user) && !empty($name) && !empty($goal_id) && !empty($count)) {
+        if (Input::has('name') && Input::has('goal') && Input::has('count')) {
             try {
-                $goal = Castle::find($request->input('goal_id'));
-                $army = $user->castle->army;
-                $squad = $army->crusade($request->input('name'), $request->input('count'), $goal);
+                $goal = Castle::find(Input::get('goal'));
+                $army = Army::find($id);
+                $squad = $army->crusade(Input::get('name'), Input::get('count'), $goal);
+                $squad->goal()->getResults();
             } catch (Exception $exc) {
                 return $this->ajaxError($exc->getMessage());
             }
             return $this->ajaxResponse($squad->toArray());
         }
 
-        return $this->ajaxError('Некорректно указаны атрибуты');
+        return $this->ajaxError('Некорректно указаны атрибуты.');
     }
 
     /**
@@ -121,7 +128,7 @@ class GameController extends Controller
      *
      * @param Request $request
      */
-    public function putArmyBuy(Request $request)
+    public function postArmyBuy(Request $request)
     {
 
     }
@@ -131,7 +138,7 @@ class GameController extends Controller
      *
      * @param Request $request
      */
-    public function putArmyUpgrade(Request $request)
+    public function postArmyUpgrade(Request $request)
     {
 
     }
