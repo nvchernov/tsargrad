@@ -14,15 +14,16 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
 
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="plugins/bootstrap3/css/bootstrap.min.css">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/flatly/bootstrap.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="plugins/bootstrap3/css/bootstrap-theme.min.css">
+    <!-- Custom -->
     <link rel="stylesheet" href="css/style.css">
-
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="plugins/jquery/jquery-2.1.4.min.js"></script>
+    <script src="plugins/bootstrap3/js/bootstrap.min.js"></script>
+    <script src="plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
+    <script src="plugins/noty/themes/bootstrap.js"></script>
 </head>
 <body>
 
