@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\GameException;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -43,7 +44,15 @@ class User extends Model implements AuthenticatableContract,
 
         static::created(function(User $user)
         {
-            $user->castle()->create(['name' => $user->caste_name ?: $user->name]);
+            $castle = $user->castle()->create(['name' => $user->caste_name ?: $user->name]);
+
+            // Задать позицию на карте и армию по-умолчанию.
+            $location = Location::freeRandom();
+            if (is_null($location)) { throw new GameException('Нельзя добавить новый замок. Все поле уже занято.'); }
+            $location->castle()->associate($castle);
+            $location->save();
+
+            $castle->army()->create(['name' => "{$castle->name}'s army", 'size' => 0, 'level' => 1]);
         });
 
         static::updated(function(User $user)
@@ -60,5 +69,15 @@ class User extends Model implements AuthenticatableContract,
     public function castle()
     {
         return $this->hasOne('App\Models\Castle');
+    }
+
+    public function __get($key)
+    {
+        // Получить армию.
+        if ($key == 'army') {
+            return $this->castle ? $this->castle->army : null;
+        }
+
+        return parent::__get($key);
     }
 }
