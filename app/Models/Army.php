@@ -75,6 +75,23 @@ class Army extends Model
     }
 
     /**
+     * Цена покупки одного воина.
+     * @return int
+     */
+    public function buyPrice()
+    {
+        return static::formulaBuy($this->level, 1);
+    }
+
+    /**
+     * Цена улучшения на 1 уровень армии.
+     */
+    public function upgradePrice()
+    {
+        return static::formulaUpgrade($this->level, $this->strength);
+    }
+
+    /**
      * Сбросить армию по-умолчанию
      *
      * @return Army

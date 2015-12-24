@@ -50,7 +50,6 @@
 <div class="modal fade" id="castle-modal" tabindex="-1" role="dialog"></div>
 
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
-<script src="/plugins/bootstrap-slider/bootstrap-slider.min.js"></script>
 <script type="text/javascript">
     var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
     var Castles = <?= $castles ? $castles->toJson() : [] ?>;

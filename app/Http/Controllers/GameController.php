@@ -112,7 +112,10 @@ class GameController extends Controller
         // данные для представления.
         $data = [];
 
-        $data['user'] = Auth::user();
+        $army = $data['army'] = Army::find($id);
+        $data['squads'] = $army->squads;
+
+        return response()->view('game/modal-army', $data);
     }
 
     /**
