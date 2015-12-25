@@ -102,23 +102,6 @@ class GameController extends Controller
     }
 
     /**
-     * game/armies/{id}
-     *
-     * @param $id
-     * @return \Illuminate\Http\Response
-     */
-    public function getArmy($id)
-    {
-        // данные для представления.
-        $data = [];
-
-        $army = $data['army'] = Army::find($id);
-        $data['squads'] = $army->squads;
-
-        return response()->view('game/modal-army', $data);
-    }
-
-    /**
      * game/armies/{id}/crusade - POST AJAX запрос на создание нового отряда для похода.
      *
      * @return \Illuminate\Http\JsonResponse

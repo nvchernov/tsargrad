@@ -100,7 +100,7 @@ class Location extends Model
     public static function howMuchTime($a, $b)
     {
         $dist = static::distance($a, $b);
-        return $dist ? intval(3.0 * $dist) : null;
+        return $dist ? intval(1.5 * $dist) : null;
     }
 
     public function castle()

@@ -39,6 +39,7 @@ class Squad extends Model
     {
         return $query->whereNull('crusade_end_at')->where('battle_at', '<=', Carbon::now());
     }
+
     /**
      * Get an army.
      * One to Many relation.

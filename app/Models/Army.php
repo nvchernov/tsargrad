@@ -52,6 +52,16 @@ class Army extends Model
         return intval(exp($level / 10) * 12 * ($strength + 1));
     }
 
+    public function jsonSerialize()
+    {
+        $serialized = parent::jsonSerialize();
+
+        return array_merge($serialized, [
+            'buyPrice' => $this->buyPrice(), 'upgradePrice' => $this->upgradePrice(),
+            'sizeOfSquads' => $this->sizeOfSquads
+        ]);
+    }
+
     /**
      * Get all squads.
      * One to Many relation.

@@ -158,7 +158,7 @@ class Castle extends Model
             $arr = [];
             // Извлечь все ресурсы этого замка...
             foreach ($this->resources()->getResults() as $r) {
-                $arr[$r->name] = $r->pivot->count;
+                $arr[] = ['name' => $r->name, 'count' => $r->pivot->count];
             }
             return collect($arr);
         }
