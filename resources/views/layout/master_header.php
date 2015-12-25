@@ -40,6 +40,8 @@
     <script src="/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
     <script src="/plugins/noty/themes/bootstrap.js"></script>
 
+    <script src="https://cdn.socket.io/socket.io-1.3.4.js"></script>
+
     <script src="/js/game.js"></script>
 </head>
 <body>
@@ -255,6 +257,39 @@
                     model: player.army,
                     squads: player.squads
                 })).render().el);
+
+                var socket = io.connect('http://localhost:8080');
+                // Базовый channel...
+                var channel = 'message/user/<?= Auth::user()->id ?>';
+
+                // Все обработчики pub событий.
+
+                socket.on(channel, function (msg) {
+                    noty({
+                        theme: 'bootstrapTheme',
+                        closeWith: ['button'],
+                        layout: 'bottomRight',
+                        text: msg
+                    });
+                });
+                socket.on(channel + '/squad/update', function (model) {
+                    var squad = player.squads.get(model.id);
+                    squad.set(model);
+                });
+                socket.on(channel + '/squad/create', function (model) {
+                    var squad = new Models.Squad(model);
+                    player.squads.add(squad);
+                });
+                socket.on(channel + '/squad/delete', function (data) {
+                    var squad = player.squads.get(data.id);
+                    player.squads.remove(squad);
+                });
+                socket.on(channel + '/army/update', function (model) {
+                    player.army.set(model);
+                });
+                socket.on(channel + '/castle/update', function (model) {
+                    player.castle.set(model);
+                });
             </script>
 
         <? else: ?>

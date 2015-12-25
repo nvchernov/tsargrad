@@ -8,6 +8,7 @@
 
 namespace App\Models;
 
+use App\Events\CUD;
 use App\Exceptions\GameException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
@@ -58,8 +59,19 @@ class Army extends Model
 
         return array_merge($serialized, [
             'buyPrice' => $this->buyPrice(), 'upgradePrice' => $this->upgradePrice(),
-            'sizeOfSquads' => $this->sizeOfSquads
         ]);
+    }
+
+    public function save(array $options = [])
+    {
+        $exists = $this->exists;
+        $saved = parent::save($options);
+
+        if ($saved) {
+            event(new CUD($this->user, $exists ? 'update' : 'create', $this));
+        }
+
+        return $saved;
     }
 
     /**
@@ -320,6 +332,11 @@ class Army extends Model
         // Получить силу армии...
         if ($key == 'strength') {
             return $this->size + $this->sizeOfSquads;
+        }
+
+        // Получить пользователя.
+        if ($key == 'user') {
+            return $this->castle ? $this->castle->user : null;
         }
 
         return parent::__get($key);

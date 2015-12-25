@@ -115,8 +115,9 @@
         attachHtml: function (collectionView, childView, index) {
             collectionView.$('tbody').append(childView.el);
         },
-        emptyView: new Marionette.ItemView.extend({
-            template: '<tr>Нет отрядов</tr>'
+        emptyView: Marionette.ItemView.extend({
+            tagName: 'tr',
+            template: _.template('<td colspan="5" class="text-center">Нет отрядов</td>')
         })
     });
     // ...Отряды.
@@ -162,17 +163,12 @@
                         goal: this.goalid
                     },
                     function (resp) {
-                        var options = {theme: 'bootstrapTheme', closeWith: ['button']};
                         if (resp.success) {
-                            var Squad = resp.data;
-                            options.text = 'Отряд "' + Squad.name + '" (' + Squad.size + ' чел.) отправился в поход на вражеский замок ' +
-                                '"' + Squad.goal.name + '" (от ' + Squad.crusade_at + '). Сражение состоится ' + Squad.battle_at;
-                            options.type = 'success';
-                        } else {
-                            options.text = resp.message;
-                            options.type = 'error';
+                            var options = {theme: 'bootstrapTheme', closeWith: ['button'], layout: 'bottomRight'}, s = resp.data;
+                            options.text = 'Отряд "' + s.name + '" (' + s.size + ' чел.) отправился в поход на вражеский замок ' +
+                                '"' + s.goal.name + '"';
+                            noty(options);
                         }
-                        noty(options);
                     }, 'json'
                 );
 
@@ -215,7 +211,8 @@
 
         ui: {
             buyCost: '#m-army-cost',
-            buySize: '#my-army-buy-size'
+            buySize: '#my-army-buy-size',
+            squadsSize: '#my-army-sizesquads'
         },
         regions: {
             squadsRegion: '#my-squads'
@@ -226,7 +223,6 @@
         bindings: {
             '#my-army-level': 'level',
             '#my-army-size': 'size',
-            '#my-army-sizesquads': 'sizeOfSquads',
             '#my-army-buy-price': {
                 observe: 'buyPrice',
                 onGet: function (buyPrice) {
@@ -242,13 +238,22 @@
             },
             '#my-army-buy-upgrade': 'buyUpgrade'
         },
+        getSquadsSize: function () {
+            var size = 0;
+            this.squads.each(function ($s) { size += $s.get('size'); });
+            return size;
+        },
         onRender: function () {
-            var army = this.model;
-            var ui = this.ui;
+            var self = this, ui = this.ui;
 
             ui.buySize.slider({tooltip_position: 'bottom'});
             ui.buySize.slider().on('change', function (e) {
-                ui.buyCost.text(army.get('buyPrice') * e.value.newValue);
+                ui.buyCost.text(self.model.get('buyPrice') * e.value.newValue);
+            });
+
+            ui.squadsSize.text(this.getSquadsSize());
+            this.squads.on('update change:size', function () {
+                ui.squadsSize.text(self.getSquadsSize());
             });
 
             var squadsView = new SquadsView({collection: this.squads});

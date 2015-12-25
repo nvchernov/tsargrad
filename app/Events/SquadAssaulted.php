@@ -58,7 +58,7 @@ class SquadAssaulted extends Event
      */
     public function userAttacker()
     {
-        return $this->squad->army->castle->user;
+        return $this->squad->user;
     }
 
     /**
@@ -75,7 +75,7 @@ class SquadAssaulted extends Event
      */
     public function messageForAttacker()
     {
-        $msg = "Наш отряд '{$this->squad->name}' был полностью разбит у ворот замка '{$this->squad->goal->name}'";
+        $msg = "Наш отряд '{$this->squad->name}' был полностью разбит у замка '{$this->squad->goal->name}'";
         if ($this->options['status'] == 'win') {
             $loots = $this->loots();
             $msg = "Наш отряд '{$this->squad->name}' победил в битве у замка '{$this->squad->goal->name}'. Награблено: $loots."
@@ -91,12 +91,12 @@ class SquadAssaulted extends Event
     public function messageForDefender()
     {
         $msg = "Боевая ничья при сражении с отрядом '{$this->squad->name}'. Все войска разбиты";
-        if ($this->options['status' == 'win']) {
+        if ($this->options['status'] == 'win') {
             $loots = $this->loots();
-            $msg = "Вражеский отряд '{$this->squad->name}' полностью разгромил наше войска. Разграблено: $loots. У противника осталось "
+            $msg = "Вражеский отряд '{$this->squad->name}' разгромил наше войска. Разграблено: $loots. У противника осталось "
                 . "в живых - {$this->squad->size}";
-        } elseif ($this->options['status' == 'def']) {
-            $msg = "Наши войска полностью разгромили вражеский отряд '{$this->squad->name}'. Осталось в живых - {$this->squad->goal->army->size}";
+        } elseif ($this->options['status'] == 'def') {
+            $msg = "Наши войска разгромили вражеский отряд '{$this->squad->name}'. Осталось в живых - {$this->squad->goal->army->size}";
         }
         return $msg;
     }

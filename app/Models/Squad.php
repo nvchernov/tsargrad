@@ -10,6 +10,7 @@ namespace App\Models;
 
 use App\Events\SquadAssaulted;
 use App\Events\SquadDisbanded;
+use App\Events\CUD;
 use App\Exceptions\GameException;
 use Carbon\Carbon;
 use DB, Log;
@@ -38,6 +39,30 @@ class Squad extends Model
     public function scopeReadyToAssault($query)
     {
         return $query->whereNull('crusade_end_at')->where('battle_at', '<=', Carbon::now());
+    }
+
+    public function save(array $options = [])
+    {
+        $exists = $this->exists;
+        $saved = parent::save($options);
+
+        if ($saved) {
+            event(new CUD($this->user, $exists ? 'update' : 'create', $this));
+        }
+
+        return $saved;
+    }
+
+    public function delete()
+    {
+        $id = $this->id;
+        $deleted = parent::delete();
+
+        if ($deleted) {
+            event(new CUD($this->user, 'delete', $this, ['id' => $id]));
+        }
+
+        return $deleted;
     }
 
     /**
@@ -421,6 +446,11 @@ class Squad extends Model
 
             }
             return $hstate;
+        }
+
+        // Получить пользователя.
+        if ($key == 'user') {
+            return $this->army ? ($this->army->castle ? $this->army->castle->user : null) : null;
         }
 
         return parent::__get($key);
