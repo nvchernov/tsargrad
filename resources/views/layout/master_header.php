@@ -250,7 +250,7 @@
                 player.army = new Models.Army(<?= Auth::user()->army->toJson() ?>);
                 player.squads = new Models.Squads(<?= Auth::user()->army->squads->toJson() ?>);
 
-                // Рендеринг...
+                // Рендеринг навигации...
                 $('#game-navbar').prepend((new Views.ResourcesNav({collection: player.resources})).render().el);
                 $('#game-navbar > ul.resources-nav').append((new Views.ArmyLi({model: player.army})).render().el);
                 $('#army-modal .modal-body > .row > .col-sm-12').append((new Views.Army({
@@ -258,12 +258,13 @@
                     squads: player.squads
                 })).render().el);
 
+                /////// Вебсокеты
                 var socket = io.connect('http://localhost:8080');
                 // Базовый channel...
                 var channel = 'message/user/<?= Auth::user()->id ?>';
 
-                // Все обработчики pub событий.
-
+                // Все обработчики sub-событий.
+                // главный канал.
                 socket.on(channel, function (msg) {
                     noty({
                         theme: 'bootstrapTheme',
@@ -272,6 +273,7 @@
                         text: msg
                     });
                 });
+                // CUD отряда.
                 socket.on(channel + '/squad/update', function (model) {
                     var squad = player.squads.get(model.id);
                     squad.set(model);
@@ -284,11 +286,18 @@
                     var squad = player.squads.get(data.id);
                     player.squads.remove(squad);
                 });
+                // Обновление армии.
                 socket.on(channel + '/army/update', function (model) {
                     player.army.set(model);
                 });
+                // Обновление замка.
                 socket.on(channel + '/castle/update', function (model) {
                     player.castle.set(model);
+                });
+                // Обновление ресурса.
+                socket.on(channel + '/resource/update', function (model) {
+                    var res = player.resources.get(model.name);
+                    res.set(model);
                 });
             </script>
 

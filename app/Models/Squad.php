@@ -177,23 +177,23 @@ class Squad extends Model
         }
 
         // Рассчет мощностей каждой из армий и их разницы...
-        $rand = rand(0-$xd / 3, $xa / 3); // рандом при расчете мощностей
+        $rand = rand(0-$xd / 5, $xa / 5); // рандом при расчете мощностей
         $diff = intval($xa * $ya - $xd * $yd * (1 + $zd / 100) + $rand);
 
         Log::info("Мощность атакующих = " . ($xa * $ya) . ". Мощность защитников = " . ($xd * $yd * (1 + $zd / 100)));
         Log::info("Первый рандом = $rand. Разница мощностей с рандомом = $diff");
 
         $rand = rand(0, 150) / 1000; // рандом при вычилсение сил победителей
-        // Расчет сил победителей и награды, в случаи победы атакующих...
         Log::info("Второй рандом = $rand");
 
+        // Расчет сил победителей и награды, в случаи победы атакующих...
         DB::beginTransaction();
         try {
             $loots = [];
             if ($diff > 0) {
                 // Атакующий отряд победил...
                 $left = ($diff / $ya) * (1 + $rand);
-                $left = intval($left);
+                $left = intval($left > $xa ? $xa : $left);
                 // Оставить только выживших...
                 $this->update(['size' => $left]);
                 $dArmy->reset();
@@ -206,7 +206,7 @@ class Squad extends Model
             } elseif ($diff < 0) {
                 // Защитники победили...
                 $left = ($diff / $yd) * (1 + $zd / 100) * (1 + $rand);
-                $left = abs(intval($left));
+                $left = abs(intval($left > $xd ? $xd : $left));
                 // Оставить только выживших...
                 $this->delete();
                 $dArmy->update(['size' => $left]);
@@ -365,7 +365,7 @@ class Squad extends Model
 
         // Рассчитать время возвращения домой отряда...
         $minutes = Location::howMuchTime($castle, $goal);
-        $minutes = intval($minutes * 1.2); // С учетом усталости отряда...
+        $minutes = intval($minutes * 1.15); // С учетом усталости отряда...
         $end = $this->crusade_end_at = Carbon::now()->addMinutes($minutes); // дата возвращения отряда.
 
         $this->save();

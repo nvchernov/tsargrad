@@ -5,6 +5,10 @@ namespace App\Events;
 use App\Models\Squad;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Class SquadAssaulted - отряд штурмовал вражеский замок.
+ * @package App\Events
+ */
 class SquadAssaulted extends Event
 {
     use SerializesModels;

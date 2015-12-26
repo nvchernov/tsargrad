@@ -3,28 +3,24 @@
  */
 
 (function () {
-    window.player = {};
+    window.player = {}; // Игрок.
 
-    window.Models = {};
-    window.Views = {};
+    window.Models = {}; // Все модели.
+    window.Views = {}; // Все представления
 
-    var Resource = window.Models.Resource = Backbone.Model.extend({
-        idAttribute: 'name'
-    });
-    window.Models.Resources = Backbone.Collection.extend({
-        model: Resource
-    });
+    var Resource = window.Models.Resource = Backbone.Model.extend({idAttribute: 'name'});
+    window.Models.Resources = Backbone.Collection.extend({model: Resource});
 
     var Squad = window.Models.Squad = Backbone.Model.extend({});
-    window.Models.Squads = Backbone.Collection.extend({
-        model: Squad
-    });
+    window.Models.Squads = Backbone.Collection.extend({model: Squad});
 
     window.Models.Army = Backbone.Model.extend({});
     window.Models.Castle = Backbone.Model.extend({});
 
     // Ресурсы по умолчанию...
     window.defaultResources = [{name: 'gold', count: 0}, {name: 'wood', count: 0}, {name: 'food', count: 0}];
+
+    /////// Представления
 
     // Ресурсы...
     var ResourceLi = window.Views.ResourceLi = Marionette.ItemView.extend({
@@ -189,6 +185,8 @@
             '#m-squad-size': {
                 observe: 'size',
                 onGet: function (size) {
+                    // TODO: пофиксить...
+                    // cannot call methods on slider prior to initialization; attempted to call 'setAttribute'
                     var sizer = this.ui.size;
                     var val = +sizer.val() > size ? size : +sizer.val();
                     sizer.slider('setAttribute', 'max', +size);
@@ -261,7 +259,6 @@
 
             this.stickit();
         }
-
     });
     // ...Армия.
 })();

@@ -36,7 +36,7 @@ class GameListener
     {
         $entity = strtolower ((new \ReflectionClass($e->model))->getShortName());
         $event = "user/{$e->user->id}/$entity/{$e->type}";
-        $data = !empty($e->data) ?: $e->model->jsonSerialize();
+        $data = empty($e->data) ? $e->model->jsonSerialize() : $e->data;
 
         $redis = LRedis::connection();
         $redis->publish('message', json_encode(['event' => $event, 'data' => $data]));
