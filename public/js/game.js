@@ -136,22 +136,30 @@
         ui: {
             size: '#m-squad-size',
             name: '#m-squad-name',
-            help: '#m-squad-name-h'
+            help: '#m-squad-name-h',
+            error: '#m-squad-error-h'
         },
         initialize: function (options) {
             this.mergeOptions(options, ['goalid']);
         },
+        validate: function () {
+            var ui = this.ui;
+            if (ui.name.val() == '') {
+                ui.name.closest('.form-group').addClass('has-error').delay(5000).queue(function () {
+                    $(this).removeClass('has-error');
+                });
+                ui.help.fadeIn().delay(5000).fadeOut();
+                return false;
+            }
+            return true;
+        },
         events: {
             'click #m-crusade': function () {
-                var ui = this.ui;
+                var self = this, ui = this.ui;
 
-                if (ui.name.val() == '') {
-                    ui.help.removeClass('hidden');
-                    ui.name.closest('.form-group').addClass('has-error');
+                if (!this.validate()) {
                     return;
                 }
-                ui.help.addClass('hidden');
-                ui.name.closest('.form-group').removeClass('has-error');
 
                 $.post('game/armies/' + this.model.id + '/crusade', {
                         name: ui.name.val(),
@@ -159,16 +167,23 @@
                         goal: this.goalid
                     },
                     function (resp) {
+                        $('#castle-modal').modal('hide');
                         if (resp.success) {
-                            var options = {theme: 'bootstrapTheme', closeWith: ['button'], layout: 'bottomRight'}, s = resp.data;
+                            var options = {
+                                theme: 'bootstrapTheme',
+                                closeWith: ['button'],
+                                layout: 'bottomRight'
+                            }, s = resp.data;
                             options.text = 'Отряд "' + s.name + '" (' + s.size + ' чел.) отправился в поход на вражеский замок ' +
                                 '"' + s.goal.name + '"';
                             noty(options);
                         }
                     }, 'json'
+                ).fail(function (xhr, textStatus, errorThrown) {
+                        ui.error.text('Ошибка! ' + xhr.responseJSON.message);
+                        ui.error.closest('.form-group').fadeIn().delay(5000).fadeOut();
+                    }
                 );
-
-                $('#castle-modal').modal('hide');
             }
         },
         bindings: {
@@ -210,10 +225,50 @@
         ui: {
             buyCost: '#m-army-cost',
             buySize: '#my-army-buy-size',
-            squadsSize: '#my-army-sizesquads'
+            squadsSize: '#my-army-sizesquads',
+            resultBuy: '#m-army-result-buy',
+            resultUpgrade: '#m-army-result-upgrade'
         },
         regions: {
             squadsRegion: '#my-squads'
+        },
+        events: {
+            'click #m-army-buy': function () {
+                var ui = this.ui;
+
+                $.post('game/armies/' + this.model.id + '/buy', {count: ui.buySize.slider('getValue')},
+                    function (resp) {
+                        if (resp.success) {
+                            ui.resultBuy.text('Новые воины успешно наняты!');
+                            ui.resultBuy.closest('.form-group').removeClass('has-error has-success').addClass('has-success');
+                            ui.resultBuy.closest('.form-group').fadeIn().delay(5000).fadeOut();
+                        }
+                    }, 'json'
+                ).fail(function (xhr, textStatus, errorThrown) {
+                        ui.resultBuy.text('Ошибка! ' + xhr.responseJSON.message);
+                        ui.resultBuy.closest('.form-group').removeClass('has-error has-success').addClass('has-error');
+                        ui.resultBuy.closest('.form-group').fadeIn().delay(5000).fadeOut();
+                    }
+                );
+            },
+            'click #m-army-upgrade': function () {
+                var ui = this.ui;
+
+                $.post('game/armies/' + this.model.id + '/upgrade', {},
+                    function (resp) {
+                        if (resp.success) {
+                            ui.resultUpgrade.text('Армия улучшена!');
+                            ui.resultUpgrade.closest('.form-group').removeClass('has-error has-success').addClass('has-success');
+                            ui.resultUpgrade.closest('.form-group').fadeIn().delay(5000).fadeOut();
+                        }
+                    }, 'json'
+                ).fail(function (xhr, textStatus, errorThrown) {
+                        ui.resultUpgrade.text('Ошибка! ' + xhr.responseJSON.message);
+                        ui.resultUpgrade.closest('.form-group').removeClass('has-error has-success').addClass('has-error');
+                        ui.resultUpgrade.closest('.form-group').fadeIn().delay(5000).fadeOut();
+                    }
+                );
+            }
         },
         initialize: function (options) {
             this.mergeOptions(options, ['squads']);
@@ -234,11 +289,13 @@
                     return level + 1;
                 }
             },
-            '#my-army-buy-upgrade': 'buyUpgrade'
+            '#my-army-upgrade-price': 'upgradePrice'
         },
         getSquadsSize: function () {
             var size = 0;
-            this.squads.each(function ($s) { size += $s.get('size'); });
+            this.squads.each(function ($s) {
+                size += +$s.get('size');
+            });
             return size;
         },
         onRender: function () {

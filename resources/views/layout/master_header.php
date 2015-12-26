@@ -90,12 +90,12 @@
                 <legend>Подготовить нападение</legend>
                 <div class="col-sm-12">
                     <div class='form-group'>
-                        <label class="col-xs-4" for="m-squad-name">Имя отряда</label>
+                        <label class="col-xs-4 control-label" style="text-align: left" for="m-squad-name">Имя отряда</label>
 
                         <div class="col-xs-8">
                             <input class="form-control" id="m-squad-name" type="text">
                                             <span id="m-squad-name-h"
-                                                  class="help-block hidden">Не указано имя отряда</span>
+                                                  class="help-block" style="display: none;">Не указано имя отряда</span>
                         </div>
                     </div>
                     <div class='form-group'>
@@ -106,6 +106,9 @@
                                    type="text" data-slider-step="1"
                                    data-slider-value="1" data-slider-min="1">
                         </div>
+                    </div>
+                    <div class='form-group has-error' style="display: none;">
+                        <span id="m-squad-error-h" class="col-xs-12 help-block"></span>
                     </div>
                     <div class='form-group'>
                         <div class="col-xs-2">
@@ -158,12 +161,14 @@
                             <div class="col-xs-6">
                                 <input id="my-army-buy-size" data-slider-id="sl-army-buy-size"
                                        type="text" data-slider-step="1" data-slider-value="1"
-                                       data-slider-min="1"
-                                       data-slider-max="1000">
+                                       data-slider-min="1" data-slider-max="1000">
                             </div>
                             <div class="col-xs-2">
                                 <button type="button" id="m-army-buy" class="btn btn-primary">Купить</button>
                             </div>
+                        </div>
+                        <div class='form-group' style="display: none;">
+                            <span id="m-army-result-buy" class="col-xs-12 help-block"></span>
                         </div>
                     </div>
                 </fieldset>
@@ -173,13 +178,16 @@
                         <div class="form-group">
                             <div class="col-xs-9">
                                 <p>Стоимость перехода на <span id="my-army-level-up" class="badge"></span> уровень <span
-                                        id="my-army-buy-upgrade" class="badge"></span>
+                                        id="my-army-upgrade-price" class="badge"></span>
                                 </p>
                             </div>
                             <div class="col-xs-2">
                                 <button type="button" id="m-army-upgrade" class="btn btn-primary">Улучшить
                                 </button>
                             </div>
+                        </div>
+                        <div class='form-group' style="display: block">
+                            <span id="m-army-result-upgrade" class="col-xs-12 help-block"></span>
                         </div>
                     </div>
                 </fieldset>

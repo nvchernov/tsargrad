@@ -191,14 +191,13 @@ class Army extends Model
      * Купить новых воинов в армию замка.
      *
      * @param int $count кол-во воинов для покупки
-     * @return bool
      * @throws GameException
      * @throws \Exception
      */
     public function buy($count)
     {
-        if (!(is_integer($count) && $count > 0)) {
-            return false;
+        if ($count < 1) {
+            throw new GameException("Недопустимое количество воинов");
         }
 
         $castle = $this->castle;
@@ -210,10 +209,10 @@ class Army extends Model
 
         // Хватает ресурсов?
         if ($wood < $cost || $food < $cost) {
-            $mw = "ДЕРЕВА ({$wood} / {$cost})";
-            $mf = "ЕДЫ ({$food} / {$cost})";
-            $des = $wood < $cost && $food < $cost ? $mw . ' и ' . $mf : $wood < $cost ? $mw : $mf;
-            throw new GameException("Нельзя купить новых воинов. Не хватает $des");
+            $mw = "ДЕРЕВА ($wood / $cost)";
+            $mf = "ЕДЫ ($food / $cost)";
+            $des = $wood < $cost && $food < $cost ? "$mw и $mf" : ($wood < $cost ? $mw : $mf);
+            throw new GameException("Нельзя нанять воинов. Не хватает $des");
         }
 
         // Собственно покупка...
@@ -232,22 +231,19 @@ class Army extends Model
             throw($ex); // next...
         }
         DB::commit();
-
-        return true;
     }
 
     /**
      * Улучшить уровень армии замка.
      *
-     * @param int $addнLevel на сколько увеличить уровней сразу?
-     * @return bool
+     * @param int $addLevel на сколько увеличить уровней сразу?
      * @throws GameException
      * @throws \Exception
      */
     public function upgrade($addLevel = 1)
     {
-        if (!(is_integer($addLevel) && $addLevel > 0)) {
-            return false;
+        if ($addLevel < 1) {
+            throw new GameException("Недопустимый уровень для улучшения");
         }
         $castle = $this->castle;
 
@@ -280,8 +276,6 @@ class Army extends Model
             throw($ex); // next...
         }
         DB::commit();
-
-        return true;
     }
 
     /**
