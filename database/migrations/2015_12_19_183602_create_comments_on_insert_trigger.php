@@ -14,7 +14,7 @@ class CreateCommentsOnInsertTrigger extends Migration
      */
     public function up()
     {
-        DB::unprepared('
+        /*DB::unprepared('
               CREATE TRIGGER CreateCommentsAfterInsertTrigger BEFORE INSERT ON `comments` FOR EACH ROW
                     BEGIN
                         DECLARE h VARCHAR(255);
@@ -24,7 +24,7 @@ class CreateCommentsOnInsertTrigger extends Migration
                         END IF;
                         SET NEW.hierarchy = CONCAT(h,"-",NEW.id);
                     END
-        ');
+        ');*/
     }
 
     /**
@@ -34,6 +34,6 @@ class CreateCommentsOnInsertTrigger extends Migration
      */
     public function down()
     {
-        DB::unprepared('DROP TRIGGER `CreateCommentsAfterInsertTrigger`');
+        /*DB::unprepared('DROP TRIGGER `CreateCommentsAfterInsertTrigger`');*/
     }
 }

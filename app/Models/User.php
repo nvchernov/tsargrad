@@ -45,7 +45,10 @@ class User extends Model implements AuthenticatableContract,
         static::created(function(User $user)
         {
             $castle = $user->castle()->create(['name' => $user->caste_name ?: $user->name]);
-
+            $cb = CommentBlock::create();
+            $cb->save();
+            $user->commentBlock()->associate($cb);
+            $user->save();
             // Задать позицию на карте и армию по-умолчанию.
             $location = Location::freeRandom();
             if (is_null($location)) { throw new GameException('Нельзя добавить новый замок. Все поле уже занято.'); }
@@ -69,6 +72,11 @@ class User extends Model implements AuthenticatableContract,
     public function castle()
     {
         return $this->hasOne('App\Models\Castle');
+    }
+
+    public function commentBlock()
+    {
+        return $this->belongsTo('App\Models\CommentBlock','comment_block_id');
     }
 
     public function __get($key)
