@@ -9,6 +9,7 @@
 
 namespace App\Models;
 
+use App\Events\CUD;
 use App\Exceptions\GameException;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -36,6 +37,18 @@ class Castle extends Model
         //
         //    'location' => 'array',
     ];
+
+    public function save(array $options = [])
+    {
+        $exists = $this->exists;
+        $saved = parent::save($options);
+
+        if ($saved) {
+            event(new CUD($this->user, $exists ? 'update' : 'create', $this));
+        }
+
+        return $saved;
+    }
 
     /**
      * Получить армию или создать новую....
@@ -91,6 +104,8 @@ class Castle extends Model
         // Добавить новый ресурс...
         $this->resources()->attach($res->id, ['count' => $count]);
 
+        event(new CUD($this->user, 'update', $this, ['name' => $res->name, 'count' => $count]));
+
         return true;
     }
 
@@ -131,7 +146,13 @@ class Castle extends Model
         }
         // Уменьшить ресурс...
         $res->pivot->count -= $count;
-        return $res->pivot->save();
+        $saved = $res->pivot->save();
+
+        if ($saved) {
+            event(new CUD($this->user, 'update', $this, ['name' => $res->name, 'count' => $count]));
+        }
+
+        return $saved;
     }
 
     /**
@@ -158,7 +179,7 @@ class Castle extends Model
             $arr = [];
             // Извлечь все ресурсы этого замка...
             foreach ($this->resources()->getResults() as $r) {
-                $arr[$r->name] = $r->pivot->count;
+                $arr[] = ['name' => $r->name, 'count' => $r->pivot->count];
             }
             return collect($arr);
         }

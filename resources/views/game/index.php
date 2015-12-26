@@ -13,20 +13,7 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <h3>Ресурсы</h3>
-                        <ul class="list-group">
-                            <li class="list-group-item list-group-item-warning">
-                                <span class="my-gold badge"><?= $resources->get('gold') ?: 0 ?></span>
-                                Золото
-                            </li>
-                            <li class="list-group-item list-group-item-success">
-                                <span class="my-wood badge"><?= $resources->get('wood') ?: 0 ?></span>
-                                Дерево
-                            </li>
-                            <li class="list-group-item list-group-item-info">
-                                <span class="my-food badge"><?= $resources->get('food') ?: 0 ?></span>
-                                Еда
-                            </li>
-                        </ul>
+                        <div id="my-resources"></div>
                     </div>
                 </div>
                 <div class="row">
@@ -51,6 +38,8 @@
 
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
 <script type="text/javascript">
+    $('#my-resources').append((new Views.Resources({collection: player.resources})).render().el);
+
     var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
     var Castles = <?= $castles ? $castles->toJson() : [] ?>;
 

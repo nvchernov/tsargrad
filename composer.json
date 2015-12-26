@@ -10,7 +10,8 @@
         "doctrine/dbal": "2.6.x-dev",
         "barryvdh/laravel-ide-helper": "v2.1.0",
         "sleeping-owl/admin": "2.0.43",
-        "sleeping-owl/with-join": "1.0.11"
+        "sleeping-owl/with-join": "1.0.11",
+        "predis/predis": "1.0.x-dev"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

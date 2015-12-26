@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use App\Exceptions\GameException;
 use App\Models\Squad;
-use Carbon\Carbon;
 use Log;
 use Closure;
 

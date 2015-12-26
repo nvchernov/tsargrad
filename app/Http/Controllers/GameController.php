@@ -12,7 +12,6 @@ use Auth;
 use App\Models\Castle;
 use App\Models\Army;
 use Input;
-use Mockery\CountValidator\Exception;
 
 /**
  * Class GameController
@@ -48,7 +47,7 @@ class GameController extends Controller
      * @param array $headers
      * @return \Illuminate\Http\JsonResponse
      */
-    private function ajaxResponse(array $data, $code = 200, $headers = [])
+    private function ajaxResponse(array $data = [], $code = 200, $headers = [])
     {
         return response()->json(['success' => true, 'data' => $data, 'code' => $code], $code, $headers);
     }
@@ -61,7 +60,7 @@ class GameController extends Controller
      * @param array $headers
      * @return \Illuminate\Http\JsonResponse
      */
-    private function ajaxError($msg, $code = 500, $headers = [])
+    private function ajaxError($msg = '', $code = 500, $headers = [])
     {
         return response()->json(['success' => false, 'message' => $msg, 'code' => $code], $code, $headers);
     }
@@ -102,23 +101,6 @@ class GameController extends Controller
     }
 
     /**
-     * game/armies/{id}
-     *
-     * @param $id
-     * @return \Illuminate\Http\Response
-     */
-    public function getArmy($id)
-    {
-        // данные для представления.
-        $data = [];
-
-        $army = $data['army'] = Army::find($id);
-        $data['squads'] = $army->squads;
-
-        return response()->view('game/modal-army', $data);
-    }
-
-    /**
      * game/armies/{id}/crusade - POST AJAX запрос на создание нового отряда для похода.
      *
      * @return \Illuminate\Http\JsonResponse
@@ -131,32 +113,46 @@ class GameController extends Controller
                 $army = Army::find($id);
                 $squad = $army->crusade(Input::get('name'), Input::get('count'), $goal);
                 $squad->goal()->getResults();
-            } catch (Exception $exc) {
+            } catch (\Exception $exc) {
                 return $this->ajaxError($exc->getMessage());
             }
             return $this->ajaxResponse($squad->toArray());
         }
-
         return $this->ajaxError('Некорректно указаны атрибуты.');
     }
 
     /**
-     * 'game/army/buy' - POST AJAX запрос для покупки воинов в армию.
+     * 'game/armies/{id}/buy' - POST AJAX запрос для покупки воинов в армию.
      *
-     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function postArmyBuy(Request $request)
+    public function postArmyBuy($id)
     {
-
+        if (Input::has('count')) {
+            try {
+                $army = Army::find($id);
+                $army->buy(Input::get('count'));
+            } catch (\Exception $exc) {
+                return $this->ajaxError($exc->getMessage());
+            }
+            return $this->ajaxResponse();
+        }
+        return $this->ajaxError('Некорректно указаны атрибуты.');
     }
 
     /**
-     * 'game/army/upgrade' - POST AJAX запрос для улучшения армии.
+     * 'game/armies/{id}/upgrade' - POST AJAX запрос для улучшения армии.
      *
-     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function postArmyUpgrade(Request $request)
+    public function postArmyUpgrade($id)
     {
-
+        try {
+            $army = Army::find($id);
+            $army->upgrade();
+        } catch (\Exception $exc) {
+            return $this->ajaxError($exc->getMessage());
+        }
+        return $this->ajaxResponse();
     }
 }

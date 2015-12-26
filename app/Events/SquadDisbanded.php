@@ -5,6 +5,10 @@ namespace App\Events;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Squad;
 
+/**
+ * Class SquadDisbanded - отряд был рассформирован.
+ * @package App\Events
+ */
 class SquadDisbanded extends Event
 {
     use SerializesModels;
@@ -45,7 +49,7 @@ class SquadDisbanded extends Event
      */
     public function user()
     {
-        return $this->squad->army->castle->user;
+        return $this->squad->user;
     }
 
     /**
