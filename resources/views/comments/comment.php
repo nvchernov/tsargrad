@@ -6,10 +6,10 @@
     <div class="post-comments">
         <p class="meta">
             <?= $comment->created_at ?>
-            <a href="/user/<?=$user->id ?>" class="user-href"><?= $user->name ?></a> :
+            <a href="/user/profile/<?=$user->id ?>" class="user-href"><?= $user->name ?></a> :
             <? if($parent_user != null) : ?>
                 <i>для</i>&nbsp;
-                <a href="/user/<?=$parent_user->id?>">
+                <a href="/user/profile/<?=$parent_user->id?>">
                     <?=$parent_user->name?>
                 </a>
             <? endif;?>
@@ -19,6 +19,6 @@
                 </a>
             </i>
         </p>
-        <p><?= $comment->text ?></p>
+        <p class="comment-content"><?= $comment->text ?></p>
     </div>
 </li>

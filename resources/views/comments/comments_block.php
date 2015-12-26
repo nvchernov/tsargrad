@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/css/blog-comment.css">
 <div class="panel panel-default">
     <div class="panel-heading">
-        <form method="post" action="/comments/add">
+        <form method="post" action="/user/profile/add_comment">
             <input name="comment_block_id" class="hidden" value="<?=$block->id?>"/>
             <input name="parent_comment_id" class="hidden parent-comment-id"/>
             <div class="row">
@@ -46,7 +46,7 @@
             <ul class="pagination">
                 <? if ($page > 1) : ?>
                     <li>
-                        <a href="/comments/<?=$block->id.'/'.($page-1)?>" aria-label="Previous">
+                        <a href="/user/profile/<?=$user->id?>?page=<?=($page-1)?>" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
@@ -54,7 +54,7 @@
 
                 <? for($i=1; $i <= $page_count; ++$i): ?>
                     <li class="<?=$i == $page ? 'active' : ''?>">
-                        <a href="/comments/<?=$block->id.'/'.$i?>">
+                        <a href="/user/profile/<?=$user->id?>?page=<?=$i?>">
                             <?=$i?>
                         </a>
                     </li>
@@ -62,7 +62,7 @@
 
                 <? if ($page < $page_count) : ?>
                     <li>
-                        <a href="/comments/<?=$block->id.'/'.($page+1)?>" aria-label="Next">
+                        <a href="/user/profile/<?=$user->id?>?page=<?=($page+1)?>" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>

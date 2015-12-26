@@ -103,6 +103,7 @@
         <div class="row">
             <div class="col-lg-offset-1 col-lg-10">
                 <? echo view('comments/comments_block', [
+                    'user' => $user,
                     'block' => $block,
                     'comments' => $comments,
                     'page_count' => $page_count,

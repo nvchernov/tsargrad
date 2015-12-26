@@ -78,3 +78,6 @@
     line-height: 30px;
     font-weight: 800;
 }
+.blog-comment .comment-content {
+    word-wrap: break-word;
+}

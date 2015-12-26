@@ -13,16 +13,17 @@ use Illuminate\Routing\Controller;
 
 class UserController extends Controller
 {
-    public function getProfile()
+    public function getProfile($id)
     {
+        $user = User::find($id);
         $page = Input::get('page');
         $page = isset($page) ? Input::get('page') : 1;
-        $comment_block_id = Auth::user()->comment_block_id;
+        $comment_block_id = $user->comment_block_id;
         $block = CommentBlock::find($comment_block_id);
         $comments = $block->getPage($page);
         $page_count = $block->getPageCount();
         return view('user/profile', [
-            'user' => Auth::user(),
+            'user' => $user,
             'block' => $block,
             'comments' => $comments,
             'page_count' => $page_count,
@@ -41,7 +42,7 @@ class UserController extends Controller
             $text,
             $parent_comment_id == '' ? null : $parent_comment_id
         );
-        return redirect('user/profile/?page=1');
+        return redirect('user/profile?page=1');
     }
 
     public function postUpdate()
