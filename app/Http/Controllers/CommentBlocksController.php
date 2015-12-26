@@ -30,8 +30,12 @@ class CommentBlocksController extends Controller
         $user = Auth::user();
         $comments_block_id = Input::get('comment_block_id');
         $text = Input::get('text');
-        $parent_comment_id = Input::get('$parent_comment_id');
-        CommentBlock::find($comments_block_id)->addComment($user->id, $text, $parent_comment_id);
+        $parent_comment_id = Input::get('parent_comment_id');
+        CommentBlock::find($comments_block_id)->addComment(
+            $user->id,
+            $text,
+            $parent_comment_id == '' ? null : $parent_comment_id
+        );
         return redirect('comments/'.$comments_block_id.'/1');
     }
 

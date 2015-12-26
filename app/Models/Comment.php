@@ -26,7 +26,7 @@ class Comment extends Model
 
     public function level()
     {
-        $level = substr_count($this->hierarchy,'-')-1;
+        $level = substr_count($this->hierarchy,'-');
         return $level > 10 ? 10 : $level;
     }
 

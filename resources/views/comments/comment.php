@@ -1,12 +1,12 @@
 <? $user = $comment->user ?>
 <? $parent_user = $comment->answerFor() ?>
-<li class="clearfix" style="padding-left:<?=$comment->level()*7?>%;">
-    <img src="http://bootdey.com/img/Content/user_1.jpg" class="avatar" alt="">
-    <input name="comment_id" class="hidden" value="<?=$comment->id?>">
+<li class="clearfix comment" style="padding-left: <?=$comment->level()*7?>%">
+    <? echo view('user/avatar', ['user' => $user])?>
+    <input name="comment_id" class="hidden comment-id" value="<?=$comment->id?>">
     <div class="post-comments">
         <p class="meta">
             <?= $comment->created_at ?>
-            <a href="/user/<?=$user->id ?>"><?= $user->name ?></a> :
+            <a href="/user/<?=$user->id ?>" class="user-href"><?= $user->name ?></a> :
             <? if($parent_user != null) : ?>
                 <i>для</i>&nbsp;
                 <a href="/user/<?=$parent_user->id?>">

@@ -33,6 +33,13 @@ class CommentBlock extends Model
             'comment_block_id' => $this->id
         ]);
         $comment->save();
+        $h = '';
+        if ( $comment->parent()->count() != 0 )
+        {
+            $h = $comment->parent()->get()->first()->hierarchy;
+        }
+        $comment->hierarchy = ($h != null ? $h.'-' : '').$comment->id;
+        $comment->update();
     }
 
     /**

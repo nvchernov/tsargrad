@@ -4,18 +4,29 @@
     <div class="panel-heading">
         <form method="post" action="/comments/add">
             <input name="comment_block_id" class="hidden" value="<?=$block->id?>"/>
-            <input name="parent_comment_id" class="hidden"/>
+            <input name="parent_comment_id" class="hidden parent-comment-id"/>
             <div class="row">
                 <div class="col-lg-1 col-md-2">
                     <p>Комментарии</p>
                 </div>
 
-                <div class="col-lg-10 col-md-8">
+                <div class="col-lg-9 col-md-6">
                     <textarea name="text" class="form-control"></textarea>
                 </div>
 
-                <div class="col-lg-1 col-md-2">
-                    <input type="submit" class="btn btn-success btn-sm" value="Добавить"/>
+                <div class="col-lg-2 col-md-4" >
+                    <div class="center-block" >
+                        <input type="submit" class="btn btn-success btn-sm center-block" value="Добавить"/>
+                    </div>
+                    <div  class="comment-answer-block center-block hidden">
+                        <p class="text-center">
+                            <i>в ответ для</i>
+                            &nbsp;
+                            <a href="#" class="comment-to">janv</a>
+                            &nbsp;
+                            <a href="#" class="delete-comment-to"><i class="glyphicon glyphicon-remove"></i></a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </form>
@@ -40,6 +51,7 @@
                         </a>
                     </li>
                 <? endif; ?>
+
                 <? for($i=1; $i <= $page_count; ++$i): ?>
                     <li class="<?=$i == $page ? 'active' : ''?>">
                         <a href="/comments/<?=$block->id.'/'.$i?>">

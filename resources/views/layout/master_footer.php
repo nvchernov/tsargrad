@@ -13,6 +13,7 @@
             Tsargrag 2016 (c) VSTU PRIN-2n
         </p>
     </div>
+    <script src="/js/comments.js"></script>
 </footer>
 </body>
 </html>
