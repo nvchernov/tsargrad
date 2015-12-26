@@ -12,7 +12,8 @@ use App\Events\CUD;
 use App\Exceptions\GameException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use DB, Log;
+use DB;
+//use Log;
 
 class Army extends Model
 {
@@ -174,10 +175,10 @@ class Army extends Model
             $this->squads()->save($squad);
 
             $now = Carbon::now();
-            Log::info('---------------------------------------------------------------------------------------------------');
-            Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
-            Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
-            Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
+            //Log::info('---------------------------------------------------------------------------------------------------');
+            //Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
+            //Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
+            //Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -224,8 +225,8 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            Log::info('---------------------------------------------------------------------------------------------------');
-            Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
+            //Log::info('---------------------------------------------------------------------------------------------------');
+            //Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -269,8 +270,8 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            Log::info('---------------------------------------------------------------------------------------------------');
-            Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
+            //Log::info('---------------------------------------------------------------------------------------------------');
+            //Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
