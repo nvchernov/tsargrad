@@ -6,7 +6,7 @@
  * Time: 15:34
  */
 ?>
-<footer class="navbar-fixed-bottom" role="contentinfo">
+<footer  role="contentinfo">
     <div class="container">
         <hr>
         <p class="text-center" style="color:white;">

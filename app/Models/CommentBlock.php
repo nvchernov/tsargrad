@@ -40,7 +40,7 @@ class CommentBlock extends Model
      */
     public function getPageCount()
     {
-        return cell( $this->comments()->getEager()->count() / $this->getPerPage() );
+        return ceil( $this->comments()->count() / $this->getPerPage() );
     }
 
     /**
@@ -49,10 +49,15 @@ class CommentBlock extends Model
      */
     public function getPage($page)
     {
-        return $this->comments()
-            ->sortBy('hierarchy')
-            ->splice($page*$this->getPerPage())
-            ->take($this->getPerPage());
+        return $this->orderedComments()
+            ->skip(($page-1)*$this->getPerPage())
+            ->take($this->getPerPage())
+            ->get();
+    }
+
+    public function orderedComments()
+    {
+        return $this->comments()->orderBy('hierarchy');
     }
 
     /**

@@ -40,7 +40,7 @@ Route::resource('news', 'NewsController');
 
 // Комментарии
 Route::post('comments/add', 'CommentBlocksController@add');
-Route::get('comments/{id}', 'CommentBlocksController@index');
+Route::get('comments/{id}/{page}', 'CommentBlocksController@comments');
 
 // Игровой контроллер...
 

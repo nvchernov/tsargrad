@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Input;
 use App\Models\CommentBlock;
 use Illuminate\Http\Request;
+use Auth;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -16,16 +17,22 @@ class CommentBlocksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id)
+    public function comments($id,$page)
     {
-        $result = CommentBlock::find($id);
+        $block = CommentBlock::find($id);
+        $comments = $block->getPage($page);
+        $page_count = $block->getPageCount();
         require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/comments/comments_block.php');
-        //return CommentBlock::all();
     }
 
     public function add()
     {
-        return Input::all();
+        $user = Auth::user();
+        $comments_block_id = Input::get('comment_block_id');
+        $text = Input::get('text');
+        $parent_comment_id = Input::get('$parent_comment_id');
+        CommentBlock::find($comments_block_id)->addComment($user->id, $text, $parent_comment_id);
+        return redirect('comments/'.$comments_block_id.'/1');
     }
 
     /**
