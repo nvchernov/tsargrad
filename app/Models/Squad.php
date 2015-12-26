@@ -9,14 +9,13 @@
 namespace App\Models;
 
 use App\Events\SquadAssaulted;
-use App\Events\SquadWasAssaulted;
-use App\Events\SquadWasDisbanded;
+use App\Events\SquadDisbanded;
+use App\Events\CUD;
 use App\Exceptions\GameException;
-use App\Facades\GameField;
 use Carbon\Carbon;
 use DB;
+//use Log;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use Log;
 
 class Squad extends Model
 {
@@ -32,6 +31,40 @@ class Squad extends Model
     protected $fillable = ['name', 'size'];
 
     protected $dates = ['deleted_at', 'updated_at', 'created_at', 'crusade_at', 'crusade_end_at', 'battle_at'];
+
+    public function scopeReadyToDisband($query)
+    {
+        return $query->whereNotNull('crusade_end_at')->where('crusade_end_at', '<=', Carbon::now());
+    }
+
+    public function scopeReadyToAssault($query)
+    {
+        return $query->whereNull('crusade_end_at')->where('battle_at', '<=', Carbon::now());
+    }
+
+    public function save(array $options = [])
+    {
+        $exists = $this->exists;
+        $saved = parent::save($options);
+
+        if ($saved) {
+            event(new CUD($this->user, $exists ? 'update' : 'create', $this));
+        }
+
+        return $saved;
+    }
+
+    public function delete()
+    {
+        $id = $this->id;
+        $deleted = parent::delete();
+
+        if ($deleted) {
+            event(new CUD($this->user, 'delete', $this, ['id' => $id]));
+        }
+
+        return $deleted;
+    }
 
     /**
      * Get an army.
@@ -111,8 +144,8 @@ class Squad extends Model
         $aArmy = $this->army; // атакующая армия
         $dArmy = $this->goal->armyOrCreate(); // защищающиеся армия
 
-        Log::info('---------------------------------------------------------------------------------------------------');
-        Log::info("($now) Штурм замка id={$this->goal->id} '{$this->goal->name}' отрядом id={$this->id} '{$this->name}'...");
+        //Log::info('---------------------------------------------------------------------------------------------------');
+        //Log::info("($now) Штурм замка id={$this->goal->id} '{$this->goal->name}' отрядом id={$this->id} '{$this->name}'...");
 
         // xa, ya - кол-во и уровень атакующих.
         // xd, yd, zd - кол-во, уровень войск и уровень фортификации защищающихся.
@@ -122,14 +155,14 @@ class Squad extends Model
         $yd = $dArmy->level;
         $zd = 0; // Уровень фортификации, пока остается 0;
 
-        Log::info("Сила атак. отряда = $xa и уровень = $ya");
-        Log::info("Сила защ. армии = $xd, уровень = $yd и фортифмкация = $zd");
+        //Log::info("Сила атак. отряда = $xa и уровень = $ya");
+        //Log::info("Сила защ. армии = $xd, уровень = $yd и фортифмкация = $zd");
 
         if ($xd == 0) {
             // Защитников нет, досрочная победа атакующих...
             DB::beginTransaction();
             try {
-                Log::info("Досрочно победили атакующие. Осталось в живых = $xa");
+                //Log::info("Досрочно победили атакующие. Осталось в живых = $xa");
 
                 $loots = $this->rob(); // начать грабить.
                 $this->comeback(); // вернуться назад в замок.
@@ -145,28 +178,28 @@ class Squad extends Model
         }
 
         // Рассчет мощностей каждой из армий и их разницы...
-        $rand = rand(0-$xd / 3, $xa / 3); // рандом при расчете мощностей
+        $rand = rand(0-$xd / 5, $xa / 5); // рандом при расчете мощностей
         $diff = intval($xa * $ya - $xd * $yd * (1 + $zd / 100) + $rand);
 
-        Log::info("Мощность атакующих = " . ($xa * $ya) . ". Мощность защитников = " . ($xd * $yd * (1 + $zd / 100)));
-        Log::info("Первый рандом = $rand. Разница мощностей с рандомом = $diff");
+        //Log::info("Мощность атакующих = " . ($xa * $ya) . ". Мощность защитников = " . ($xd * $yd * (1 + $zd / 100)));
+        //Log::info("Первый рандом = $rand. Разница мощностей с рандомом = $diff");
 
         $rand = rand(0, 150) / 1000; // рандом при вычилсение сил победителей
-        // Расчет сил победителей и награды, в случаи победы атакующих...
-        Log::info("Второй рандом = $rand");
+        //Log::info("Второй рандом = $rand");
 
+        // Расчет сил победителей и награды, в случаи победы атакующих...
         DB::beginTransaction();
         try {
             $loots = [];
             if ($diff > 0) {
                 // Атакующий отряд победил...
                 $left = ($diff / $ya) * (1 + $rand);
-                $left = intval($left);
+                $left = intval($left > $xa ? $xa : $left);
                 // Оставить только выживших...
                 $this->update(['size' => $left]);
                 $dArmy->reset();
 
-                Log::info("Победили атакующие. Осталось в живых = $left");
+                //Log::info("Победили атакующие. Осталось в живых = $left");
 
                 $loots = $this->rob(); // начать грабить.
                 $this->comeback(); // вернуться назад в замок.
@@ -174,19 +207,19 @@ class Squad extends Model
             } elseif ($diff < 0) {
                 // Защитники победили...
                 $left = ($diff / $yd) * (1 + $zd / 100) * (1 + $rand);
-                $left = abs(intval($left));
+                $left = abs(intval($left > $xd ? $xd : $left));
                 // Оставить только выживших...
                 $this->delete();
                 $dArmy->update(['size' => $left]);
 
-                Log::info("Победили защитники. Осталось в живых = $left");
+                //Log::info("Победили защитники. Осталось в живых = $left");
                 $status = 'def';
             } else {
                 // Ничья.
                 $this->delete();
                 $dArmy->reset();
 
-                Log::info("Ничья. Все умерли.");
+                //Log::info("Ничья. Все умерли.");
                 $status = 'draw';
             }
 
@@ -214,8 +247,8 @@ class Squad extends Model
         $goal = $this->goal;
 
         $now = Carbon::now();
-        Log::info('---------------------------------------------------------------------------------------------------');
-        Log::info("($now) Грабеж замка id={$goal->id} '{$goal->name}' отрядом id={$this->id} '{$this->name}' ({$this->size} в)...");
+        //Log::info('---------------------------------------------------------------------------------------------------');
+        //Log::info("($now) Грабеж замка id={$goal->id} '{$goal->name}' отрядом id={$this->id} '{$this->name}' ({$this->size} в)...");
 
         $loots = []; // награбленное
         // Ресурсы, которые может унести отряд...
@@ -226,7 +259,7 @@ class Squad extends Model
         // то попытаться возместить это ресурсами другого типа.
         $residue = 0;
 
-        Log::info("Количетво каждого ресурса, который может унести весь отряд = $resOnSquad");
+        //Log::info("Количетво каждого ресурса, который может унести весь отряд = $resOnSquad");
 
         DB::beginTransaction();
         try {
@@ -251,11 +284,11 @@ class Squad extends Model
                         $loots[] = [$res->name => $loot];
                         $this->resources()->attach($res->id, ['count' => $loot]);
 
-                        Log::info("Имеется $exists ресурса id={$res->id} '{$res->name}'. Изъято отрядом в количестве = {$loot}");
+                        //Log::info("Имеется $exists ресурса id={$res->id} '{$res->name}'. Изъято отрядом в количестве = {$loot}");
                     }
                 }
             }
-            Log::info("Грабеж закончен.");
+            //Log::info("Грабеж закончен.");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -278,8 +311,8 @@ class Squad extends Model
         $loots = []; // награбленное.
 
         $now = Carbon::now();
-        Log::info('---------------------------------------------------------------------------------------------------');
-        Log::info("($now) Расформирование отряда id={$this->id} '{$this->name}' ({$this->size} в) замка id={$castle->id} '{$castle->name}'...");
+        //Log::info('---------------------------------------------------------------------------------------------------');
+        //Log::info("($now) Расформирование отряда id={$this->id} '{$this->name}' ({$this->size} в) замка id={$castle->id} '{$castle->name}'...");
 
         DB::beginTransaction();
         try {
@@ -289,7 +322,7 @@ class Squad extends Model
                 $castle->addResource($res, $loot); // ...теперь в замке
 
                 $loots[] = [$res->name => $loot]; // награбленное
-                Log::info("Добавлено $loot ресурса id={$res->id} '{$res->name}' в замок");
+                //Log::info("Добавлено $loot ресурса id={$res->id} '{$res->name}' в замок");
             }
             $beforeSize = $army->size;
 
@@ -301,8 +334,8 @@ class Squad extends Model
             $this->delete();
             $army->save();
 
-            Log::info("Воинов в замке было $beforeSize. После дизбанда воинов стало = {$army->size}");
-            Log::info("Расформирование закончено.");
+            //Log::info("Воинов в замке было $beforeSize. После дизбанда воинов стало = {$army->size}");
+            //Log::info("Расформирование закончено.");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -332,15 +365,15 @@ class Squad extends Model
         }
 
         // Рассчитать время возвращения домой отряда...
-        $minutes = GameField::howMuchTime($castle, $goal);
-        $minutes = intval($minutes * 1.2); // С учетом усталости отряда...
+        $minutes = Location::howMuchTime($castle, $goal);
+        $minutes = intval($minutes * 1.15); // С учетом усталости отряда...
         $end = $this->crusade_end_at = Carbon::now()->addMinutes($minutes); // дата возвращения отряда.
 
         $this->save();
 
         $now = Carbon::now();
-        Log::info('---------------------------------------------------------------------------------------------------');
-        Log::info("($now) Отряд id={$this->id} '{$this->name}' вернется в замок {$this->crusade_end_at}.");
+        //Log::info('---------------------------------------------------------------------------------------------------');
+        //Log::info("($now) Отряд id={$this->id} '{$this->name}' вернется в замок {$this->crusade_end_at}.");
 
         return $end;
     }
@@ -404,16 +437,21 @@ class Squad extends Model
             $state = $this->state;
             switch ($state) {
                 case 'comeback':
-                    $hstate = "В пути домой. Вернется из похода {$this->crusade_end_at->toDateTimeString()}"; break;
+                    $hstate = "Вернется из похода {$this->crusade_end_at->format('d.m.Y H:i')}"; break;
                 case 'assault':
                     $hstate = 'Штурмует вражеский замок'; break;
                 case 'crusade':
-                    $hstate = "В походе от {$this->crusade_at->toDateTimeString()}. Штурм состоится {$this->battle_at->toDateTimeString()}"; break;
+                    $hstate = "В походе на {$this->goal->name}. Сражение {$this->battle_at->format('d.m.Y H:i')}"; break;
                 default:
                     $hstate = 'Бездействует';
 
             }
             return $hstate;
+        }
+
+        // Получить пользователя.
+        if ($key == 'user') {
+            return $this->army ? ($this->army->castle ? $this->army->castle->user : null) : null;
         }
 
         return parent::__get($key);

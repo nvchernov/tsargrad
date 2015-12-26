@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommentBlock extends Model
 {
-    use SoftDeletes;
 
     /**
      * The database table used by the model.
@@ -34,6 +33,13 @@ class CommentBlock extends Model
             'comment_block_id' => $this->id
         ]);
         $comment->save();
+        $h = '';
+        if ( $comment->parent()->count() != 0 )
+        {
+            $h = $comment->parent()->get()->first()->hierarchy;
+        }
+        $comment->hierarchy = ($h != null ? $h.'-' : '').$comment->id;
+        $comment->update();
     }
 
     /**
@@ -41,7 +47,7 @@ class CommentBlock extends Model
      */
     public function getPageCount()
     {
-        return cell( $this->comments()->getEager()->count() / $this->getPerPage() );
+        return ceil( $this->comments()->count() / $this->getPerPage() );
     }
 
     /**
@@ -50,12 +56,15 @@ class CommentBlock extends Model
      */
     public function getPage($page)
     {
-        return $this->comments()
-            ->getEager()
-            ->sortBy('hierarchy')
-            ->splice($page*$this->getPerPage())
+        return $this->orderedComments()
+            ->skip(($page-1)*$this->getPerPage())
             ->take($this->getPerPage())
-            ->all();
+            ->get();
+    }
+
+    public function orderedComments()
+    {
+        return $this->comments()->orderBy('hierarchy');
     }
 
     /**

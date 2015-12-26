@@ -7,7 +7,9 @@ use Database\Seeders\CastlesTableSeeder,
     Database\Seeders\SquadsTableSeeder,
     Database\Seeders\ResourcesTableSeeder,
     Database\Seeders\AdministratorsTableSeeder,
-    Database\Seeders\NewsTableSeeder;
+    Database\Seeders\NewsTableSeeder,
+    Database\Seeders\LocationsTableSeeder,
+    Database\Seeders\CommentBlocksTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,12 +22,14 @@ class DatabaseSeeder extends Seeder
     {
         Model::unguard();
 
+        $this->call(CommentBlocksTableSeeder::class);
         $this->call(ResourcesTableSeeder::class);
         $this->call(CastlesTableSeeder::class);
         $this->call(ArmiesTableSeeder::class);
         $this->call(SquadsTableSeeder::class);
         $this->call(AdministratorsTableSeeder::class);
         $this->call(NewsTableSeeder::class);
+        $this->call(LocationsTableSeeder::class);
 
         Model::reguard();
     }

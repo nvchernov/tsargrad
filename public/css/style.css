@@ -1,0 +1,12 @@
+.gamefield {
+    text-align: center;
+    margin: 50px 0;
+}
+
+#sl-squad-size .slider-selection {
+    background: #BABABA;
+}
+
+.pagination {
+    margin: 0 0 0 0;
+}

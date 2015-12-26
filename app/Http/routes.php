@@ -13,14 +13,41 @@
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('auth/login');
 });
 
+// Authentication routes...
+Route::get('auth/login', 'Auth\AuthController@getLogin');
+Route::post('auth/login', 'Auth\AuthController@postLogin');
+Route::get('auth/logout', 'Auth\AuthController@getLogout');
+
+// Registration routes...
+Route::get('auth/register', 'Auth\AuthController@getRegister');
+Route::post('auth/register', 'Auth\AuthController@postRegister');
+
+Route::get('user/profile', ['middleware' => 'auth', 'uses' => 'UserController@getProfile']);
+Route::post('user/update', ['middleware' => 'auth', 'uses' => 'UserController@postUpdate']);
+
+// Роуты запроса ссылки для сброса пароля
+Route::get('password/email', 'Auth\PasswordController@getEmail');
+Route::post('password/email', 'Auth\PasswordController@postEmail');
+
+// Роуты сброса пароля
+Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
+Route::post('password/reset', 'Auth\PasswordController@postReset');
 
 Route::resource('news', 'NewsController');
 
-// Единый игровой контроллер.
-Route::get('game', ['uses' => 'GameController@index', 'as' => 'gamefield']);
-Route::put('game/army/crusade', 'GameController@armyCrusade');
-Route::put('game/army/buy', 'GameController@armyBuy');
-Route::put('game/army/upgrade', 'GameController@armyUpgrade');
+// Комментарии
+Route::post('comments/add', 'CommentBlocksController@add');
+Route::get('comments/{id}/{page}', 'CommentBlocksController@comments');
+
+// Игровой контроллер...
+
+// General page
+Route::get('game', ['uses' => 'GameController@getIndex', 'as' => 'home']);
+
+Route::get('game/castles/{id}', 'GameController@getCastle');
+Route::post('game/armies/{id}/crusade', 'GameController@postArmyCrusade');
+Route::post('game/armies/{id}/buy', 'GameController@postArmyBuy');
+Route::post('game/armies/{id}/upgrade', 'GameController@postArmyUpgrade');

@@ -18,7 +18,6 @@ class CreateCastlesTable extends Migration
             $table->increments('id');
 
             $table->string('name')->index();
-            $table->json('location');
 
             $table->timestamps();
             $table->softDeletes();

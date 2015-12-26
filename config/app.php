@@ -148,12 +148,6 @@ return [
         'SleepingOwl\Admin\AdminServiceProvider',
         'Illuminate\Html\HtmlServiceProvider',
 
-        /*
-         * A game providers ...
-         */
-        App\Providers\GameFieldServiceProvider::class,
-        // ...end
-
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
 
     ],
@@ -194,7 +188,7 @@ return [
         'Password'  => Illuminate\Support\Facades\Password::class,
         'Queue'     => Illuminate\Support\Facades\Queue::class,
         'Redirect'  => Illuminate\Support\Facades\Redirect::class,
-        'Redis'     => Illuminate\Support\Facades\Redis::class,
+        'LRedis'     => Illuminate\Support\Facades\Redis::class,
         'Request'   => Illuminate\Support\Facades\Request::class,
         'Response'  => Illuminate\Support\Facades\Response::class,
         'Route'     => Illuminate\Support\Facades\Route::class,
@@ -214,9 +208,7 @@ return [
         'ModelItem'            => 'SleepingOwl\Admin\Models\ModelItem',
 
         'Form'      => 'Illuminate\Html\FormFacade',
-        'Html'      => 'Illuminate\Html\HtmlFacade',
-
-        'GameField' => App\Facades\GameField::class
+        'Html'      => 'Illuminate\Html\HtmlFacade'
     ],
 
 ];

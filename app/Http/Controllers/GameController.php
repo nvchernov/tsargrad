@@ -8,9 +8,10 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\Models\Castle;
-use Illuminate\Http\Request;
-use Mockery\CountValidator\Exception;
+use App\Models\Army;
+use Input;
 
 /**
  * Class GameController
@@ -20,19 +21,23 @@ class GameController extends Controller
 {
     public function __construct()
     {
-        //$this->middleware('auth');
+        $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['only' => ['armyCrusade', 'armyBuy', 'armyUpgrade']]);
-        $this->middleware('json', ['only' => ['armyCrusade', 'armyBuy', 'armyUpgrade']]);
+        $this->middleware('ajax', ['except' => ['getIndex']]);
+        $this->middleware('wants.json', ['only' => ['postArmyCrusade', 'postArmyBuy', 'postArmyUpgrade']]);
     }
 
-    /**
-     * 'game/' - главная страница игры, игровая карта.
-     */
-    public function index()
-    {
-        require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
-    }
+    /* Получить все локации...
+       $de = 93;
+        $x1 = $y1 = 95;
+        $x2 = $y2 = $x1 + $de;
+            $w = sqrt(Location::count()) * $de + $x1;
+            for ($x1 = 95, $y1 = 95; $x1 <= $w && $y1 <= $w; $x1 += $de, $y1 += $de) {
+                for ($x2 = $x1 + $de, $y2 = $y1 + $de; $x2 <= $w && $y2 <= $w; $x2 += $de, $y2 += $de) {
+                    $data[] = "<area state='$x2-$y2' shape='rect' coords='$x1, $y1, $x2, $y2' href='#'>";
+                }
+            }
+    */
 
     /**
      * Ajax success response.
@@ -42,7 +47,7 @@ class GameController extends Controller
      * @param array $headers
      * @return \Illuminate\Http\JsonResponse
      */
-    private function ajaxResponse(array $data, $code = 200, $headers = [])
+    private function ajaxResponse(array $data = [], $code = 200, $headers = [])
     {
         return response()->json(['success' => true, 'data' => $data, 'code' => $code], $code, $headers);
     }
@@ -55,52 +60,99 @@ class GameController extends Controller
      * @param array $headers
      * @return \Illuminate\Http\JsonResponse
      */
-    private function ajaxError($msg, $code = 500, $headers = [])
+    private function ajaxError($msg = '', $code = 500, $headers = [])
     {
         return response()->json(['success' => false, 'message' => $msg, 'code' => $code], $code, $headers);
     }
 
     /**
-     * 'game/army/crusade - POST AJAX запрос на создание нового отряда для похода.
-     * @param Request $request
+     * game - главная страница игры, игровая карта.
+     */
+    public function getIndex()
+    {
+        // данные для представления.
+        $data = [];
+
+        $user = $data['user'] = Auth::user();
+        $data['castles'] = Castle::has('location')->with('location')->get();
+        $c = $data['castle'] = $user->castle;
+        $data['resources'] = $c->getResources();
+
+        //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
+        return view('game/index', $data);
+    }
+
+    /**
+     * game/castles/{id}
+     *
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getCastle($id)
+    {
+        // данные для представления.
+        $data = [];
+
+        $data['user'] = Auth::user();
+        $c = $data['castle'] = Castle::find($id);
+        $data['resources'] = $c->getResources();
+
+        return response()->view('game/modal-castle', $data);
+    }
+
+    /**
+     * game/armies/{id}/crusade - POST AJAX запрос на создание нового отряда для похода.
+     *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function armyCrusade(Request $request)
+    public function postArmyCrusade($id)
     {
-        $user = $request->user();
-        $name = $request->input('name');
-        $goal_id = $request->input('goal_id');
-        $count = $request->input('count');
-
-        if (isset($user) && !empty($name) && !empty($goal_id) && !empty($count)) {
+        if (Input::has('name') && Input::has('goal') && Input::has('count')) {
             try {
-                $goal = Castle::find($request->input('goal_id'));
-                $army = $user->castle->army;
-                $squad = $army->crusade($request->input('name'), $request->input('count'), $goal);
-            } catch (Exception $exc) {
+                $goal = Castle::find(Input::get('goal'));
+                $army = Army::find($id);
+                $squad = $army->crusade(Input::get('name'), Input::get('count'), $goal);
+                $squad->goal()->getResults();
+            } catch (\Exception $exc) {
                 return $this->ajaxError($exc->getMessage());
             }
             return $this->ajaxResponse($squad->toArray());
         }
-
-        return $this->ajaxError('Некорректно указаны атрибуты');
+        return $this->ajaxError('Некорректно указаны атрибуты.');
     }
 
     /**
-     * 'game/army/buy' - POST AJAX запрос для покупки воинов в армию.
-     * @param Request $request
+     * 'game/armies/{id}/buy' - POST AJAX запрос для покупки воинов в армию.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function armyBuy(Request $request)
+    public function postArmyBuy($id)
     {
-
+        if (Input::has('count')) {
+            try {
+                $army = Army::find($id);
+                $army->buy(Input::get('count'));
+            } catch (\Exception $exc) {
+                return $this->ajaxError($exc->getMessage());
+            }
+            return $this->ajaxResponse();
+        }
+        return $this->ajaxError('Некорректно указаны атрибуты.');
     }
 
     /**
-     * 'game/army/upgrade' - POST AJAX запрос для улучшения армии.
-     * @param Request $request
+     * 'game/armies/{id}/upgrade' - POST AJAX запрос для улучшения армии.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function armyUpgrade(Request $request)
+    public function postArmyUpgrade($id)
     {
-
+        try {
+            $army = Army::find($id);
+            $army->upgrade();
+        } catch (\Exception $exc) {
+            return $this->ajaxError($exc->getMessage());
+        }
+        return $this->ajaxResponse();
     }
 }

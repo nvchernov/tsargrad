@@ -20,6 +20,9 @@ class PasswordController extends Controller
 
     use ResetsPasswords;
 
+    protected $subject = "Сброс пароля";
+    protected $redirectTo = '/game';
+
     /**
      * Create a new password controller instance.
      *

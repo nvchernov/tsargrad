@@ -8,11 +8,12 @@
 
 namespace App\Models;
 
+use App\Events\CUD;
 use App\Exceptions\GameException;
-use App\Facades\GameField;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use DB, Log;
+use DB;
+//use Log;
 
 class Army extends Model
 {
@@ -53,6 +54,27 @@ class Army extends Model
         return intval(exp($level / 10) * 12 * ($strength + 1));
     }
 
+    public function jsonSerialize()
+    {
+        $serialized = parent::jsonSerialize();
+
+        return array_merge($serialized, [
+            'buyPrice' => $this->buyPrice(), 'upgradePrice' => $this->upgradePrice(),
+        ]);
+    }
+
+    public function save(array $options = [])
+    {
+        $exists = $this->exists;
+        $saved = parent::save($options);
+
+        if ($saved) {
+            event(new CUD($this->user, $exists ? 'update' : 'create', $this));
+        }
+
+        return $saved;
+    }
+
     /**
      * Get all squads.
      * One to Many relation.
@@ -73,6 +95,23 @@ class Army extends Model
     public function castle()
     {
         return $this->belongsTo('App\Models\Castle');
+    }
+
+    /**
+     * Цена покупки одного воина.
+     * @return int
+     */
+    public function buyPrice()
+    {
+        return static::formulaBuy($this->level, 1);
+    }
+
+    /**
+     * Цена улучшения на 1 уровень армии.
+     */
+    public function upgradePrice()
+    {
+        return static::formulaUpgrade($this->level, $this->strength);
     }
 
     /**
@@ -125,7 +164,7 @@ class Army extends Model
         $squad = new Squad(['name' => $name, 'size' => $count]);
         $squad->crusade_at = Carbon::now(); // Начало похода
         // Время на поход...
-        $minutes = GameField::howMuchTime($this->castle, $goal);
+        $minutes = Location::howMuchTime($this->castle, $goal);
         $squad->battle_at = Carbon::now()->addMinutes($minutes); // Конец похода
 
         DB::beginTransaction();
@@ -136,10 +175,10 @@ class Army extends Model
             $this->squads()->save($squad);
 
             $now = Carbon::now();
-            Log::info('---------------------------------------------------------------------------------------------------');
-            Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
-            Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
-            Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
+            //Log::info('---------------------------------------------------------------------------------------------------');
+            //Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
+            //Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
+            //Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -153,14 +192,13 @@ class Army extends Model
      * Купить новых воинов в армию замка.
      *
      * @param int $count кол-во воинов для покупки
-     * @return bool
      * @throws GameException
      * @throws \Exception
      */
     public function buy($count)
     {
-        if (!(is_integer($count) && $count > 0)) {
-            return false;
+        if ($count < 1) {
+            throw new GameException("Недопустимое количество воинов");
         }
 
         $castle = $this->castle;
@@ -172,10 +210,10 @@ class Army extends Model
 
         // Хватает ресурсов?
         if ($wood < $cost || $food < $cost) {
-            $mw = "ДЕРЕВА ({$wood} / {$cost})";
-            $mf = "ЕДЫ ({$food} / {$cost})";
-            $des = $wood < $cost && $food < $cost ? $mw . ' и ' . $mf : $wood < $cost ? $mw : $mf;
-            throw new GameException("Нельзя купить новых воинов. Не хватает $des");
+            $mw = "ДЕРЕВА ($wood / $cost)";
+            $mf = "ЕДЫ ($food / $cost)";
+            $des = $wood < $cost && $food < $cost ? "$mw и $mf" : ($wood < $cost ? $mw : $mf);
+            throw new GameException("Нельзя нанять воинов. Не хватает $des");
         }
 
         // Собственно покупка...
@@ -187,29 +225,26 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            Log::info('---------------------------------------------------------------------------------------------------');
-            Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
+            //Log::info('---------------------------------------------------------------------------------------------------');
+            //Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
         }
         DB::commit();
-
-        return true;
     }
 
     /**
      * Улучшить уровень армии замка.
      *
-     * @param int $addнLevel на сколько увеличить уровней сразу?
-     * @return bool
+     * @param int $addLevel на сколько увеличить уровней сразу?
      * @throws GameException
      * @throws \Exception
      */
     public function upgrade($addLevel = 1)
     {
-        if (!(is_integer($addLevel) && $addLevel > 0)) {
-            return false;
+        if ($addLevel < 1) {
+            throw new GameException("Недопустимый уровень для улучшения");
         }
         $castle = $this->castle;
 
@@ -235,15 +270,13 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            Log::info('---------------------------------------------------------------------------------------------------');
-            Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
+            //Log::info('---------------------------------------------------------------------------------------------------');
+            //Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
         }
         DB::commit();
-
-        return true;
     }
 
     /**
@@ -294,6 +327,11 @@ class Army extends Model
         // Получить силу армии...
         if ($key == 'strength') {
             return $this->size + $this->sizeOfSquads;
+        }
+
+        // Получить пользователя.
+        if ($key == 'user') {
+            return $this->castle ? $this->castle->user : null;
         }
 
         return parent::__get($key);
