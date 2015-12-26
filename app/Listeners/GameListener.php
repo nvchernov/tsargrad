@@ -15,21 +15,25 @@ class GameListener
     public function onSquadAssault($e)
     {
         $redis = LRedis::connection();
-        $redis->publish('message', json_encode([
-            'event' => "user/{$e->userAttacker()->id}", 'data' => $e->messageForAttacker()
-        ]));
+        try {
+            $redis->publish('message', json_encode([
+                'event' => "user/{$e->userAttacker()->id}", 'data' => $e->messageForAttacker()
+            ]));
 
-        $redis->publish('message', json_encode([
-            'event' => "user/{$e->userDefender()->id}", 'data' => $e->messageForDefender()
-        ]));
+            $redis->publish('message', json_encode([
+                'event' => "user/{$e->userDefender()->id}", 'data' => $e->messageForDefender()
+            ]));
+        } catch (\Exception $exc) {}
     }
 
     public function onSquadDisband($e)
     {
         $redis = LRedis::connection();
-        $redis->publish('message', json_encode([
-            'event' => "user/{$e->user()->id}", 'data' => $e->message()
-        ]));
+        try {
+            $redis->publish('message', json_encode([
+                'event' => "user/{$e->user()->id}", 'data' => $e->message()
+            ]));
+        } catch (\Exception $exc) {}
     }
 
     public function onCUD($e)
@@ -39,7 +43,9 @@ class GameListener
         $data = empty($e->data) ? $e->model->jsonSerialize() : $e->data;
 
         $redis = LRedis::connection();
-        $redis->publish('message', json_encode(['event' => $event, 'data' => $data]));
+        try {
+            $redis->publish('message', json_encode(['event' => $event, 'data' => $data]));
+        } catch (\Exception $exc) {}
     }
 
     public function subscribe($events)
