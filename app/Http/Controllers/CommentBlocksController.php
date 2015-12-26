@@ -22,21 +22,12 @@ class CommentBlocksController extends Controller
         $block = CommentBlock::find($id);
         $comments = $block->getPage($page);
         $page_count = $block->getPageCount();
-        require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/comments/comments_block.php');
-    }
-
-    public function add()
-    {
-        $user = Auth::user();
-        $comments_block_id = Input::get('comment_block_id');
-        $text = Input::get('text');
-        $parent_comment_id = Input::get('parent_comment_id');
-        CommentBlock::find($comments_block_id)->addComment(
-            $user->id,
-            $text,
-            $parent_comment_id == '' ? null : $parent_comment_id
-        );
-        return redirect('comments/'.$comments_block_id.'/1');
+        return view('comments/comments_block', [
+            'block' => $block,
+            'comments' => $comments,
+            'page_count' => $page_count,
+            'page' => $page
+        ]);
     }
 
     /**

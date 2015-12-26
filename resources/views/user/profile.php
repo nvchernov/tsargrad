@@ -99,6 +99,17 @@
             </div>
 
         </form>
+        <br/>
+        <div class="row">
+            <div class="col-lg-offset-1 col-lg-10">
+                <? echo view('comments/comments_block', [
+                    'block' => $block,
+                    'comments' => $comments,
+                    'page_count' => $page_count,
+                    'page' => $page
+                ]);?>
+            </div>
+        </div>
     </div>
 </div>
 

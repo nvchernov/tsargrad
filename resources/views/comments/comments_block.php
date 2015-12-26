@@ -16,7 +16,7 @@
 
                 <div class="col-lg-2 col-md-4" >
                     <div class="center-block" >
-                        <input type="submit" class="btn btn-success btn-sm center-block" value="Добавить"/>
+                        <input type="submit" class="btn btn-success  center-block" value="Добавить"/>
                     </div>
                     <div  class="comment-answer-block center-block hidden">
                         <p class="text-center">

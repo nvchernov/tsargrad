@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Request;
+use Input;
+use App\Models\CommentBlock;
 use App\Models\User;
 use Illuminate\Routing\Controller;
 #use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -13,7 +15,33 @@ class UserController extends Controller
 {
     public function getProfile()
     {
-        return view('user/profile', ['user' => Auth::user()]);
+        $page = Input::get('page');
+        $page = isset($page) ? Input::get('page') : 1;
+        $comment_block_id = Auth::user()->comment_block_id;
+        $block = CommentBlock::find($comment_block_id);
+        $comments = $block->getPage($page);
+        $page_count = $block->getPageCount();
+        return view('user/profile', [
+            'user' => Auth::user(),
+            'block' => $block,
+            'comments' => $comments,
+            'page_count' => $page_count,
+            'page' => $page
+        ]);
+    }
+
+    public function addComment()
+    {
+        $user = Auth::user();
+        $comments_block_id = Input::get('comment_block_id');
+        $text = Input::get('text');
+        $parent_comment_id = Input::get('parent_comment_id');
+        CommentBlock::find($comments_block_id)->addComment(
+            $user->id,
+            $text,
+            $parent_comment_id == '' ? null : $parent_comment_id
+        );
+        return redirect('user/profile/?page=1');
     }
 
     public function postUpdate()

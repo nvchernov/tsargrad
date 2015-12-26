@@ -13,7 +13,7 @@ class AddCommentBlocksColumnToUser extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('comment_block_id')->unsigned()->index()->default(1);
+            $table->integer('comment_block_id')->unsigned()->index()->nullable()->default(null);
             $table->foreign('comment_block_id')->references('id')->on('comment_blocks')->onDelete('cascade');
         });
     }

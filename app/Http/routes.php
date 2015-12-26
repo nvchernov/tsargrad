@@ -26,6 +26,7 @@ Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 
 Route::get('user/profile', ['middleware' => 'auth', 'uses' => 'UserController@getProfile']);
+Route::get('user/profile/addComment', ['middleware' => 'auth', 'uses' => 'UserController@addComment']);
 Route::post('user/update', ['middleware' => 'auth', 'uses' => 'UserController@postUpdate']);
 
 // Роуты запроса ссылки для сброса пароля
