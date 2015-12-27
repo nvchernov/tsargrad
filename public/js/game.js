@@ -163,7 +163,7 @@
                         }
                     }, 'json'
                 ).fail(function (xhr) {
-                        ui.resultBuy.text('Ошибка! ' + xhr.responseJSON.message);
+                        ui.resultBuy.text(xhr.responseJSON.message);
                         ui.resultBuy.closest('.form-group').removeClass('has-error has-success').addClass('has-error');
                         ui.resultBuy.closest('.form-group').fadeIn().delay(5000).fadeOut();
                     }
@@ -184,7 +184,7 @@
                         }
                     }, 'json'
                 ).fail(function (xhr) {
-                        ui.resultUpgrade.text('Ошибка! ' + xhr.responseJSON.message);
+                        ui.resultUpgrade.text(xhr.responseJSON.message);
                         ui.resultUpgrade.closest('.form-group').removeClass('has-error has-success').addClass('has-error');
                         ui.resultUpgrade.closest('.form-group').fadeIn().delay(5000).fadeOut();
                     }

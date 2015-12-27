@@ -6,7 +6,7 @@
  * Time: 23:16
  */
 
-namespace app\Models;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
 

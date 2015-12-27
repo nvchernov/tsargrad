@@ -62,6 +62,21 @@ class Castle extends Model
         return $army;
     }
 
+    private function createResCond($res)
+    {
+        $cond = [];
+        if (is_string($res)) {
+            $cond['name'] = $res;
+        } elseif ($res instanceof Resource) {
+            $cond['id'] = $res->id;
+        } elseif (is_integer($res)){
+            $cond['id'] = $res;
+        } else {
+            return false;
+        }
+        return $cond;
+    }
+
     /**
      * Добавить некоторое количество ресурса в замок.
      * Если такого ресурса еще не было в замке, то сначала создается новый ресурс в БД, а затем он появляется и в замке.
@@ -81,32 +96,48 @@ class Castle extends Model
         if ($count < 0) {
             return $this->subResource($resource, abs($count));
         }
-        // Попытаться извлечь ресурс...
-        $res = Resource::extract($resource);
-        if (isset($res)) {
-            // Если существует такой ресурс, то попробывать получить эту свзяь...
-            $r = $this->resources()->find($res->id);
-            if (isset($r)) {
-                // Увеличить ресурс...
-                $r->pivot->count += $count;
-                return $r->pivot->save();
-            }
+
+        $cond = [];
+        if (is_string($resource)) {
+            $resName = $cond['name'] = $resource;
+        } elseif ($resource instanceof Resource) {
+            $resObj = $resource;
+            $cond['id'] = $resource->id;
+        } elseif (is_integer($resource)){
+            $cond['id'] = $resource;
         } else {
-            // Если нет ресурса...
-            // И нет возможности его создать...
-            if (!is_string($resource)) {
-                return false;
-            }
-            // Создать новый ресурс.
-            $res = Resource::create(['name' => $resource]);
+            return false;
         }
 
-        // Добавить новый ресурс...
-        $this->resources()->attach($res->id, ['count' => $count]);
+        // связка с pivot...
+        $rp = $this->resources()->where($cond)->first();
+        if (isset($rp)) {
+            // Увеличить ресурс...
+            $rp->pivot->count += $count;
+            $saved = $rp->pivot->save();
+            if ($saved) {
+                event(new CUD($this->user, 'update', $rp, ['name' => $rp->name, 'count' => $rp->pivot->count]));
+            }
+            return $saved;
+        } elseif (!isset($resObj)) {
+            // Есть такой ресурс в БД?
+            $resObj = Resource::where($cond)->first();
+            if (is_null($resObj) && isset($resName)) {
+                // Если нет ресурса...
+                // Создать новый ресурс.
+                $resObj = Resource::create(['name' => $resName]);
+            }
+        }
 
-        event(new CUD($this->user, 'update', $this, ['name' => $res->name, 'count' => $count]));
+        if (isset($resObj)) {
+            // Добавить новый ресурс...
+            $this->resources()->attach($resObj->id, ['count' => $count]);
+            event(new CUD($this->user, 'update', $resObj, ['name' => $resObj->name, 'count' => $count]));
 
-        return true;
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -129,27 +160,25 @@ class Castle extends Model
             return $this->addResource($resource, abs($count));
         }
 
-        // Извлечь ресурс...
-        $res = Resource::extract($resource);
-        if (is_null($res)) {
+        $cond = $this->createResCond($resource);
+        if ($cond == false) {
             return false;
         }
 
-        // Если существует такой ресурс, то попробывать получить эту свзяь...
-        $res = $this->resources()->find($res->id);
-        if (is_null($res)) {
+        // связка с pivot...
+        $rp = $this->resources()->where($cond)->first();
+        if (is_null($rp)) {
             return false;
         }
-
-        if ($res->pivot->count - $count < 0) {
+        if ($rp->pivot->count - $count < 0) {
             throw new GameException('Не достаточно ресурсов.');
         }
         // Уменьшить ресурс...
-        $res->pivot->count -= $count;
-        $saved = $res->pivot->save();
+        $rp->pivot->count -= $count;
+        $saved = $rp->pivot->save();
 
         if ($saved) {
-            event(new CUD($this->user, 'update', $this, ['name' => $res->name, 'count' => $count]));
+            event(new CUD($this->user, 'update', $rp, ['name' => $rp->name, 'count' => $rp->pivot->count]));
         }
 
         return $saved;
@@ -164,27 +193,20 @@ class Castle extends Model
     public function getResources($resource = null)
     {
         if (isset($resource)) {
-            // Извлечь ресурс из БД...
-            $res = Resource::extract($resource);
-            if (isset($res)) {
-                $count = 0; // Количество ресурса...
-                // Если существует такой ресурс, то попробывать получить эту свзяь...
-                $res = $this->resources()->find($res->id);
-                if (isset($res)) {
-                    $count = $res->pivot->count;
-                }
-                return $count;
+            $cond = $this->createResCond($resource);
+            if ($cond == false) {
+                return null;
             }
-        } else {
-            $arr = [];
-            // Извлечь все ресурсы этого замка...
-            foreach ($this->resources()->getResults() as $r) {
-                $arr[] = ['name' => $r->name, 'count' => $r->pivot->count];
-            }
-            return collect($arr);
+            // связка с pivot...
+            $rp = $this->resources()->where($cond)->first();
+            return !is_null($rp) ? $rp->pivot->count : 0;
         }
-        // Если такого ресурса нет в БД...
-        return null;
+        $arr = [];
+        // Извлечь все ресурсы этого замка...
+        foreach ($this->resources()->getResults() as $r) {
+            $arr[] = ['name' => $r->name, 'count' => $r->pivot->count];
+        }
+        return collect($arr);
     }
 
     /**

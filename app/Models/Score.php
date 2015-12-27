@@ -1,12 +1,12 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Роман
+ * User: пїЅпїЅпїЅпїЅпїЅ
  * Date: 30.11.2015
  * Time: 23:15
  */
 
-namespace app\Models;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

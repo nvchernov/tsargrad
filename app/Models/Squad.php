@@ -378,6 +378,21 @@ class Squad extends Model
         return $end;
     }
 
+    private function createResCond($res)
+    {
+        $cond = [];
+        if (is_string($res)) {
+            $cond['name'] = $res;
+        } elseif ($res instanceof Resource) {
+            $cond['id'] = $res->id;
+        } elseif (is_integer($res)){
+            $cond['id'] = $res;
+        } else {
+            return false;
+        }
+        return $cond;
+    }
+
     /**
      * Получить награбленные ресурсы или ресурс отряда.
      *
@@ -387,27 +402,20 @@ class Squad extends Model
     public function getRewards($resource = null)
     {
         if (isset($resource)) {
-            // Извлечь ресурс из БД...
-            $res = Resource::extract($resource);
-            if (isset($res)) {
-                $count = 0; // Количество ресурса...
-                // Если существует такой ресурс, то попробывать получить эту свзяь...
-                $res = $this->resources()->find($res->id);
-                if (isset($res)) {
-                    $count = $res->pivot->count;
-                }
-                return $count;
+            $cond = $this->createResCond($resource);
+            if ($cond == false) {
+                return null;
             }
-        } else {
-            $arr = [];
-            // Извлечь все ресурсы этого замка...
-            foreach ($this->resources()->getResults() as $r) {
-                $arr[] = ['name' => $r->name, 'count' => $r->pivot->count];
-            }
-            return collect($arr);
+            // связка с pivot...
+            $rp = $this->resources()->where($cond)->first();
+            return !is_null($rp) ? $rp->pivot->count : 0;
         }
-
-        return null;
+        $arr = [];
+        // Извлечь все ресурсы этого замка...
+        foreach ($this->resources()->getResults() as $r) {
+            $arr[] = ['name' => $r->name, 'count' => $r->pivot->count];
+        }
+        return collect($arr);
     }
 
     public function __get($key)
