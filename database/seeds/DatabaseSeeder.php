@@ -9,7 +9,9 @@ use Database\Seeders\CastlesTableSeeder,
     Database\Seeders\AdministratorsTableSeeder,
     Database\Seeders\NewsTableSeeder,
     Database\Seeders\LocationsTableSeeder,
-    Database\Seeders\CommentBlocksTableSeeder;
+    Database\Seeders\CommentBlocksTableSeeder,
+    Database\Seeders\PveEnemiesTableSeeder,
+    Database\Seeders\PveEnemiesMessagesTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,6 +32,8 @@ class DatabaseSeeder extends Seeder
         $this->call(AdministratorsTableSeeder::class);
         $this->call(NewsTableSeeder::class);
         $this->call(LocationsTableSeeder::class);
+        $this->call(PveEnemiesTableSeeder::class);
+        $this->call(PveEnemiesMessagesTableSeeder::class);
 
         Model::reguard();
     }
