@@ -24,7 +24,7 @@ class GameController extends Controller
         $this->middleware('auth');
         $this->middleware('game.army');
         $this->middleware('ajax', ['except' => ['getIndex']]);
-        $this->middleware('wants.json', ['only' => ['postArmyCrusade', 'postArmyBuy', 'postArmyUpgrade']]);
+        $this->middleware('wants.json', ['except' => ['getIndex']]);
     }
 
     /* Получить все локации...
@@ -93,11 +93,30 @@ class GameController extends Controller
         // данные для представления.
         $data = [];
 
-        $data['user'] = Auth::user();
-        $c = $data['castle'] = Castle::find($id);
-        $data['resources'] = $c->getResources();
+        $user = Auth::user();
+        $data['army'] = $user->army;
+        $c = $data['enemy_castle'] = Castle::find($id);
+        $data['enemy_resources'] = $c->getResources();
 
-        return response()->view('game/modal-castle', $data);
+        return $this->ajaxResponse($data);
+    }
+
+    /**
+     * game/armies/{id}
+     *
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getArmy($id)
+    {
+        // данные для представления.
+        $data = [];
+
+        $user = Auth::user();
+        $army = $data['army'] = $user->army;
+        $data['squads'] = $army->squads;
+
+        return $this->ajaxResponse($data);
     }
 
     /**
@@ -135,7 +154,7 @@ class GameController extends Controller
             } catch (\Exception $exc) {
                 return $this->ajaxError($exc->getMessage());
             }
-            return $this->ajaxResponse();
+            return $this->ajaxResponse(['army' => $army, 'squads' => $army->squads]);
         }
         return $this->ajaxError('Некорректно указаны атрибуты.');
     }
@@ -153,6 +172,6 @@ class GameController extends Controller
         } catch (\Exception $exc) {
             return $this->ajaxError($exc->getMessage());
         }
-        return $this->ajaxResponse();
+        return $this->ajaxResponse(['army' => $army, 'squads' => $army->squads]);
     }
 }

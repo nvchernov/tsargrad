@@ -4,6 +4,7 @@
 
 (function () {
     window.player = {}; // Игрок.
+    window.enemy = {}; // Вражеский игрок.
 
     window.Models = {}; // Все модели.
     window.Views = {}; // Все представления
@@ -129,99 +130,13 @@
             this.stickit();
         }
     });
-    window.Views.ArmyCrusade = Marionette.ItemView.extend({
-        tagName: 'fieldset',
-        className: 'col-sm-12',
-        template: '#t-game-army-crusade',
-        ui: {
-            size: '#m-squad-size',
-            name: '#m-squad-name',
-            help: '#m-squad-name-h',
-            error: '#m-squad-error-h'
-        },
-        initialize: function (options) {
-            this.mergeOptions(options, ['goalid']);
-        },
-        validate: function () {
-            var ui = this.ui;
-            if (ui.name.val() == '') {
-                ui.name.closest('.form-group').addClass('has-error').delay(5000).queue(function () {
-                    $(this).removeClass('has-error');
-                });
-                ui.help.fadeIn().delay(5000).fadeOut();
-                return false;
-            }
-            return true;
-        },
-        events: {
-            'click #m-crusade': function () {
-                var self = this, ui = this.ui;
-
-                if (!this.validate()) {
-                    return;
-                }
-
-                $.post('game/armies/' + this.model.id + '/crusade', {
-                        name: ui.name.val(),
-                        count: ui.size.slider('getValue'),
-                        goal: this.goalid
-                    },
-                    function (resp) {
-                        $('#castle-modal').modal('hide');
-                        if (resp.success) {
-                            var options = {
-                                theme: 'bootstrapTheme',
-                                closeWith: ['button'],
-                                layout: 'bottomRight'
-                            }, s = resp.data;
-                            options.text = 'Отряд "' + s.name + '" (' + s.size + ' чел.) отправился в поход на вражеский замок ' +
-                                '"' + s.goal.name + '"';
-                            noty(options);
-                        }
-                    }, 'json'
-                ).fail(function (xhr, textStatus, errorThrown) {
-                        ui.error.text('Ошибка! ' + xhr.responseJSON.message);
-                        ui.error.closest('.form-group').fadeIn().delay(5000).fadeOut();
-                    }
-                );
-            }
-        },
-        bindings: {
-            ':el': {
-                classes: {
-                    hidden: {
-                        observe: 'size',
-                        onGet: function (size) {
-                            return +size == 0;
-                        }
-                    }
-                }
-            },
-            '#m-squad-size': {
-                observe: 'size',
-                onGet: function (size) {
-                    // TODO: пофиксить...
-                    // cannot call methods on slider prior to initialization; attempted to call 'setAttribute'
-                    var sizer = this.ui.size;
-                    var val = +sizer.val() > size ? size : +sizer.val();
-                    sizer.slider('setAttribute', 'max', +size);
-                    sizer.slider('setValue', val);
-                    sizer.slider('refresh');
-                    return val;
-                },
-                updateModel: false
-            }
-        },
-        onRender: function () {
-            this.ui.size.slider({tooltip_position: 'bottom'});
-            this.stickit();
-        }
-    });
     window.Views.Army = Marionette.LayoutView.extend({
-        tagName: 'form',
-        className: 'form-horizontal',
+        tagName: 'div',
+        className: 'modal-dialog',
         template: '#t-game-army',
-
+        attributes: {
+            role: 'document'
+        },
         ui: {
             buyCost: '#m-army-cost',
             buySize: '#my-army-buy-size',
@@ -239,12 +154,15 @@
                 $.post('game/armies/' + this.model.id + '/buy', {count: ui.buySize.slider('getValue')},
                     function (resp) {
                         if (resp.success) {
+                            player.army.set(resp.data.army);
+                            player.squads.set(resp.data.squads);
+
                             ui.resultBuy.text('Новые воины успешно наняты!');
                             ui.resultBuy.closest('.form-group').removeClass('has-error has-success').addClass('has-success');
                             ui.resultBuy.closest('.form-group').fadeIn().delay(5000).fadeOut();
                         }
                     }, 'json'
-                ).fail(function (xhr, textStatus, errorThrown) {
+                ).fail(function (xhr) {
                         ui.resultBuy.text('Ошибка! ' + xhr.responseJSON.message);
                         ui.resultBuy.closest('.form-group').removeClass('has-error has-success').addClass('has-error');
                         ui.resultBuy.closest('.form-group').fadeIn().delay(5000).fadeOut();
@@ -257,12 +175,15 @@
                 $.post('game/armies/' + this.model.id + '/upgrade', {},
                     function (resp) {
                         if (resp.success) {
+                            player.army.set(resp.data.army);
+                            player.squads.set(resp.data.squads);
+
                             ui.resultUpgrade.text('Армия улучшена!');
                             ui.resultUpgrade.closest('.form-group').removeClass('has-error has-success').addClass('has-success');
                             ui.resultUpgrade.closest('.form-group').fadeIn().delay(5000).fadeOut();
                         }
                     }, 'json'
-                ).fail(function (xhr, textStatus, errorThrown) {
+                ).fail(function (xhr) {
                         ui.resultUpgrade.text('Ошибка! ' + xhr.responseJSON.message);
                         ui.resultUpgrade.closest('.form-group').removeClass('has-error has-success').addClass('has-error');
                         ui.resultUpgrade.closest('.form-group').fadeIn().delay(5000).fadeOut();
@@ -318,5 +239,112 @@
         }
     });
     // ...Армия.
+
+    // Вражеский замок...
+    window.Views.EnemyCastle = Marionette.LayoutView.extend({
+        tagName: 'div',
+        className: 'modal-dialog',
+        template: '#t-game-enemy-castle',
+        regions: {
+            resourcesRegion: '#enemy-resources'
+        },
+        attributes: {
+            role: 'document'
+        },
+        ui: {
+            castleName: '#enemy-castle-name',
+            size: '#m-squad-size',
+            name: '#m-squad-name',
+            help: '#m-squad-name-h',
+            error: '#m-squad-error-h'
+        },
+        initialize: function (options) {
+            this.mergeOptions(options, ['castle', 'resources']);
+        },
+        validate: function () {
+            var ui = this.ui;
+            if (ui.name.val() == '') {
+                ui.name.closest('.form-group').addClass('has-error').delay(5000).queue(function () {
+                    $(this).removeClass('has-error');
+                });
+                ui.help.fadeIn().delay(5000).fadeOut();
+                return false;
+            }
+            return true;
+        },
+        events: {
+            'click #m-crusade': function () {
+                var self = this, ui = this.ui;
+
+                if (!this.validate()) {
+                    return;
+                }
+
+                $.post('game/armies/' + this.model.id + '/crusade', {
+                        name: ui.name.val(),
+                        count: ui.size.slider('getValue'),
+                        goal: this.castle.id
+                    },
+                    function (resp) {
+                        $('#enemy-castle-modal').modal('hide');
+                        if (resp.success) {
+                            var options = {
+                                theme: 'bootstrapTheme',
+                                closeWith: ['button'],
+                                layout: 'bottomRight'
+                            }, s = resp.data;
+                            options.text = 'Отряд "' + s.name + '" (' + s.size + ' чел.) отправился в поход на вражеский замок ' +
+                                '"' + s.goal.name + '"';
+                            noty(options);
+                        }
+                    }, 'json'
+                ).fail(function (xhr) {
+                        ui.error.text('Ошибка! ' + xhr.responseJSON.message);
+                        ui.error.closest('.form-group').fadeIn().delay(5000).fadeOut();
+                    }
+                );
+            }
+        },
+        bindings: {
+            ':el': {
+                classes: {
+                    hidden: {
+                        observe: 'size',
+                        onGet: function (size) {
+                            return +size == 0;
+                        }
+                    }
+                }
+            },
+            '#m-squad-size': {
+                observe: 'size',
+                onGet: function (size) {
+                    // TODO: пофиксить...
+                    // cannot call methods on slider prior to initialization; attempted to call 'setAttribute'
+                    var sizer = this.ui.size;
+                    var val = +sizer.val() > size ? size : +sizer.val();
+                    sizer.slider('setAttribute', 'max', +size);
+                    sizer.slider('setValue', val);
+                    sizer.slider('refresh');
+                    return val;
+                },
+                updateModel: false
+            }
+        },
+        onRender: function () {
+            var self = this, ui = this.ui;
+
+            ui.castleName.text(this.castle.get('name'));
+            this.listenTo(this.castle, 'change', function () {
+                ui.castleName.text(self.castle.get('name'));
+            });
+            ui.size.slider({tooltip_position: 'bottom'});
+
+            var resourcesView = new Views.Resources({collection: this.resources});
+            this.getRegion('resourcesRegion').show(resourcesView);
+
+            this.stickit();
+        }
+    });
 })();
 

@@ -57,7 +57,7 @@
             </script>
 
             <script type="text/template" id="t-game-nav-army-li">
-                <a href="#" data-toggle="modal" data-target="#army-modal"><strong class="text-danger">Армия</strong>:
+                <a id="show-army-modal" href="#"><strong class="text-danger">Армия</strong>:
                     <span class="army-size"></span></a>
             </script>
 
@@ -86,119 +86,171 @@
                 <td id="squad-date-end"></td>
             </script>
 
-            <script type="text/template" id="t-game-army-crusade">
-                <legend>Подготовить нападение</legend>
-                <div class="col-sm-12">
-                    <div class='form-group'>
-                        <label class="col-xs-4 control-label" style="text-align: left" for="m-squad-name">Имя отряда</label>
+            <script type="text/template" id="t-game-enemy-castle">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="castleModalLabel">Вражеский замок <strong
+                                id="enemy-castle-name"></strong></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form id="enemy-castle" class="form-horizontal">
+                                    <fieldset class="col-sm-12">
+                                        <legend>Приблизительные ресурсы замка</legend>
+                                        <div id="enemy-resources" class="col-sm-12"></div>
+                                    </fieldset>
+                                    <fieldset class="col-sm-12">
+                                        <legend>Подготовить нападение</legend>
+                                        <div class="col-sm-12">
+                                            <div class='form-group'>
+                                                <label class="col-xs-4 control-label" style="text-align: left"
+                                                       for="m-squad-name">Имя отряда</label>
 
-                        <div class="col-xs-8">
-                            <input class="form-control" id="m-squad-name" type="text">
+                                                <div class="col-xs-8">
+                                                    <input class="form-control" id="m-squad-name" type="text">
                                             <span id="m-squad-name-h"
                                                   class="help-block" style="display: none;">Не указано имя отряда</span>
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class="col-xs-4" for="m-squad-size">Размер отряда</label>
+                                                </div>
+                                            </div>
+                                            <div class='form-group'>
+                                                <label class="col-xs-4" for="m-squad-size">Размер отряда</label>
 
-                        <div class="col-xs-4">
-                            <input class="form-control" id="m-squad-size" data-slider-id="sl-squad-size"
-                                   type="text" data-slider-step="1"
-                                   data-slider-value="1" data-slider-min="1">
+                                                <div class="col-xs-4">
+                                                    <input class="form-control" id="m-squad-size"
+                                                           data-slider-id="sl-squad-size"
+                                                           type="text" data-slider-step="1"
+                                                           data-slider-value="1" data-slider-min="1">
+                                                </div>
+                                            </div>
+                                            <div class='form-group has-error' style="display: none;">
+                                                <span id="m-squad-error-h" class="col-xs-12 help-block"></span>
+                                            </div>
+                                            <div class='form-group'>
+                                                <div class="col-xs-2">
+                                                    <button id="m-crusade" type="button" class="btn btn-danger">
+                                                        Напасть
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <div class='form-group has-error' style="display: none;">
-                        <span id="m-squad-error-h" class="col-xs-12 help-block"></span>
-                    </div>
-                    <div class='form-group'>
-                        <div class="col-xs-2">
-                            <button id="m-crusade" type="button" class="btn btn-danger">Напасть</button>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
                     </div>
                 </div>
             </script>
 
             <script type="text/template" id="t-game-army">
-                <fieldset class="col-sm-12">
-                    <legend>Состояние армии</legend>
-                    <div class="col-sm-12">
-                        <ul class="list-group">
-                            <li class="list-group-item">
-                                <span id="my-army-level" class="badge"></span>
-                                Уровень армии
-                            </li>
-                            <li class="list-group-item">
-                                <span id="my-army-size" class="badge"></span>
-                                Воинов в замке
-                            </li>
-                            <li class="list-group-item">
-                                <span id="my-army-sizesquads" class="badge"></span>
-                                Воинов в отрядах
-                            </li>
-                        </ul>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="armyModalLabel">Моя армия</h4>
                     </div>
-                </fieldset>
-                <fieldset class="col-sm-12">
-                    <legend>Покупка воинов</legend>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <div class="col-xs-6">
-                                <p>
-                                    Цена воина <span id="my-army-buy-price" class="badge"></span> <span
-                                        class="text-info">Еда</span> и <span id="my-army-buy-price"
-                                                                             class="badge"></span> <span
-                                        class="text-warning">Дерево</span>
-                                </p>
-                            </div>
-                            <div class="col-xs-4 col-md-offset-2">
-                                <p>Стоимость <span id="m-army-cost" class="badge"></span></p>
-                            </div>
-                        </div>
-                        <div class='form-group'>
-                            <label class="col-xs-3" for="my-army-buy-size"
-                                   style="font-weight: 100">Количество</label>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form class="form-horizontal">
+                                    <fieldset class="col-sm-12">
+                                        <legend>Состояние армии</legend>
+                                        <div class="col-sm-12">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <span id="my-army-level" class="badge"></span>
+                                                    Уровень армии
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span id="my-army-size" class="badge"></span>
+                                                    Воинов в замке
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span id="my-army-sizesquads" class="badge"></span>
+                                                    Воинов в отрядах
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="col-sm-12">
+                                        <legend>Покупка воинов</legend>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div class="col-xs-6">
+                                                    <p>
+                                                        Цена воина <span id="my-army-buy-price"
+                                                                         class="badge"></span> <span
+                                                            class="text-info">Еда</span> и <span id="my-army-buy-price"
+                                                                                                 class="badge"></span> <span
+                                                            class="text-warning">Дерево</span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-xs-4 col-md-offset-2">
+                                                    <p>Стоимость <span id="m-army-cost" class="badge"></span></p>
+                                                </div>
+                                            </div>
+                                            <div class='form-group'>
+                                                <label class="col-xs-3" for="my-army-buy-size"
+                                                       style="font-weight: 100">Количество</label>
 
-                            <div class="col-xs-6">
-                                <input id="my-army-buy-size" data-slider-id="sl-army-buy-size"
-                                       type="text" data-slider-step="1" data-slider-value="1"
-                                       data-slider-min="1" data-slider-max="1000">
+                                                <div class="col-xs-6">
+                                                    <input id="my-army-buy-size" data-slider-id="sl-army-buy-size"
+                                                           type="text" data-slider-step="1" data-slider-value="1"
+                                                           data-slider-min="1" data-slider-max="1000">
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    <button type="button" id="m-army-buy" class="btn btn-primary">
+                                                        Купить
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class='form-group' style="display: none;">
+                                                <span id="m-army-result-buy" class="col-xs-12 help-block"></span>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="col-sm-12">
+                                        <legend>Улучшение армии</legend>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div class="col-xs-9">
+                                                    <p>Стоимость перехода на <span id="my-army-level-up"
+                                                                                   class="badge"></span> уровень <span
+                                                            id="my-army-upgrade-price" class="badge"></span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-xs-2">
+                                                    <button type="button" id="m-army-upgrade" class="btn btn-primary">
+                                                        Улучшить
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class='form-group' style="display: block">
+                                                <span id="m-army-result-upgrade" class="col-xs-12 help-block"></span>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="col-sm-12">
+                                        <legend>Отряды</legend>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <div id="my-squads" class="col-xs-12"></div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </form>
                             </div>
-                            <div class="col-xs-2">
-                                <button type="button" id="m-army-buy" class="btn btn-primary">Купить</button>
-                            </div>
-                        </div>
-                        <div class='form-group' style="display: none;">
-                            <span id="m-army-result-buy" class="col-xs-12 help-block"></span>
                         </div>
                     </div>
-                </fieldset>
-                <fieldset class="col-sm-12">
-                    <legend>Улучшение армии</legend>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <div class="col-xs-9">
-                                <p>Стоимость перехода на <span id="my-army-level-up" class="badge"></span> уровень <span
-                                        id="my-army-upgrade-price" class="badge"></span>
-                                </p>
-                            </div>
-                            <div class="col-xs-2">
-                                <button type="button" id="m-army-upgrade" class="btn btn-primary">Улучшить
-                                </button>
-                            </div>
-                        </div>
-                        <div class='form-group' style="display: block">
-                            <span id="m-army-result-upgrade" class="col-xs-12 help-block"></span>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
                     </div>
-                </fieldset>
-                <fieldset class="col-sm-12">
-                    <legend>Отряды</legend>
-                    <div class="col-sm-12">
-                        <div class="form-group">
-                            <div id="my-squads" class="col-xs-12"></div>
-                        </div>
-                    </div>
-                </fieldset>
+                </div>
             </script>
             <!-- ... END Темплейты для Marionette View. -->
 
@@ -230,26 +282,7 @@
             </div>
 
             <!-- Modal -->
-            <div class="modal fade" id="army-modal" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="armyModalLabel">Моя армия</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="modal fade" id="army-modal" tabindex="-1" role="dialog"></div>
 
             <script type="text/javascript">
                 // Базовые сущности...
@@ -261,13 +294,22 @@
                 // Рендеринг навигации...
                 $('#game-navbar').prepend((new Views.ResourcesNav({collection: player.resources})).render().el);
                 $('#game-navbar > ul.resources-nav').append((new Views.ArmyLi({model: player.army})).render().el);
-                $('#army-modal .modal-body > .row > .col-sm-12').append((new Views.Army({
+                $('#army-modal').append((new Views.Army({
                     model: player.army,
                     squads: player.squads
                 })).render().el);
+                $('#show-army-modal').click(function () {
+                    $.get('game/armies/' + <?= Auth::user()->army->id ?>, function (resp) {
+                        if (resp.success) {
+                            player.army.set(resp.data.army);
+                            player.squads.set(resp.data.squads);
+                            $('#army-modal').modal();
+                        }
+                    }, 'json');
+                });
 
                 /////// Вебсокеты
-                var socket = io.connect('http://localhost:8080');
+                var socket = io.connect('http://localhost:8080', {reconnection: false});
                 // Базовый channel...
                 var channel = 'message/user/<?= Auth::user()->id ?>';
 

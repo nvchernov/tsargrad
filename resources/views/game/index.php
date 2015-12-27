@@ -34,10 +34,16 @@
     <? endforeach; ?>
 </map>
 
-<div class="modal fade" id="castle-modal" tabindex="-1" role="dialog"></div>
+<div class="modal fade" id="enemy-castle-modal" tabindex="-1" role="dialog"></div>
 
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
 <script type="text/javascript">
+    // Базовые сущности...
+    enemy.castle = new Models.Castle();
+    enemy.resources = new Models.Resources(defaultResources);
+
+    $('#enemy-castle-modal').html((new Views.EnemyCastle({model: player.army, castle: enemy.castle, resources: enemy.resources})).render().el);
+
     $('#my-resources').append((new Views.Resources({collection: player.resources})).render().el);
 
     var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
@@ -85,11 +91,14 @@
         // Свой не показываем...
         if (isSelfCastle(e.key)) { return; }
 
-        $.get('game/castles/' + e.key, function (data) {
-            $mod = $('#castle-modal');
-            $mod.html(data);
-            $mod.modal();
-        }, 'html');
+        $.get('game/castles/' + e.key, function (resp) {
+            if (resp.success) {
+                player.army.set(resp.data.army);
+                enemy.castle.set(resp.data.enemy_castle);
+                enemy.resources.set(_.defaults(resp.data.enemy_resources, defaultResources));
+                $('#enemy-castle-modal').modal();
+            }
+        }, 'json');
     };
 
     $gf.mapster(options);
