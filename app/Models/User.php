@@ -88,4 +88,14 @@ class User extends Model implements AuthenticatableContract,
 
         return parent::__get($key);
     }
+
+    public function avatar()
+    {
+        return $this->hasOne('App\Models\Avatar');
+    }
+
+    public function pathToProfile()
+    {
+        return '/user/profile/' . $this->id;
+    }
 }
