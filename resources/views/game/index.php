@@ -84,7 +84,7 @@
             var idInitial = $(this).attr('data-id');
             $.post('/game/building/' + idInitial + '/upgrade', function(data) {  
                 if(data == "no_costs") {
-                
+                    alert('Не хватает ресурсов');
                 } else if (data == "success") {
                     $('#my-buildings').load('/game #my-buildings > table');                    
                 }                
