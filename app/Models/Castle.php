@@ -71,7 +71,7 @@ class Castle extends Model
         $defences = new Building();
         $defences->castle()->associate($this);
         $defences->buildingType()->associate(BuildingType::where('building_name', 'defenses')->first());
-        $defences->level = 1;
+        $defences->level = 0;
         $defences->save();
     }
     
@@ -316,7 +316,7 @@ class Castle extends Model
     
     public function fortification() {
         
-        return Building::where('castles_id', $this->id)->where('buildings_id', 4)->get()->first();
+        return Building::where('castles_id', $this->id)->where('buildings_id', 4)->first();
         
     }
 }
