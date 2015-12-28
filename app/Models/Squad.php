@@ -153,7 +153,7 @@ class Squad extends Model
         $ya = $aArmy->level;
         $xd = $dArmy->size;
         $yd = $dArmy->level;
-        $zd = 0; // Уровень фортификации, пока остается 0;
+        $zd = $this->goal->fortification()->level; // Уровень фортификации, пока остается 0;
 
         Log::info("Сила атак. отряда = $xa и уровень = $ya");
         Log::info("Сила защ. армии = $xd, уровень = $yd и фортифмкация = $zd");

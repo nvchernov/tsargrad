@@ -13,17 +13,20 @@ class CastleBuildingsSeeder extends Seeder
     {
         // Лесопилка - лес
         DB::table('buildings')->insert([
-            'building_name' => 'sawmill', 
+            'building_name' => 'sawmill',
+            'resources_id' => 2
         ]);
         
         // Шахта - золото
         DB::table('buildings')->insert([
             'building_name' => 'mine', 
+            'resources_id' => 1
         ]);
         
         // Ферма - еда
         DB::table('buildings')->insert([
-            'building_name' => 'farm', 
+            'building_name' => 'farm',
+            'resources_id' => 3
         ]);
         
         // Защитные сооружения - фортификация

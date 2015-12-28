@@ -17,3 +17,9 @@ img.mapster_el {
     -o-border-radius: 4px;
     border-radius: 4px;
 }
+
+.small-top-line {
+    margin-top: 3px;
+    border-top: 1px solid #ccc;
+    padding-top: 3px;
+}

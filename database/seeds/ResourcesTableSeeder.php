@@ -18,7 +18,7 @@ class ResourcesTableSeeder extends Seeder
     {
         // Create necessary resources...
         Resource::firstOrCreate(['name' => 'gold']);
-        Resource::firstOrCreate(['name' => 'iron']);
+        Resource::firstOrCreate(['name' => 'wood']);
         Resource::firstOrCreate(['name' => 'food']);
     }
 

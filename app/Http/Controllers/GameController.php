@@ -75,8 +75,9 @@ class GameController extends Controller
 
         $user = $data['user'] = Auth::user();
         $data['castles'] = Castle::has('location')->with('location')->get();
-        $c = $data['castle'] = $user->castle;
+        $c = $data['castle'] = $user->castle;       
         $data['resources'] = $c->getResources();
+        $data['buildings'] = $c->buildings()->get()->all();
 
         //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
         return view('game/index', $data);
@@ -173,5 +174,14 @@ class GameController extends Controller
             return $this->ajaxError($exc->getMessage());
         }
         return $this->ajaxResponse(['army' => $army, 'squads' => $army->squads]);
+    }
+    
+    
+    public function upgradeBuildingLevel($id) {
+        $build = Building::find($id);
+        $build->level = $build->level + 1;
+        $build->save();
+        
+        return 1;
     }
 }
