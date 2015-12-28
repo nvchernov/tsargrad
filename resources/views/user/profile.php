@@ -115,9 +115,11 @@
 
             <input type="hidden" name="_token" value="<? echo csrf_token() ?>">
 
-            <div class="row">
-                <button type="submit" class="btn btn-primary center-block">Сохранить</button>
-            </div>
+            <? if ($user->id === Auth::user()->id): ?>
+                <div class="row">
+                    <button type="submit" class="btn btn-primary center-block">Сохранить</button>
+                </div>
+            <? endif; ?>
 
         </form>
         <br/>
