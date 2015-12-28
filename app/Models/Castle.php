@@ -38,18 +38,6 @@ class Castle extends Model
         //    'location' => 'array',
     ];
 
-    public function save(array $options = [])
-    {
-        $exists = $this->exists;
-        $saved = parent::save($options);
-
-        if ($saved) {
-            event(new CUD($this->user, $exists ? 'update' : 'create', $this));
-        }
-
-        return $saved;
-    }
-
     /**
      * Получить армию или создать новую....
      */

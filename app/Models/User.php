@@ -60,7 +60,9 @@ class User extends Model implements AuthenticatableContract,
 
         static::updated(function(User $user)
         {
-            $user->castle->update(['name' => $user->casle_name ?: $user->name]);
+            $castle = $user->castle;
+            $castle->name = $user->castle_name;
+            $castle->save();
         });
     }
 
