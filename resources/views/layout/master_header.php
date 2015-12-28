@@ -50,7 +50,7 @@
 <header>
     <nav class="navbar navbar-default" style="border-radius: 0px;">
 
-        <? if (Auth::check()): ?>
+        <?php if (Auth::check()): ?>
 
             <!-- Темплейты для Marionette View... -->
             <script type="text/template" id="t-game-nav-res-li">
@@ -258,7 +258,7 @@
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#">
-                        <? echo Auth::user()->castle->name ?>
+                        <?php echo Auth::user()->castle->name ?>
                     </a>
                 </div>
 
@@ -266,7 +266,7 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                               aria-haspopup="true" aria-expanded="false"><? echo Auth::user()->name ?> <span
+                               aria-haspopup="true" aria-expanded="false"><?php echo Auth::user()->name ?> <span
                                     class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 <li><a href="<?= Auth::user()->pathToProfile() ?>"><i class="glyphicon glyphicon-user"></i> Профиль</a></li>
@@ -352,7 +352,7 @@
                 });
             </script>
 
-        <? else: ?>
+        <?php else: ?>
 
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -364,6 +364,6 @@
                 </ul>
             </div>
 
-        <? endif ?>
+        <?php endif ?>
     </nav>
 </header>

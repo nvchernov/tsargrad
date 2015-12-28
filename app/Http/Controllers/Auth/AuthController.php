@@ -11,6 +11,8 @@ use App\Models\CommentBlock;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use App\Models\News;
+
 
 class AuthController extends Controller
 {
@@ -82,7 +84,12 @@ class AuthController extends Controller
         {
             return redirect('game');
         }
-        return view('auth/login');
+
+        $news = News::orderBy('date', 'desc')->paginate(3);
+
+        return view('auth/login', [
+            'news' => $news
+        ]);
     }
 
     public function postLogin()
