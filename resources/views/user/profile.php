@@ -17,8 +17,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <form method="POST" action="/user/update" class="form-horizontal">
+    <div class="row form-horizontal">
+        <!--<form method="POST" action="/user/update" class="form-horizontal">-->
 
             <div class="row">
                 <div class="col-md-3 col-md-offset-1">
@@ -117,11 +117,11 @@
 
             <? if ($user->id === Auth::user()->id): ?>
                 <div class="row">
-                    <button type="submit" class="btn btn-primary center-block">Сохранить</button>
+                    <button id="save_btn" type="submit" class="btn btn-primary center-block">Сохранить</button>
                 </div>
             <? endif; ?>
 
-        </form>
+        <!--</div>-->
         <br/>
         <div class="row">
             <div class="col-lg-offset-1 col-lg-10">
@@ -185,6 +185,27 @@
 
         $('#flag_next').click(function() {
             change_avatar_partial('flag', true, '#flag_id');
+        });
+
+        $('#save_btn').click(function() {
+            $.ajax({
+                type: 'POST',
+                url: '/user/update',
+                data: {
+                    flag_id: $('#flag_id').val(),
+                    hair_id: $('#hair_id').val(),
+                    mustache_id: $('#mustache_id').val(),
+                    amulet_id: $('#amulet_id').val(),
+                    name: $('#name').val(),
+                    castle_name: $('#castle_name').val()
+                },
+                success: function(data) {
+                    alert("Профиль успешно обновлен");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("Не удалось обновить профиль. Попробуйте еще раз или обратитесь к разработчикам.");
+                }
+            });
         });
     });
 </script>
