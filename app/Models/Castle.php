@@ -309,6 +309,14 @@ class Castle extends Model
     
     
     public function buildings() {
+        
         return $this->hasMany('App\Models\Building');
+        
+    }
+    
+    public function fortification() {
+        
+        return Building::where('castles_id', $this->id)->where('buildings_id', 4)->get()->first();
+        
     }
 }
