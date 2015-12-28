@@ -41,3 +41,7 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+.panel {
+background-color: #ecf0f1;
+margin-top: 5%;
+}
