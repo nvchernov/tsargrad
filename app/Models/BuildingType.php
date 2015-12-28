@@ -11,8 +11,6 @@ class BuildingType extends Model
     public $timestamps = false;
     
     public function resource() {
-        
         return $this->belongsTo('App\Models\Resource', 'resources_id');
-        
     }     
 }

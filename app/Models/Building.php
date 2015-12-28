@@ -11,15 +11,15 @@ class Building extends Model
     public $timestamps = false;
     
     public function castle() {
-        
         return $this->belongsTo('App\Models\Castle', 'castles_id');
-        
     }
     
     public function buildingType() {
-        
         return $this->belongsTo('App\Models\BuildingType', 'buildings_id');
-        
+    }
+    
+    public function costUpdate() {
+        return round(exp($this->level/2)*100);
     }
     
 }

@@ -175,4 +175,13 @@ class GameController extends Controller
         }
         return $this->ajaxResponse(['army' => $army, 'squads' => $army->squads]);
     }
+    
+    
+    public function upgradeBuildingLevel($id) {
+        $build = Building::find($id);
+        $build->level = $build->level + 1;
+        $build->save();
+        
+        return 1;
+    }
 }

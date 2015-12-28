@@ -20,7 +20,7 @@
 
                 </div>
                 <div id="gf-mask" style=" width: 600px; height: 600px; overflow: hidden;">
-                    <img id="gamefield" width="600" height="600" src="images/gamefield.png" usemap="#gamefield-map">
+                    <img id="gamefield" width="600" height="600" src="/images/gamefield.png" usemap="#gamefield-map">
                 </div>
             </div>
             <div class="col-sm-3">
@@ -36,16 +36,16 @@
                         <h3>Строения</h3
                         <div id="my-buildings">
                             <table class="table table-bordered table-hover">
-                                <tr>
-                                    <th class="text-center"><?=trans('game.name_building')?></th>
-                                    <th class="text-center"><?=trans('game.level')?></th>
-                                    <th class="text-center"></th>
-                                </tr>
                             <?php foreach($buildings as $build): ?>
                                 <tr>
-                                    <td class="text-center"><?=trans('game.'.$build->buildingType()->first()->building_name); ?></td>
-                                    <td class="text-center"><?=$build->level; ?></td>
-                                    <td class="text-center"><button>up</button></td>
+                                    <td class="text-center"><b><?=trans('game.'.$build->buildingType()->first()->building_name); ?> (<?=$build->level; ?> ур.)</b>
+                                        <div class="small-top-line">Цена <span class="badge"><?=$build->level+1; ?></span> уровня<br/>
+                                        <span class="badge"><?=$build->costUpdate();?></span> 
+                                        <span class="text-warning">Золота</span><br/>
+                                        <span class="badge"><?=$build->costUpdate();?></span> 
+                                        <span class="text-success">Дерева</span></div>
+                                    </td>
+                                    <td class="text-center"><button class="update_build_button" data-id="<?=$build->id;?>">up</button></td>
                                 </tr>
                             <?php endforeach; ?>  
                             </table>
@@ -76,6 +76,13 @@
 <script src="/plugins/jquery.ui/jquery-ui.min.js"></script>
 <script type="text/javascript">
     (function () {
+        
+        // Upgrade building
+        $(document).on('click', '.update_build_button', function() {
+            var idInitial = $(this).attr('data-id');
+            $.post('/game/building/' + idInitial + '/upgrade');
+        });
+        
         var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
         var Castles = <?= $castles ? $castles->toJson() : [] ?>;
 
@@ -177,6 +184,7 @@
         });
         // первоначальный drag and drop.
         doResize();
+        
     }());
 </script>
 
