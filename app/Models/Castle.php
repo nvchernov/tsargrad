@@ -310,7 +310,7 @@ class Castle extends Model
     
     public function buildings() {
         
-        return $this->hasMany('App\Models\Building');
+        return $this->hasMany('App\Models\Building', 'castles_id');
         
     }
     

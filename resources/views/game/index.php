@@ -1,4 +1,5 @@
 <? require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_header.php'); ?>
+<?php App::setLocale('ru'); ?>
 
 <link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
 
@@ -33,6 +34,22 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <h3>Строения</h3
+                        <div id="my-buildings">
+                            <table class="table table-bordered table-hover">
+                                <tr>
+                                    <th class="text-center"><?=trans('game.name_building')?></th>
+                                    <th class="text-center"><?=trans('game.level')?></th>
+                                    <th class="text-center"></th>
+                                </tr>
+                            <?php foreach($buildings as $build): ?>
+                                <tr>
+                                    <td class="text-center"><?=trans('game.'.$build->buildingType()->first()->building_name); ?></td>
+                                    <td class="text-center"><?=$build->level; ?></td>
+                                    <td class="text-center"><button>up</button></td>
+                                </tr>
+                            <?php endforeach; ?>  
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

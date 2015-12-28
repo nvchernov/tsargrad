@@ -77,6 +77,7 @@ class GameController extends Controller
         $data['castles'] = Castle::has('location')->with('location')->get();
         $c = $data['castle'] = $user->castle;       
         $data['resources'] = $c->getResources();
+        $data['buildings'] = $c->buildings()->get()->all();
 
         //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
         return view('game/index', $data);
