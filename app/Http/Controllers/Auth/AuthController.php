@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use Auth;
 use Request;
+use Validator;
 use App\Models\User;
 use App\Models\Avatar;
-use Validator;
+use App\Models\CommentBlock;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
@@ -112,9 +113,11 @@ class AuthController extends Controller
         $data = Request::all();
         if ($data['password'] === $data['password_confirmation'])
         {
-            if ($this->create($data) !== null)
+            $new_user = $this->create($data);
+            if ($new_user !== null)
             {
-                return redirect('game');
+                Auth::login($new_user);
+                return redirect($new_user->pathToProfile());
             }
         }
         return redirect('auth/register');

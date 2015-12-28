@@ -37,7 +37,6 @@ class AvatarController extends Controller
         {
             $img_partial = ($has_next === 'true') ? Flag::find(((int)$img_id)+1) : Flag::find(((int)$img_id)-1);
         }
-        //INSERT INTO `hairs` (`image_url`) VALUES ('\\images\\default_avatar\\top\\top_01.png')
         return response()->json(['url' => $img_partial->image_url, 'id' => $img_partial->id]);
     }
 }
