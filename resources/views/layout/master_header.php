@@ -231,7 +231,7 @@
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div class='form-group' style="display: block">
+                                            <div class='form-group' style="display: none">
                                                 <span id="m-army-result-upgrade" class="col-xs-12 help-block"></span>
                                             </div>
                                         </div>
