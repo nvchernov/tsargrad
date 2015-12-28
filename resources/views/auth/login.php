@@ -69,11 +69,11 @@
                     <li>
                         <h3><?php echo $entry->title; ?></h3>
                         <h4><?php echo $entry->date; ?></h4>
-                        <p><?php echo str_limit($entry->text); ?></p>
+                        <p><?php echo str_limit($entry->text,256); ?></p>
                     </li>
                 <?php endforeach; ?>
-                <?php echo $news->render(); ?>
             </ul>
+            <?php echo $news->render(); ?>
         </div>
     </div>
 </div>
