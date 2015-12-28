@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 use Auth;
 use App\Models\Castle;
 use App\Models\Army;
+use App\Models\Building;
 use Input;
 
 /**
@@ -23,8 +24,8 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['except' => ['getIndex']]);
-        $this->middleware('wants.json', ['except' => ['getIndex']]);
+        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeBuildingLevel']]);
+        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeBuildingLevel']]);
     }
 
     /* Получить все локации...
@@ -179,9 +180,16 @@ class GameController extends Controller
     
     public function upgradeBuildingLevel($id) {
         $build = Building::find($id);
-        $build->level = $build->level + 1;
-        $build->save();
-        
-        return 1;
+        $currentWood = $build->castle()->first()->getResources('wood');
+        $currentGold = $build->castle()->first()->getResources('gold');
+        $cost = $build->costUpdate();
+        if($currentWood >= $cost && $currentGold >= $cost) {
+            $build->levelUp();
+            $build->castle()->first()->subResource('wood', $cost);
+            $build->castle()->first()->subResource('gold', $cost);
+            return "success";
+        } else {
+            return "no_costs";
+        }
     }
 }

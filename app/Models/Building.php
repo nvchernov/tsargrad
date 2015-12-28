@@ -22,4 +22,9 @@ class Building extends Model
         return round(exp($this->level/2)*100);
     }
     
+    public function levelUp() {
+        $this->level +=  1;
+        $this->save();
+    }
+    
 }
