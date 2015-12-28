@@ -222,7 +222,7 @@
                                                 <div class="col-xs-9">
                                                     <p>Переход на <span id="my-army-level-up"
                                                                                    class="badge"></span> уровень стоит <span
-                                                            id="my-army-upgrade-price" class="badge"></span>
+                                                            id="my-army-upgrade-price" class="badge"></span> <span class="text-warning">Золото</span>
                                                     </p>
                                                 </div>
                                                 <div class="col-xs-2">
