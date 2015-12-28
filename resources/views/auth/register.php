@@ -9,9 +9,9 @@
                 <h2 class="form-signin-heading">Регистрация</h2>
 
                 <div class="form-group">
-                  <label for="name" class="col-lg-2 control-label">Имя замка</label>
+                  <label for="name" class="col-lg-2 control-label">Имя полководца</label>
                   <div class="col-lg-10">
-                    <input class="form-control" id="name" name="name" placeholder="Имя замка" type="text">
+                    <input class="form-control" id="name" name="name" placeholder="Имя полководца" type="text">
                   </div>
                 </div>
 
