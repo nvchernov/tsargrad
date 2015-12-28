@@ -34,16 +34,16 @@
     },
     "scripts": {
         "pre-install-cmd": [
-            "artisan clear-compiled"
+            "php artisan clear-compiled"
         ],
         "post-install-cmd": [
-            "artisan optimize"
+            "php artisan optimize"
         ],
         "pre-update-cmd": [
-            "artisan clear-compiled"
+            "php artisan clear-compiled"
         ],
         "post-update-cmd": [
-            "artisan optimize"
+            "php artisan optimize"
         ],
         "post-root-package-install": [
             "php -r \"copy('.env.example', '.env');\""
