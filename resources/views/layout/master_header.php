@@ -271,7 +271,7 @@
                             <ul class="dropdown-menu">
                                 <li><a href="<?= Auth::user()->pathToProfile() ?>"><i class="glyphicon glyphicon-user"></i> Профиль</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="#">Карта</a></li>
+                                <li><a href="/game">Карта</a></li>
                                 <li><a href="#">Новости</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="/auth/logout"><i class="glyphicon glyphicon-log-out"></i> Покинуть
