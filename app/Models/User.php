@@ -60,6 +60,9 @@ class User extends Model implements AuthenticatableContract,
             // Создаем сооружения
             $castle->createBuildings();
             
+            // Инициализировать ресурсы в замке
+            $castle->initResources();
+            
         });
 
         static::updated(function(User $user)

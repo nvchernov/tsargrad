@@ -39,6 +39,12 @@ class Castle extends Model
     ];
 
     
+    public function initResources() {
+        $this->addResource('wood', 200);
+        $this->addResource('gold', 200);
+        $this->addResource('food', 200);
+    }
+    
     public function createBuildings() {
         // Лепим лесопилку
         $sawmill = new Building();
