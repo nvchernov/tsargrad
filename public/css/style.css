@@ -1,12 +1,19 @@
-.gamefield {
-    text-align: center;
-    margin: 50px 0;
-}
-
-#sl-squad-size .slider-selection {
-    background: #BABABA;
-}
-
 .pagination {
     margin: 0 0 0 0;
+}
+
+#gf-mask {
+    margin: 0 auto;
+    border: 1px solid #e7e7e7;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+}
+
+img.mapster_el {
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
 }
