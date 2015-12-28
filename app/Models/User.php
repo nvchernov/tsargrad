@@ -45,24 +45,25 @@ class User extends Model implements AuthenticatableContract,
         static::created(function(User $user)
         {
             $castle = $user->castle()->create(['name' => $user->caste_name ?: $user->name]);
+
             $cb = CommentBlock::create();
             $cb->save();
             $user->commentBlock()->associate($cb);
             $user->save();
+
             // Задать позицию на карте и армию по-умолчанию.
             $location = Location::freeRandom();
             if (is_null($location)) { throw new GameException('Нельзя добавить новый замок. Все поле уже занято.'); }
             $location->castle()->associate($castle);
             $location->save();
 
-            $castle->army()->create(['name' => "{$castle->name}'s army", 'size' => 0, 'level' => 1]);
+            $castle->army()->create(['name' => "{$castle->name}'s army", 'size' => 15, 'level' => 1]);
             
             // Создаем сооружения
             $castle->createBuildings();
             
             // Инициализировать ресурсы в замке
             $castle->initResources();
-            
         });
 
         static::updated(function(User $user)
