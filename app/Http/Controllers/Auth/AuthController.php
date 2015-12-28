@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Auth;
 use Request;
 use App\Models\User;
+use App\Models\Avatar;
 use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
@@ -58,10 +59,19 @@ class AuthController extends Controller
      */
     protected function create(array $data)
     {
+        $avatar = Avatar::create([
+                        'mustache_id' => 1,
+                        'amulet_id' => 1,
+                        'hair_id' => 1,
+                        'flag_id' => 1,
+        ]);
+        $cb = CommentBlock::create();
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'avatar_id' => $avatar->id,
+            'comment_block_id' => $cb->id
         ]);
     }
 

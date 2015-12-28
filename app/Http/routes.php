@@ -37,6 +37,8 @@ Route::post('password/email', 'Auth\PasswordController@postEmail');
 Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
 Route::post('password/reset', 'Auth\PasswordController@postReset');
 
+Route::post('avatar/get_partial', ['middleware' => 'auth', 'uses' => 'AvatarController@postPartial']);
+
 Route::resource('news', 'NewsController');
 
 // Комментарии
