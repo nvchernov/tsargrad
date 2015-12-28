@@ -102,7 +102,7 @@
                                         <legend>Приблизительные ресурсы замка</legend>
                                         <div id="enemy-resources" class="col-sm-12"></div>
                                     </fieldset>
-                                    <fieldset class="col-sm-12">
+                                    <fieldset id="army-crusade" class="col-sm-12">
                                         <legend>Подготовить нападение</legend>
                                         <div class="col-sm-12">
                                             <div class='form-group'>

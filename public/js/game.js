@@ -306,7 +306,7 @@
             }
         },
         bindings: {
-            ':el': {
+            '#army-crusade': {
                 classes: {
                     hidden: {
                         observe: 'size',
@@ -321,9 +321,11 @@
                 onGet: function (size) {
                     // TODO: пофиксить...
                     // cannot call methods on slider prior to initialization; attempted to call 'setAttribute'
+                    size = +size;
+                    if (!size) { return }
                     var sizer = this.ui.size;
                     var val = +sizer.val() > size ? size : +sizer.val();
-                    sizer.slider('setAttribute', 'max', +size);
+                    sizer.slider('setAttribute', 'max', size);
                     sizer.slider('setValue', val);
                     sizer.slider('refresh');
                     return val;
