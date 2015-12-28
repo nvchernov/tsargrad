@@ -2,7 +2,8 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
-use Database\Seeders\CastlesTableSeeder,
+use Database\Seeders\AvatarDefaultSeeder,
+    Database\Seeders\CastlesTableSeeder,
     Database\Seeders\ArmiesTableSeeder,
     Database\Seeders\SquadsTableSeeder,
     Database\Seeders\ResourcesTableSeeder,
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
     {
         Model::unguard();
 
+        $this->call(AvatarDefaultSeeder::class);
         $this->call(CommentBlocksTableSeeder::class);
         $this->call(ResourcesTableSeeder::class);
         $this->call(CastlesTableSeeder::class);
