@@ -219,8 +219,8 @@
                                         <div class="col-sm-12">
                                             <div class="form-group">
                                                 <div class="col-xs-9">
-                                                    <p>Стоимость перехода на <span id="my-army-level-up"
-                                                                                   class="badge"></span> уровень <span
+                                                    <p>Переход на <span id="my-army-level-up"
+                                                                                   class="badge"></span> уровень стоит <span
                                                             id="my-army-upgrade-price" class="badge"></span>
                                                     </p>
                                                 </div>

@@ -207,7 +207,7 @@
             '#my-army-level-up': {
                 observe: 'level',
                 onGet: function (level) {
-                    return level + 1;
+                    return 1 + +level;
                 }
             },
             '#my-army-upgrade-price': 'upgradePrice'
