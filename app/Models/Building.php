@@ -1,0 +1,25 @@
+<?php
+
+namespace app\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Building extends Model
+{
+    protected $table = 'buildings_castles';
+    
+    public $timestamps = false;
+    
+    public function castle() {
+        
+        return $this->belongsTo('App\Models\Castle', 'castles_id');
+        
+    }
+    
+    public function buildingType() {
+        
+        return $this->belongsTo('App\Models\BuildingType', 'buildings_id');
+        
+    }
+    
+}

@@ -38,6 +38,37 @@ class Castle extends Model
         //    'location' => 'array',
     ];
 
+    
+    public function createBuildings() {
+        // Лепим лесопилку
+        $sawmill = new Building();
+        $sawmill->castle()->associate($this);
+        $sawmill->buildingType()->associate(BuildingType::where('building_name', 'sawmill')->first());
+        $sawmill->level = 1;
+        $sawmill->save();
+
+        // Шахту
+        $sawmill = new Building();
+        $sawmill->castle()->associate($this);
+        $sawmill->buildingType()->associate(BuildingType::where('building_name', 'mine')->first());
+        $sawmill->level = 1;
+        $sawmill->save();
+
+        // Ферму
+        $farm = new Building();
+        $farm->castle()->associate($this);
+        $farm->buildingType()->associate(BuildingType::where('building_name', 'farm')->first());
+        $farm->level = 1;
+        $farm->save();
+
+        // Защитные сооружения
+        $defences = new Building();
+        $defences->castle()->associate($this);
+        $defences->buildingType()->associate(BuildingType::where('building_name', 'defenses')->first());
+        $defences->level = 1;
+        $defences->save();
+    }
+    
     /**
      * Получить армию или создать новую....
      */
@@ -268,5 +299,10 @@ class Castle extends Model
     public function user()
     {
         return $this->belongsTo('App\Models\User');
+    }
+    
+    
+    public function buildings() {
+        return $this->hasMany('App\Models\Building');
     }
 }

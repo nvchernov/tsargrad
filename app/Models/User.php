@@ -56,6 +56,10 @@ class User extends Model implements AuthenticatableContract,
             $location->save();
 
             $castle->army()->create(['name' => "{$castle->name}'s army", 'size' => 0, 'level' => 1]);
+            
+            // Создаем сооружения
+            $castle->createBuildings();
+            
         });
 
         static::updated(function(User $user)
