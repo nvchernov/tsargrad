@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
         $this->call(LocationsTableSeeder::class);
         $this->call(PveEnemiesTableSeeder::class);
         $this->call(PveEnemiesMessagesTableSeeder::class);
+        $this->call(CastleBuildingsSeeder::class);
 
         Model::reguard();
     }
