@@ -76,6 +76,7 @@
 <?else:?>
     <?echo view('pve_enemy_attack/battle',['attack' => $attack])?>
 <?endif;?>
+<?php if (is_null($attack) || $attack->status != 0): ?>
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
 <script src="/plugins/jquery.ui/jquery-ui.min.js"></script>
 <script type="text/javascript">
@@ -213,5 +214,5 @@
         
     }());
 </script>
-
+<?php endif; ?>
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_footer.php'); ?>
