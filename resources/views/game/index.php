@@ -2,7 +2,7 @@
 <?php App::setLocale('ru'); ?>
 
 <link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
-
+<?if ($attack->status != 0):?>
 <div class="container">
     <div class="content">
         <div class="row">
@@ -73,7 +73,9 @@
 </map>
 
 <div class="modal fade" id="enemy-castle-modal" tabindex="-1" role="dialog"></div>
-
+<?else:?>
+    <?echo view('pve_enemy_attack/battle',['attack' => $attack])?>
+<?endif;?>
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
 <script src="/plugins/jquery.ui/jquery-ui.min.js"></script>
 <script type="text/javascript">

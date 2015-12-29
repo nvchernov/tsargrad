@@ -12,8 +12,8 @@ use App\Events\CUD;
 use App\Exceptions\GameException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use DB;
-//use Log;
+use Illuminate\Support\Facades\DB;
+use Log;
 
 class Army extends Model
 {
@@ -73,6 +73,71 @@ class Army extends Model
         }
 
         return $saved;
+    }
+
+    public function defend($level, $count)
+    {
+        $dArmy = $this; // защищающиеся армия
+        $now = Carbon::now();
+        // xa, ya - кол-во и уровень атакующих.
+        // xd, yd, zd - кол-во, уровень войск и уровень фортификации защищающихся.
+        $xa = $count;
+        $ya = $level;
+        $xd = $this->size;
+        $yd = $this->level;
+        $zd = 0;//$this->goal->fortification()->level; // Уровень фортификации, пока остается 0;
+
+        Log::info("Сила атак. отряда = $xa и уровень = $ya");
+        Log::info("Сила защ. армии = $xd, уровень = $yd и фортифмкация = $zd");
+
+        if ($xd == 0) {
+            // Защитников нет, досрочная победа атакующих...
+            Log::info("Досрочно победили атакующие. Осталось в живых = $xa");
+            return false;
+        }
+        // Рассчет мощностей каждой из армий и их разницы...
+        $rand = rand(0-$xd / 5, $xa / 5); // рандом при расчете мощностей
+        $diff = intval($xa * $ya - $xd * $yd * (1 + $zd / 100) + $rand);
+
+        Log::info("Мощность атакующих = " . ($xa * $ya) . ". Мощность защитников = " . ($xd * $yd * (1 + $zd / 100)));
+        Log::info("Первый рандом = $rand. Разница мощностей с рандомом = $diff");
+
+        $rand = rand(0, 150) / 1000; // рандом при вычилсение сил победителей
+        Log::info("Второй рандом = $rand");
+
+        // Расчет сил победителей и награды, в случаи победы атакующих...
+        DB::beginTransaction();
+        try {
+            $loots = [];
+            if ($diff > 0) {
+                // Атакующий отряд победил...
+                $left = ($diff / $ya) * (1 + $rand);
+                $left = $xd - $left;
+                $left = intval($left < 0 ? 0 : $left);
+                // Оставить только выживших...
+                $dArmy->update(['size' => $left]);
+                Log::info("Победили атакующие. Осталось в живых = $left");
+                DB::commit();
+                return false;
+            } elseif ($diff < 0) {
+                // Защитники победили...
+                $left = ($diff / $yd) * (1 + $zd / 100) * (1 + $rand);
+                $left = abs(intval($left > $xd ? $xd : $left));
+                // Оставить только выживших...
+                $dArmy->update(['size' => $left]);
+                Log::info("Победили защитники. Осталось в живых = $left");
+                DB::commit();
+                return true;
+            } else {
+                $dArmy->update(['size' => 0]);
+                Log::info("Ничья. Все умерли.");
+                DB::commit();
+                return true;
+            }
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            throw($ex); // next...
+        }
     }
 
     /**

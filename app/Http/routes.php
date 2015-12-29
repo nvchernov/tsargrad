@@ -49,6 +49,8 @@ Route::get('comments/{id}/{page}', 'CommentBlocksController@comments');
 
 // General page
 Route::get('game', ['uses' => 'GameController@getIndex', 'as' => 'home']);
+Route::get('surrender',  'GameController@surrender');
+Route::get('joinBattle',  'GameController@joinBattle');
 
 Route::get('game/castles/{id}', 'GameController@getCastle');
 Route::get('game/armies/{id}', 'GameController@getArmy');

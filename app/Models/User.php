@@ -104,6 +104,16 @@ class User extends Model implements AuthenticatableContract,
         return $this->hasOne('App\Models\Avatar');
     }
 
+    public function lastPveAttack()
+    {
+        return $this->pveEnemyAttacks()->orderBy('id', 'desc')->first();
+    }
+
+    public function pveEnemyAttacks()
+    {
+        return $this->hasMany('App\Models\PveEnemyAttack');
+    }
+
     public function pathToProfile()
     {
         return '/user/profile/' . $this->id;
