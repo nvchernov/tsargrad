@@ -173,7 +173,8 @@ class GameController extends Controller
         $user = Auth::user();
         $data['army'] = $user->army;
         $c = $data['enemy_castle'] = Castle::find($id);
-        $data['enemy_resources'] = $c->getResources();
+        $c->calcCastleIncreaseResources();
+        $data['enemy_resources'] = $c->getResources();      
 
         return $this->ajaxResponse($data);
     }
