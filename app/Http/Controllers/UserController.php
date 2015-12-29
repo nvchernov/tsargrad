@@ -53,7 +53,7 @@ class UserController extends Controller
             $text,
             $parent_comment_id == '' ? null : $parent_comment_id
         );
-        return redirect('user/profile?page=1');
+        return redirect(Auth::user()->pathToProfile().'?page=1');
     }
 
     public function postUpdate()

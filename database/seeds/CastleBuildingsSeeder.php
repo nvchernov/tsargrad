@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CastleBuildingsSeeder extends Seeder
 {
@@ -20,7 +21,7 @@ class CastleBuildingsSeeder extends Seeder
         // Шахта - золото
         DB::table('buildings')->insert([
             'building_name' => 'mine', 
-            'resources_id' => 1
+            'resources_id' =>1
         ]);
         
         // Ферма - еда
