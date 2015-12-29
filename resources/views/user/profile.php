@@ -21,8 +21,8 @@
         <!--<form method="POST" action="/user/update" class="form-horizontal">-->
 
             <div class="row">
-                <div class="col-md-3 col-md-offset-1">
-                    <div class="row" style="max-height: 500px;">
+                <div class="col-md-3 col-md-offset-1" style="max-height: 500px; min-height: 300px;">
+                    <div class="row" style="max-height: 500px; min-height: 300px;">
 
                         <div class="col-md-8 col-md-offset-2" style="position: absolute;">
                             <img id="avatar_flag" src="<? echo $flag_url ?>" style="height: 262px; width: 262px;">
@@ -36,7 +36,7 @@
                                 </button>
                             </div>
                             <div class="col-md-8">
-                                <img id="avatar_top" src="<? echo $hair_url ?>" style="width: 100%;">
+                                <img id="avatar_top" src="<? echo $hair_url ?>" style="height: 87px; width: 262px;">
                                 <input id="hair_id" name="hair_id" placeholder="Имя полководца" type="hidden" value="<? echo $avatar->hair_id ?>">
                             </div>
                             <div class="col-md-2 text-center">
@@ -53,7 +53,7 @@
                                 </button>
                             </div>
                             <div class="col-md-8">
-                                <img id="avatar_middle" src="<? echo $mustache_url ?>" style="width: 100%;">
+                                <img id="avatar_middle" src="<? echo $mustache_url ?>" style="height: 87px; width: 262px;">
                                 <input id="mustache_id" name="mustache_id" placeholder="Имя полководца" type="hidden" value="<? echo $avatar->mustache_id ?>">
                             </div>
                             <div class="col-md-2 text-center">
@@ -70,7 +70,7 @@
                                 </button>
                             </div>
                             <div class="col-md-8">
-                                <img id="avatar_bottom" src="<? echo $amulet_url ?>" style="width: 100%;">
+                                <img id="avatar_bottom" src="<? echo $amulet_url ?>" style="height: 87px; width: 262px;">
                                 <input id="amulet_id" name="amulet_id" placeholder="Имя полководца" type="hidden" value="<? echo $avatar->amulet_id ?>">
                             </div>
                             <div class="col-md-2 text-center">
