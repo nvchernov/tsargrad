@@ -46,6 +46,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $comments_block_id = Input::get('comment_block_id');
+        $profile_id = Input::get('profile_id');
         $text = Input::get('text');
         $parent_comment_id = Input::get('parent_comment_id');
         CommentBlock::find($comments_block_id)->addComment(
@@ -53,7 +54,7 @@ class UserController extends Controller
             $text,
             $parent_comment_id == '' ? null : $parent_comment_id
         );
-        return redirect(Auth::user()->pathToProfile().'?page=1');
+        return redirect('user/profile/'.$profile_id.'?page=1');
     }
 
     public function postUpdate()
