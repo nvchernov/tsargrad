@@ -239,6 +239,7 @@ class GameController extends Controller
         if (Input::has('count')) {
             try {
                 $army = Army::find($id);
+                $army->castle()->first()->calcCastleIncreaseResources();
                 $army->buy(Input::get('count'));
             } catch (\Exception $exc) {
                 return $this->ajaxError($exc->getMessage());
@@ -257,6 +258,7 @@ class GameController extends Controller
     {
         try {
             $army = Army::find($id);
+            $army->castle()->first()->calcCastleIncreaseResources();
             $army->upgrade();
         } catch (\Exception $exc) {
             return $this->ajaxError($exc->getMessage());
@@ -265,8 +267,9 @@ class GameController extends Controller
     }
     
     
-    public function upgradeBuildingLevel($id) {
+    public function upgradeBuildingLevel($id) {        
         $build = Building::find($id);
+        $build->castle()->first()->calcCastleIncreaseResources();
         $currentWood = $build->castle()->first()->getResources('wood');
         $currentGold = $build->castle()->first()->getResources('gold');
         $cost = $build->costUpdate();
