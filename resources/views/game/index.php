@@ -2,8 +2,8 @@
 <?php App::setLocale('ru'); ?>
 
 <link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
-<? if (is_null($attack) || $attack->status != 0): ?>
-<div class="container">
+
+<div class="container"  style="display: <?php if (is_null($attack) || $attack->status != 0): ?> block;"  <?php else: ?> none;" <?php endif; ?>>
     <div class="content">
         <div class="row">
             <div class="col-sm-9" style="text-align: center">
@@ -73,9 +73,10 @@
 </map>
 
 <div class="modal fade" id="enemy-castle-modal" tabindex="-1" role="dialog"></div>
-<?else:?>
-    <?echo view('pve_enemy_attack/battle',['attack' => $attack])?>
-<?endif;?>
+<?php if (is_null($attack) || $attack->status != 0): ?>
+<?php else: ?>
+    <? echo view('pve_enemy_attack/battle',['attack' => $attack]); ?>
+<?php endif; ?>
 <?php if (is_null($attack) || $attack->status != 0): ?>
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
 <script src="/plugins/jquery.ui/jquery-ui.min.js"></script>
