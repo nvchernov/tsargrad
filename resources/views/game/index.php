@@ -90,15 +90,7 @@
                 }                
             });
         });
-       
-        function recalcResources() {
-            var arr  = [ ['wood', 'sawmill'], ['gold', 'mine'], ['food', 'farm']];
-            arr.forEach( function(item, i, arr) {
-                var prevValue = player.resources.get(item[0]).get('count');
-                player.resources.get(item[0]).set('count', prevValue + +$('#' + item[1]).attr('data-level'));                
-            });           
-        }; setInterval(recalcResources, 1000);
-        
+
         function Init() {
             
             var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});

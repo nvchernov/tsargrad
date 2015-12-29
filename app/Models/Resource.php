@@ -38,7 +38,7 @@ class Resource extends Model
             $res = $attr;
         } elseif (is_string($attr)) {
             $res = static::where(['name' => $attr])->first();
-        } elseif (is_integer($attr)) {
+        } elseif (is_numeric($attr)) {
             $res = static::find($attr);
         }
         return $res;

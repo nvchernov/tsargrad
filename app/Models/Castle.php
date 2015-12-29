@@ -87,21 +87,6 @@ class Castle extends Model
         return $army;
     }
 
-    private function createResCond($res)
-    {
-        $cond = [];
-        if (is_string($res)) {
-            $cond['name'] = $res;
-        } elseif ($res instanceof Resource) {
-            $cond['id'] = $res->id;
-        } elseif (is_numeric($res)){
-            $cond['id'] = $res;
-        } else {
-            return false;
-        }
-        return $cond;
-    }
-
     /**
      * Добавить некоторое количество ресурса в замок.
      * Если такого ресурса еще не было в замке, то сначала создается новый ресурс в БД, а затем он появляется и в замке.
@@ -122,42 +107,31 @@ class Castle extends Model
             return $this->subResource($resource, abs($count));
         }
 
-        $cond = [];
-        if (is_string($resource)) {
-            $resName = $cond['name'] = $resource;
-        } elseif ($resource instanceof Resource) {
-            $resObj = $resource;
-            $cond['id'] = $resource->id;
-        } elseif (is_numeric($resource)){
-            $cond['id'] = $resource;
-        } else {
-            return false;
-        }
-
-        // связка с pivot...
-        $rp = $this->resources()->where($cond)->first();
-        if (isset($rp)) {
-            // Увеличить ресурс...
-            $rp->pivot->count += $count;
-            $saved = $rp->pivot->save();
-            if ($saved) {
-                event(new CUD($this->user, 'update', $rp, ['name' => $rp->name, 'count' => $rp->pivot->count]));
+        $res = Resource::extract($resource);
+        if (isset($res)) {
+            // связка с pivot...
+            $rp = $this->resources()->find($res->id);
+            if (isset($rp)) {
+                // Увеличить ресурс...
+                $rp->pivot->count += $count;
+                $saved = $rp->pivot->save();
+                if ($saved) {
+                    event(new CUD($this->user, 'update', $rp, ['name' => $rp->name, 'count' => $rp->pivot->count]));
+                }
+                return $saved;
             }
-            return $saved;
-        } elseif (!isset($resObj)) {
-            // Есть такой ресурс в БД?
-            $resObj = Resource::where($cond)->first();
-            if (is_null($resObj) && isset($resName)) {
+        } else {
+            if (is_string($resource)) {
                 // Если нет ресурса...
                 // Создать новый ресурс.
-                $resObj = Resource::create(['name' => $resName]);
+                $res = Resource::create(['name' => $resource]);
             }
         }
 
-        if (isset($resObj)) {
+        if (isset($res)) {
             // Добавить новый ресурс...
-            $this->resources()->attach($resObj->id, ['count' => $count]);
-            event(new CUD($this->user, 'update', $resObj, ['name' => $resObj->name, 'count' => $count]));
+            $this->resources()->attach($res->id, ['count' => $count]);
+            event(new CUD($this->user, 'update', $res, ['name' => $res->name, 'count' => $count]));
 
             return true;
         }
@@ -185,13 +159,13 @@ class Castle extends Model
             return $this->addResource($resource, abs($count));
         }
 
-        $cond = $this->createResCond($resource);
-        if ($cond == false) {
+        $res = Resource::extract($resource);
+        if (is_null($res)) {
             return false;
         }
 
         // связка с pivot...
-        $rp = $this->resources()->where($cond)->first();
+        $rp = $this->resources()->find($res->id);
         if (is_null($rp)) {
             return false;
         }
@@ -218,12 +192,12 @@ class Castle extends Model
     public function getResources($resource = null)
     {
         if (isset($resource)) {
-            $cond = $this->createResCond($resource);
-            if ($cond == false) {
+            $res = Resource::extract($resource);
+            if (is_null($res)) {
                 return null;
             }
             // связка с pivot...
-            $rp = $this->resources()->where($cond)->first();
+            $rp = $this->resources()->find($res->id);
             return !is_null($rp) ? $rp->pivot->count : 0;
         }
         $arr = [];
