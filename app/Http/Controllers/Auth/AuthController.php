@@ -96,7 +96,7 @@ class AuthController extends Controller
     {
         $data = Request::all();
 
-        $remember =isset($data['remember']) ? $data['remember'] : false;
+        $remember =isset($data['remember']) ? ($data['remember'] === 'true' ? true : false) : false;
         if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']], $remember))
         {
             return redirect('game');
