@@ -130,6 +130,8 @@ class GameController extends Controller
     public function joinBattle()
     {
         $user =  Auth::user();
+        // Препросчет актуальных ресурсов
+        $user->castle->calcCastleIncreaseResources();
         $attack = $user->lastPveAttack();
         if ( $attack->status == 0 )
         {

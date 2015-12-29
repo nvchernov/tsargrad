@@ -2,7 +2,7 @@
 <?php App::setLocale('ru'); ?>
 
 <link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
-<?if ($attack->status != 0):?>
+<? if (is_null($attack) || $attack->status != 0): ?>
 <div class="container">
     <div class="content">
         <div class="row">
