@@ -45,7 +45,7 @@
                     </div>
 
                     <?php if (isset ($error_message)) { ?>
-                        <div class="alert alert-danger" role="alert"> <strong>Ошибка!</strong> <? echo $error_message ?> </div>
+                        <div class="alert alert-danger" role="alert"> <strong>Ошибка!</strong> <?php echo $error_message ?> </div>
                     <?php } ?>
 
                     <div class="row">
@@ -54,7 +54,7 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="_token" value="<? echo csrf_token() ?>">
+                    <input type="hidden" name="_token" value="<?php echo csrf_token() ?>">
                 </div>
             </div>
         </form>
@@ -79,4 +79,4 @@
 </div>
 
 
-<? require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_footer.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_footer.php'); ?>

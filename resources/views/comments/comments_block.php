@@ -1,4 +1,4 @@
-<? require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_header.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_header.php'); ?>
 <link rel="stylesheet" href="/css/blog-comment.css">
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -34,42 +34,42 @@
     <div class="panel-body">
         <div class="blog-comment">
             <ul class="comments">
-            <? foreach( $comments as $comment ) { ?>
-                <? echo view('comments/comment', ['comment' => $comment]); ?>
-            <? } ?>
+            <?php foreach( $comments as $comment ) { ?>
+                <?php echo view('comments/comment', ['comment' => $comment]); ?>
+            <?php } ?>
             </ul>
         </div>
     </div>
-    <? if ($page_count > 1):?>
+    <?php if ($page_count > 1):?>
     <div class="panel-footer clearfix" style="background-color: #fff">
         <nav class="pull-right">
             <ul class="pagination">
-                <? if ($page > 1) : ?>
+                <?php if ($page > 1) : ?>
                     <li>
                         <a href="/user/profile/<?=$user->id?>?page=<?=($page-1)?>" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
-                <? endif; ?>
+                <?php endif; ?>
 
-                <? for($i=1; $i <= $page_count; ++$i): ?>
+                <?php for($i=1; $i <= $page_count; ++$i): ?>
                     <li class="<?=$i == $page ? 'active' : ''?>">
                         <a href="/user/profile/<?=$user->id?>?page=<?=$i?>">
                             <?=$i?>
                         </a>
                     </li>
-                <? endfor; ?>
+                <?php endfor; ?>
 
-                <? if ($page < $page_count) : ?>
+                <?php if ($page < $page_count) : ?>
                     <li>
                         <a href="/user/profile/<?=$user->id?>?page=<?=($page+1)?>" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
-                <? endif; ?>
+                <?php endif; ?>
             </ul>
         </nav>
     </div>
-    <? endif; ?>
+    <?php endif; ?>
 </div>
-<? require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_footer.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_footer.php'); ?>

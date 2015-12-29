@@ -1,4 +1,4 @@
-<? require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_header.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_header.php'); ?>
 <?php App::setLocale('ru'); ?>
 
 <link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
@@ -58,16 +58,16 @@
 </div>
 
 <map name="gamefield-map">
-    <? $de = 93;
+    <?php $de = 93;
     $x = $y = 95 ?>
-    <? foreach ($castles as $c): ?>
-        <? $x1 = $x + $c->location->x * $de;
+    <?php foreach ($castles as $c): ?>
+        <?php $x1 = $x + $c->location->x * $de;
         $y1 = $y + $c->location->y * $de;
         $x2 = $x1 + $de;
         $y2 = $y1 + $de; ?>
         <area href="javascript:;" castle-id="<?= $c->id ?>" shape="rect"
               coords="<?= $x1 ?>, <?= $y1 ?>, <?= $x2 ?>, <?= $y2 ?>">
-    <? endforeach; ?>
+    <?php endforeach; ?>
 </map>
 
 <div class="modal fade" id="enemy-castle-modal" tabindex="-1" role="dialog"></div>
@@ -188,4 +188,4 @@
     }());
 </script>
 
-<? require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_footer.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_footer.php'); ?>

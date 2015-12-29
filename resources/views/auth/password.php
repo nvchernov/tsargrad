@@ -1,4 +1,4 @@
-<? require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_header.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_header.php'); ?>
 
 <link href="/register.css" rel="stylesheet" type="text/css">
 
@@ -21,10 +21,10 @@
                     </div>
                 </div>
 
-                <input type="hidden" name="_token" value="<? echo csrf_token() ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token() ?>">
             </div>
         </div>
     </form>
 </div>
 
-<? require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_footer.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_footer.php'); ?>
