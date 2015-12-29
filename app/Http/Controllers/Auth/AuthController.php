@@ -48,9 +48,16 @@ class AuthController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => 'required|max:255',
+            'name' => 'required|min:4|max:200',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
+            'password_confirmation' => 'required|confirmed|min:6',
+        ],[
+            'required' => 'Все поля должны быть заполнены',
+            'email.unique' => 'Такой email уже используется',
+            'name.min' => 'Имя полководца не должно быть меньше :min символов',
+            'name.max' => 'Имя полководца не должно быть больше :max символов',
+            'password.min' => 'Пароль не может быть меньше :min символов',
         ]);
     }
 
@@ -118,18 +125,31 @@ class AuthController extends Controller
     public function postRegister()
     {
         $data = Request::all();
-        if ($data['password'] === $data['password_confirmation'])
+
+        $validator = $this->validator($data);
+
+        $validator->after(function($validator)
         {
-//            var_dump(count(User::where('email', $data['email'])));
-            if (User::where('email', $data['email'])->count() === 0) {
-                $new_user = $this->create($data);
-                if ($new_user !== null) {
-                    Auth::login($new_user);
-                    return redirect($new_user->pathToProfile());
+            //if ($this->somethingElseIsInvalid())
+            //{
+                $validator->errors()->add('name', 'Ошибка в имени.');
+            //}
+        });
+
+        if ($validator->passes()) {
+            if ($data['password'] === $data['password_confirmation']) {
+                if (User::where('email', $data['email'])->count() === 0) {
+                    $new_user = $this->create($data);
+                    if ($new_user !== null) {
+                        Auth::login($new_user);
+                        return redirect($new_user->pathToProfile());
+                    }
+                    return view('auth/register', ['error_message' => 'Не удалось создать пользователя. Попробуйте еще раз или обратитесь к разработчикам.']);
                 }
+                return view('auth/register', ['error_message' => 'Такой email уже используется.']);
             }
-            return view('auth/register', ['error_message' => 'Такой email уже используется']);
+            return view('auth/register', ['error_message' => 'Пароли не совпадают.']);
         }
-        return view('auth/register', ['error_message' => 'Пароли не совпадают']);
+        return view('auth/register', ['error_message' => $validator->messages()->first()]);
     }
 }
