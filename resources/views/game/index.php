@@ -89,7 +89,20 @@
                 <h3>Мои шпионы</h3>
             </div>
             <div class="modal-body">
-                
+                <div class="container-fluid text-center" style="margin-bottom: 20px;">
+                    <button type="button" class="btn btn-danger" id="buy_new_spy">Нанять нового шпиона (200 ед. золота)</button>
+                </div>
+                <div class="container-fluid">
+                    <?php if(!empty($spies)) : ?>
+                        <table class="table table-bordered table-hover">
+                        <?php foreach($spies as $spy): ?>
+                            <tr>
+                                <td>Шпион #<?=$spy->id;?></td>
+                            </tr>
+                        <?php endforeach; ?> 
+                        </table>
+                    <?php endif; ?>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
@@ -99,7 +112,7 @@
 </div>
 <?php if (is_null($attack) || $attack->status != 0): ?>
 <?php else: ?>
-    <? echo view('pve_enemy_attack/battle',['attack' => $attack]); ?>
+    <?php echo view('pve_enemy_attack/battle',['attack' => $attack]); ?>
 <?php endif; ?>
 <?php if (is_null($attack) || $attack->status != 0): ?>
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
@@ -116,6 +129,16 @@
                 } else if (data == "success") {
                     $('#my-buildings').load('/game #my-buildings > table');                    
                 }                
+            });
+        });
+        
+        $(document).on('click', '#buy_new_spy', function() {
+            $.post('/game/spy/new', function(data) { 
+                if(data == "no_costs") {
+                    alert('Не хватает ресурсов');
+                } else if (data == "success") {
+                    $('#my-spy-modal').load('/game #my-spy-modal .modal-dialog');                    
+                } 
             });
         });
        

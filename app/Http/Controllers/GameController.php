@@ -12,6 +12,7 @@ use App\Models\Resource;
 use Auth;
 use App\Models\Castle;
 use App\Models\Army;
+use App\Models\Spy;
 use App\Models\Building;
 use App\Models\PveEnemyAttack;
 use Input;
@@ -27,8 +28,8 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
-        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('ajax', ['except' => ['getIndex', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('wants.json', ['except' => ['getIndex', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
     }
 
     /* Получить все локации...
@@ -82,6 +83,7 @@ class GameController extends Controller
         $c = $data['castle'] = $user->castle;       
         $data['resources'] = $c->getResources();
         $data['buildings'] = $c->buildings()->get()->all();
+        $data['spies'] = $c->ownSpies()->get()->all();
         $attack = $user->lastPveAttack();
         if ( is_null($attack) || $attack->status != 0)
         {
@@ -282,4 +284,23 @@ class GameController extends Controller
             return "no_costs";
         }
     }
+    
+    // Нанять шпиона
+    public function buySpy() {
+        
+        $user = Auth::user();
+        // Стоимость шпиона первого уровня 200 голды
+        if($user->castle->getResources('gold') > 200) {
+            $spy = new Spy();
+            $spy->level = 1;
+            $spy->ownCastle()->associate($user->castle);
+            $spy->save();
+            $user->castle->subResource('gold', 200);
+            return "success";
+        } else {
+            return "no_costs";
+        }
+        
+    }
+    
 }

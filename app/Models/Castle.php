@@ -312,4 +312,10 @@ class Castle extends Model
                 Resource::where('name', $resName)->first()->id)->first()->id)->first();
     }
     
+    public function ownSpies() {
+        
+        return $this->hasMany('App\Models\Spy', 'castles_id');
+        
+    }
+    
 }
