@@ -8,11 +8,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Resource;
 use Auth;
 use App\Models\Castle;
 use App\Models\Army;
 use App\Models\Building;
+use App\Models\PveEnemyAttack;
 use Input;
+use Carbon\Carbon;
 
 /**
  * Class GameController
@@ -24,8 +27,8 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeBuildingLevel']]);
-        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeBuildingLevel']]);
+        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeBuildingLevel','surrender','joinBattle']]);
+        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeBuildingLevel','surrender','joinBattle']]);
     }
 
     /* Получить все локации...
@@ -79,18 +82,79 @@ class GameController extends Controller
         $c = $data['castle'] = $user->castle;       
         $data['resources'] = $c->getResources();
         $data['buildings'] = $c->buildings()->get()->all();
-        
+        $attack = $user->lastPveAttack();
+       /* if ($attack->status != 0)
+        {
+            $is = ( time() - $attack->updated_at->getTimestamp()  ) / 5000 * rand(0, 10);
+            if ($is > 1) {
+                $resurce
+                Resource::find(rand(1,3));
+                PveEnemyAttack::create([
+
+
+
+                ]);
+            }
+            dd($is);
+        }*/
         // При заходе на карту пересчитываем ресурсы
         $c->calcCastleIncreaseResources();
-
-        //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
+        $data['attack'] = $attack;
         return view('game/index', $data);
     }
-    
+
     // Метод вызывающий пересчет ресурсов на уровне сервера для замка с id = $id
     public function requestRecalcRes($id) {
         $castle = Castle::find($id);
         $castle->calcCastleIncreaseResources();
+    }
+
+    public function surrender()
+    {
+        $user =  Auth::user();
+        $attack = $user->lastPveAttack();
+        if ( $attack->status == 0 )
+        {
+            $attack->status = 1;
+            $resource = Resource::find($attack->demanded_resource_id);
+            $user->castle->subResource(
+                $resource->name,
+                $attack->demanded_resource_count
+            );
+            $attack->update();
+            $user->update();
+        }
+        return redirect('game');
+    }
+
+    public function joinBattle()
+    {
+        $user =  Auth::user();
+        $attack = $user->lastPveAttack();
+        if ( $attack->status == 0 )
+        {
+            $result = $user->castle->army->defend($attack->army_level, $attack->army_count);
+            $resource = Resource::find($attack->demanded_resource_id);
+            if ($result==true)
+            {
+                $attack->status = 2;
+                $user->castle->addResource(
+                    $resource->name,
+                    $attack->demanded_resource_count
+                );
+            }
+            else
+            {
+                $attack->status = 1;
+                $user->castle->subResource(
+                    $resource->name,
+                    $attack->demanded_resource_count
+                );
+            }
+        }
+        $attack->save();
+        $user->save();
+        return redirect('game');
     }
 
     /**

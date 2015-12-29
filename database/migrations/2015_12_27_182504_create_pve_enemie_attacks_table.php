@@ -25,6 +25,8 @@ class CreatePveEnemieAttacksTable extends Migration
             $table->foreign('demanded_resource_id')->references('id')->on('resources')->onDelete('cascade')->onUpdate('cascade');
 
             $table->integer('demanded_resource_count')->unsigned();
+            $table->integer('army_count')->unsigned();
+            $table->integer('army_level')->unsigned();
 
             $table->integer('status')->default(0);
 
