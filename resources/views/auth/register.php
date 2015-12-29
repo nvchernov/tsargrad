@@ -9,7 +9,7 @@
                 <h2 class="form-signin-heading">Регистрация</h2>
 
                 <?php if (isset ($error_message)) { ?>
-                    <div class="alert alert-danger" role="alert"> <strong>Ошибка!</strong> <? echo $error_message ?> </div>
+                    <div class="alert alert-danger" role="alert"> <strong>Ошибка!</strong> <?php echo $error_message ?> </div>
                 <?php } ?>
 
                 <div class="form-group">

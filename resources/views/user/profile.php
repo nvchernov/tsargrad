@@ -1,19 +1,19 @@
-<? require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_header.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_header.php'); ?>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-11 col-md-offset-1">
             <h2>Редактирование профиля</h2>
 
-            <? if (isset($message)) { ?>
-                <? if ($is_error) { ?>
-                    <div class="alert alert-danger" role="alert"> <strong>Ошибка!</strong> <? echo $message ?> </div>
-                <? } ?>
+            <?php if (isset($message)) { ?>
+                <?php if ($is_error) { ?>
+                    <div class="alert alert-danger" role="alert"> <strong>Ошибка!</strong> <?php echo $message ?> </div>
+                <?php } ?>
 
-                <? if (!$is_error) { ?>
-                    <div class="alert alert-info" role="alert"> <strong>Готово!</strong> <? echo $message ?> </div>
-                <? } ?>
-            <? } ?>
+                <?php if (!$is_error) { ?>
+                    <div class="alert alert-info" role="alert"> <strong>Готово!</strong> <?php echo $message ?> </div>
+                <?php } ?>
+            <?php } ?>
         </div>
     </div>
 
@@ -25,8 +25,8 @@
                     <div class="row" style="max-height: 500px; min-height: 300px;">
 
                         <div class="col-md-8 col-md-offset-2" style="position: absolute;">
-                            <img id="avatar_flag" src="<? echo $flag_url ?>" style="height: 262px; width: 262px;">
-                            <input id="flag_id" name="flag_id" placeholder="Имя полководца" type="hidden" value="<? echo $avatar->flag_id ?>">
+                            <img id="avatar_flag" src="<?php echo $flag_url ?>" style="height: 262px; width: 262px;">
+                            <input id="flag_id" name="flag_id" placeholder="Имя полководца" type="hidden" value="<?php echo $avatar->flag_id ?>">
                         </div>
 
                         <div class="row">
@@ -36,8 +36,8 @@
                                 </button>
                             </div>
                             <div class="col-md-8">
-                                <img id="avatar_top" src="<? echo $hair_url ?>" style="height: 87px; width: 262px;">
-                                <input id="hair_id" name="hair_id" placeholder="Имя полководца" type="hidden" value="<? echo $avatar->hair_id ?>">
+                                <img id="avatar_top" src="<?php echo $hair_url ?>" style="height: 87px; width: 262px;">
+                                <input id="hair_id" name="hair_id" placeholder="Имя полководца" type="hidden" value="<?php echo $avatar->hair_id ?>">
                             </div>
                             <div class="col-md-2 text-center">
                                 <button id="avatar_top_next" type="button" class="btn btn-primary center-block" style="margin-top: 50%;">
@@ -53,8 +53,8 @@
                                 </button>
                             </div>
                             <div class="col-md-8">
-                                <img id="avatar_middle" src="<? echo $mustache_url ?>" style="height: 87px; width: 262px;">
-                                <input id="mustache_id" name="mustache_id" placeholder="Имя полководца" type="hidden" value="<? echo $avatar->mustache_id ?>">
+                                <img id="avatar_middle" src="<?php echo $mustache_url ?>" style="height: 87px; width: 262px;">
+                                <input id="mustache_id" name="mustache_id" placeholder="Имя полководца" type="hidden" value="<?php echo $avatar->mustache_id ?>">
                             </div>
                             <div class="col-md-2 text-center">
                                 <button id="avatar_middle_next" type="button" class="btn btn-primary center-block" style="margin-top: 50%;">
@@ -70,8 +70,8 @@
                                 </button>
                             </div>
                             <div class="col-md-8">
-                                <img id="avatar_bottom" src="<? echo $amulet_url ?>" style="height: 87px; width: 262px;">
-                                <input id="amulet_id" name="amulet_id" placeholder="Имя полководца" type="hidden" value="<? echo $avatar->amulet_id ?>">
+                                <img id="avatar_bottom" src="<?php echo $amulet_url ?>" style="height: 87px; width: 262px;">
+                                <input id="amulet_id" name="amulet_id" placeholder="Имя полководца" type="hidden" value="<?php echo $avatar->amulet_id ?>">
                             </div>
                             <div class="col-md-2 text-center">
                                 <button id="avatar_bottom_next" type="button" class="btn btn-primary center-block" style="margin-top: 50%;">
@@ -100,32 +100,32 @@
                     <div class="form-group">
                         <label for="name" class="col-lg-3 control-label">Имя полководца</label>
                         <div class="col-lg-9">
-                            <input class="form-control" id="name" name="name" placeholder="Имя полководца" type="text" value="<? echo $user->name ?>">
+                            <input class="form-control" id="name" name="name" placeholder="Имя полководца" type="text" value="<?php echo $user->name ?>">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="castle_name" class="col-lg-3 control-label">Наименование замка</label>
                         <div class="col-lg-9">
-                            <input class="form-control" id="castle_name" name="castle_name" placeholder="Наименование замка" type="text" value="<? echo $user->castle_name ?>">
+                            <input class="form-control" id="castle_name" name="castle_name" placeholder="Наименование замка" type="text" value="<?php echo $user->castle_name ?>">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <input type="hidden" name="_token" value="<? echo csrf_token() ?>">
+            <input type="hidden" name="_token" value="<?php echo csrf_token() ?>">
 
-            <? if ($user->id === Auth::user()->id): ?>
+            <?php if ($user->id === Auth::user()->id): ?>
                 <div class="row">
                     <button id="save_btn" type="submit" class="btn btn-primary center-block">Сохранить</button>
                 </div>
-            <? endif; ?>
+            <?php endif; ?>
 
         <!--</div>-->
         <br/>
         <div class="row">
             <div class="col-lg-offset-1 col-lg-10">
-                <? echo view('comments/comments_block', [
+                <?php echo view('comments/comments_block', [
                     'user' => $user,
                     'block' => $block,
                     'comments' => $comments,
@@ -210,4 +210,4 @@
     });
 </script>
 
-<? require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_footer.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_footer.php'); ?>
