@@ -38,7 +38,7 @@
                             <table class="table table-bordered table-hover">
                             <?php foreach($buildings as $build): ?>
                                 <tr>
-                                    <td class="text-center"><b><?=trans('game.'.$build->buildingType()->first()->building_name); ?> (<?=$build->level; ?> ур.)</b>
+                                    <td data-level="<?=$build->level;?>" id="<?=$build->buildingType()->first()->building_name;?>" class="text-center"><b><?=trans('game.'.$build->buildingType()->first()->building_name); ?> (<?=$build->level; ?> ур.)</b>
                                         <div class="small-top-line">
                                             Цена <span class="badge"><?=$build->level+1; ?></span> уровня<br/>
                                             <span class="badge"><?=$build->costUpdate();?></span> 
@@ -90,6 +90,14 @@
                 }                
             });
         });
+       
+        function recalcResources() {
+            var arr  = [ ['wood', 'sawmill'], ['gold', 'mine'], ['food', 'farm']];
+            arr.forEach( function(item, i, arr) {
+                var prevValue = player.resources.get(item[0]).get('count');
+                player.resources.get(item[0]).set('count', prevValue + +$('#' + item[1]).attr('data-level'));                
+            });           
+        }; setInterval(recalcResources, 1000);
         
         function Init() {
             
