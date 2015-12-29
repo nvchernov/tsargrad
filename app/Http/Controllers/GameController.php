@@ -27,8 +27,8 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeBuildingLevel','surrender','joinBattle']]);
-        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeBuildingLevel','surrender','joinBattle']]);
+        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
     }
 
     /* Получить все локации...

@@ -92,6 +92,10 @@
                 }                
             });
         });
+        
+        $(document).on('click', '[name="gamefield-map"] area', function () {
+            $.post('/game/castles/' + $(this).attr('castle-id') + '/recalc');
+        });
        
         function recalcResources() {
             var arr  = [ ['wood', 'sawmill'], ['gold', 'mine'], ['food', 'farm']];
