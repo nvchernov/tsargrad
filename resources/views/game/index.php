@@ -23,7 +23,7 @@
                     <img id="gamefield" width="600" height="600" src="/images/gamefield.png" usemap="#gamefield-map">
                 </div>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-3" id="right_game_panel">
                 <h2> Мой замок <strong><?= $user->castle->name ?></strong></h2>
                 <div class="row">
                     <div class="col-sm-12">
@@ -33,19 +33,21 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
-                        <h3>Строения</h3
+                        <h3>Строения</h3>
                         <div id="my-buildings">
                             <table class="table table-bordered table-hover">
                             <?php foreach($buildings as $build): ?>
                                 <tr>
                                     <td class="text-center"><b><?=trans('game.'.$build->buildingType()->first()->building_name); ?> (<?=$build->level; ?> ур.)</b>
-                                        <div class="small-top-line">Цена <span class="badge"><?=$build->level+1; ?></span> уровня<br/>
-                                        <span class="badge"><?=$build->costUpdate();?></span> 
-                                        <span class="text-warning">Золота</span><br/>
-                                        <span class="badge"><?=$build->costUpdate();?></span> 
-                                        <span class="text-success">Дерева</span></div>
+                                        <div class="small-top-line">
+                                            Цена <span class="badge"><?=$build->level+1; ?></span> уровня<br/>
+                                            <span class="badge"><?=$build->costUpdate();?></span> 
+                                            <span class="text-warning">Золота</span><br/>
+                                            <span class="badge"><?=$build->costUpdate();?></span> 
+                                            <span class="text-success">Дерева</span>
+                                        </div>
                                     </td>
-                                    <td class="text-center"><button class="update_build_button" data-id="<?=$build->id;?>">up</button></td>
+                                    <td class="text-center"><button class="btn btn-danger update_build_button" data-id="<?=$build->id;?>">up</button></td>
                                 </tr>
                             <?php endforeach; ?>  
                             </table>
@@ -80,110 +82,124 @@
         // Upgrade building
         $(document).on('click', '.update_build_button', function() {
             var idInitial = $(this).attr('data-id');
-            $.post('/game/building/' + idInitial + '/upgrade');
+            $.post('/game/building/' + idInitial + '/upgrade', function(data) {  
+                if(data == "no_costs") {
+                    alert('Не хватает ресурсов');
+                } else if (data == "success") {
+                    $('#my-buildings').load('/game #my-buildings > table');                    
+                }                
+            });
         });
         
-        var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
-        var Castles = <?= $castles ? $castles->toJson() : [] ?>;
+        function Init() {
+            
+            var User = $.extend(<?= $user->toJson() ?>, {castle: <?= $user->castle->toJson() ?>});
+            var Castles = <?= $castles ? $castles->toJson() : [] ?>;
 
-        // Базовые сущности...
-        enemy.castle = new Models.Castle();
-        enemy.resources = new Models.Resources(defaultResources);
+            // Базовые сущности...
+            enemy.castle = new Models.Castle();
+            enemy.resources = new Models.Resources(defaultResources);
 
-        // Рендеринг.
-        $('#enemy-castle-modal').html((new Views.EnemyCastle({
-            model: player.army,
-            castle: enemy.castle,
-            resources: enemy.resources
-        })).render().el);
-        $('#my-resources').append((new Views.Resources({collection: player.resources})).render().el);
+            // Рендеринг.
+            $('#enemy-castle-modal').html((new Views.EnemyCastle({
+                model: player.army,
+                castle: enemy.castle,
+                resources: enemy.resources
+            })).render().el);
+            $('#my-resources').append((new Views.Resources({collection: player.resources})).render().el);
 
-        // Это текущий пользователь?
-        function isSelf(user_id) {
-            return user_id == User.id;
-        }
-
-        // Это замок текущего пользователя?
-        function isSelfCastle(castle_id) {
-            return castle_id == User.castle.id;
-        }
-
-        var castles = [], areas = [], $gf = $('#gamefield');
-
-        $.each(Castles, function (ind, castle) {
-            var id = castle.id;
-            if ($.inArray(id) == -1) {
-                castles.push(id);
-
-                var area = {key: '' + id};
-                if (isSelf(castle.user_id)) {
-                    area.render_select = {fillColor: 'ff0000'};
-                    area.toolTip = 'Мой замок';
-                } else {
-                    area.toolTip = castle.name;
-                }
-                areas.push(area);
-            }
-        });
-
-        var options = {
-            mapKey: 'castle-id',
-            staticState: true,
-            singleSelect: true,
-            render_select: {
-                fillColor: '0000ff'
-            },
-            showToolTip: true,
-            areas: areas
-        };
-        options.onClick = function (e) {
-            // Свой не показываем...
-            if (isSelfCastle(e.key)) {
-                return;
+            // Это текущий пользователь?
+            function isSelf(user_id) {
+                return user_id == User.id;
             }
 
-            $.get('game/castles/' + e.key, function (resp) {
-                if (resp.success) {
-                    player.army.set(resp.data.army);
-                    enemy.castle.set(resp.data.enemy_castle);
-                    enemy.resources.set(_.defaults(resp.data.enemy_resources, defaultResources));
-                    $('#enemy-castle-modal').modal();
+            // Это замок текущего пользователя?
+            function isSelfCastle(castle_id) {
+                return castle_id == User.castle.id;
+            }
+
+            var castles = [], areas = [], $gf = $('#gamefield');
+
+            $.each(Castles, function (ind, castle) {
+                var id = castle.id;
+                if ($.inArray(id) == -1) {
+                    castles.push(id);
+
+                    var area = {key: '' + id};
+                    if (isSelf(castle.user_id)) {
+                        area.render_select = {fillColor: 'ff0000'};
+                        area.toolTip = 'Мой замок';
+                    } else {
+                        area.toolTip = castle.name;
+                    }
+                    areas.push(area);
                 }
-            }, 'json');
-        };
+            });
 
-        $gf.mapster(options);
-        $gf.mapster('set', true, castles.join(','));
+            var options = {
+                mapKey: 'castle-id',
+                staticState: true,
+                singleSelect: true,
+                render_select: {
+                    fillColor: '0000ff'
+                },
+                showToolTip: true,
+                areas: areas
+            };
+            options.onClick = function (e) {
+                // Свой не показываем...
+                if (isSelfCastle(e.key)) {
+                    return;
+                }
 
-        var $gfWrapper = $('#mapster_wrap_0');
-        var $gfMask = $("#gf-mask");
+                $.get('/game/castles/' + e.key, function (resp) {
+                    if (resp.success) {
+                        player.army.set(resp.data.army);
+                        enemy.castle.set(resp.data.enemy_castle);
+                        enemy.resources.set(_.defaults(resp.data.enemy_resources, defaultResources));
+                        $('#enemy-castle-modal').modal();
+                    }
+                }, 'json');
+            };
 
-        // Сделать ресайз области карты...
-        var doResize = function () {
-            $gfWrapper.css({top: 0, left: 0});
+            $gf.mapster(options);
+            $gf.mapster('set', true, castles.join(','));
 
-            var maskWidth = $gfMask.width();
-            var maskHeight = $gfMask.height();
-            var imgPos = $gfWrapper.offset();
-            var imgWidth = $gfWrapper.width();
-            var imgHeight = $gfWrapper.height();
+            // Грязный грязный хак...
+            setTimeout(function() {
+                var $gfWrapper = $('#mapster_wrap_0');
+                var $gfMask = $("#gf-mask");
 
-            var x1 = (imgPos.left + maskWidth) - imgWidth;
-            var y1 = (imgPos.top + maskHeight) - imgHeight;
-            var x2 = imgPos.left;
-            var y2 = imgPos.top;
+                // Сделать ресайз области карты...
+                var doResize = function () {
+                    $gfWrapper.css({top: 0, left: 0});
 
-            $gfWrapper.draggable({containment: [x1, y1, x2, y2]});
-            $gfWrapper.css({cursor: 'move'});
-        };
+                    // и это тоже хак...
+                    var maskWidth = $gfMask.width() || 598;
+                    var maskHeight = $gfMask.height() || 598;
+                    var imgPos = $gfWrapper.offset() || {left: 187.25, top: 169};
+                    var imgWidth = $gfWrapper.width() || 600;
+                    var imgHeight = $gfWrapper.height() || 600;
 
-        $('#gf-resizer').slider().on('change', function (e) {
-            $gfWrapper.draggable('destroy');
-            $gf.mapster('resize', 1000 * e.value.newValue, 1000 * e.value.newValue, 0);
-            doResize();
-        });
-        // первоначальный drag and drop.
-        doResize();
+                    var x1 = (imgPos.left + maskWidth) - imgWidth;
+                    var y1 = (imgPos.top + maskHeight) - imgHeight;
+                    var x2 = imgPos.left;
+                    var y2 = imgPos.top;
+
+                    $gfWrapper.draggable({containment: [x1, y1, x2, y2]});
+                    $gfWrapper.css({cursor: 'move'});
+                };
+
+                $('#gf-resizer').slider().on('change', function (e) {
+                    $gfWrapper.draggable('destroy');
+                    $gf.mapster('resize', 1000 * e.value.newValue, 1000 * e.value.newValue, 0);
+                    doResize();
+                });
+                // первоначальный drag and drop.
+                doResize();
+            }, 100);
+
+        } Init();
         
     }());
 </script>

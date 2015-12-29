@@ -18,15 +18,15 @@ class CreatePveEnemieAttacksTable extends Migration
             $table->integer('pve_enemy_id')->unsigned()->index();
             $table->foreign('pve_enemy_id')->references('id')->on('pve_enemies')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->integer('castle_id')->unsigned()->index();
-            $table->foreign('castle_id')->references('id')->on('castles')->onDelete('cascade')->onUpdate('cascade');
+            $table->integer('user_id')->unsigned()->index();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 
             $table->integer('demanded_resource_id')->unsigned()->index();
             $table->foreign('demanded_resource_id')->references('id')->on('resources')->onDelete('cascade')->onUpdate('cascade');
 
             $table->integer('demanded_resource_count')->unsigned();
 
-            $table->boolean('is_user_win');
+            $table->integer('status')->default(0);
 
             $table->timestamps();
         });

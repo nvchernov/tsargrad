@@ -3,6 +3,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <form method="post" action="/user/profile/add_comment">
+            <input name="profile_id" class="hidden" value="<?=$user->id?>"/>
             <input name="comment_block_id" class="hidden" value="<?=$block->id?>"/>
             <input name="parent_comment_id" class="hidden parent-comment-id"/>
             <div class="row">

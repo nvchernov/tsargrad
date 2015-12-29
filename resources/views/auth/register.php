@@ -8,6 +8,10 @@
             <div class="panel-body">
                 <h2 class="form-signin-heading">Регистрация</h2>
 
+                <?php if (isset ($error_message)) { ?>
+                    <div class="alert alert-danger" role="alert"> <strong>Ошибка!</strong> <? echo $error_message ?> </div>
+                <?php } ?>
+
                 <div class="form-group">
                   <label for="name" class="col-lg-2 control-label">Имя полководца</label>
                   <div class="col-lg-10">

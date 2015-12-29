@@ -94,7 +94,7 @@ class Castle extends Model
             $cond['name'] = $res;
         } elseif ($res instanceof Resource) {
             $cond['id'] = $res->id;
-        } elseif (is_integer($res)){
+        } elseif (is_numeric($res)){
             $cond['id'] = $res;
         } else {
             return false;
@@ -113,7 +113,7 @@ class Castle extends Model
     public function addResource($resource, $count)
     {
         // Нет пустой работе...
-        if (!(is_integer($count) && $count != 0)) {
+        if (!(is_numeric($count) && $count != 0)) {
             return false;
         }
 
@@ -128,7 +128,7 @@ class Castle extends Model
         } elseif ($resource instanceof Resource) {
             $resObj = $resource;
             $cond['id'] = $resource->id;
-        } elseif (is_integer($resource)){
+        } elseif (is_numeric($resource)){
             $cond['id'] = $resource;
         } else {
             return false;
@@ -176,7 +176,7 @@ class Castle extends Model
     public function subResource($resource, $count)
     {
         // Нет пустой работе...
-        if (!(is_integer($count) && $count != 0)) {
+        if (!(is_numeric($count) && $count != 0)) {
             return false;
         }
 
