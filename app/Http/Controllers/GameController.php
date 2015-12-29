@@ -104,7 +104,7 @@ class GameController extends Controller
                     'user_id' => $user->id,
                     'status' => 0,
                     'army_count' => $user->army->size * rand(1,200)/100,
-                    'army_count' => $user->army->level + rand(0,1)
+                    'army_count' => $user->army->level
                 ]);
            }
         }
