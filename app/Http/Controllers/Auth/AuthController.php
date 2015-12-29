@@ -51,7 +51,7 @@ class AuthController extends Controller
             'name' => 'required|min:4|max:200',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
-            'password_confirmation' => 'required|confirmed|min:6',
+            'password_confirmation' => 'required|min:6',
         ],[
             'required' => 'Все поля должны быть заполнены',
             'email.unique' => 'Такой email уже используется',
@@ -127,14 +127,6 @@ class AuthController extends Controller
         $data = Request::all();
 
         $validator = $this->validator($data);
-
-        $validator->after(function($validator)
-        {
-            //if ($this->somethingElseIsInvalid())
-            //{
-                $validator->errors()->add('name', 'Ошибка в имени.');
-            //}
-        });
 
         if ($validator->passes()) {
             if ($data['password'] === $data['password_confirmation']) {
