@@ -60,6 +60,7 @@
         </form>
     </div>
 
+<?php if(isset($news)) : ?>
 <div class="col-md-5 col-md-offset-1">
     <div class="panel panel-default">
         <div class="panel-body">
@@ -77,6 +78,6 @@
         </div>
     </div>
 </div>
-
+<?php endif; ?>
 
 <?php require_once($_SERVER['DOCUMENT_ROOT'].'/../resources/views/layout/master_footer.php'); ?>

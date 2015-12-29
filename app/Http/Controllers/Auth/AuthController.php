@@ -107,7 +107,7 @@ class AuthController extends Controller
     public function getLogout()
     {
         Auth::logout();
-        return view('auth/login');
+        return redirect('auth/login');
     }
 
     /*public function getRegister()
