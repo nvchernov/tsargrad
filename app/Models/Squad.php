@@ -139,7 +139,10 @@ class Squad extends Model
         $this->continueOrException();
 
         $now = Carbon::now();
-
+        
+        // Пересчет ресурсов
+        $this->goal->calcCastleIncreaseResources();
+        
         // Расчет победителя сражения...
         $aArmy = $this->army; // атакующая армия
         $dArmy = $this->goal->armyOrCreate(); // защищающиеся армия
