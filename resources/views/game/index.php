@@ -165,36 +165,40 @@
             $gf.mapster(options);
             $gf.mapster('set', true, castles.join(','));
 
-            var $gfWrapper = $('#mapster_wrap_0');
-            var $gfMask = $("#gf-mask");
+            // Грязный грязный хак...
+            setTimeout(function() {
+                var $gfWrapper = $('#mapster_wrap_0');
+                var $gfMask = $("#gf-mask");
 
-            // Сделать ресайз области карты...
-            var doResize = function () {
-                $gfWrapper.css({top: 0, left: 0});
+                // Сделать ресайз области карты...
+                var doResize = function () {
+                    $gfWrapper.css({top: 0, left: 0});
 
-                var maskWidth = $gfMask.width();
-                var maskHeight = $gfMask.height();
-                var imgPos = $gfWrapper.offset();
-                var imgWidth = $gfWrapper.width();
-                var imgHeight = $gfWrapper.height();
+                    // и это тоже хак...
+                    var maskWidth = $gfMask.width() || 598;
+                    var maskHeight = $gfMask.height() || 598;
+                    var imgPos = $gfWrapper.offset() || {left: 187.25, top: 169};
+                    var imgWidth = $gfWrapper.width() || 600;
+                    var imgHeight = $gfWrapper.height() || 600;
 
-                var x1 = (imgPos.left + maskWidth) - imgWidth;
-                var y1 = (imgPos.top + maskHeight) - imgHeight;
-                var x2 = imgPos.left;
-                var y2 = imgPos.top;
+                    var x1 = (imgPos.left + maskWidth) - imgWidth;
+                    var y1 = (imgPos.top + maskHeight) - imgHeight;
+                    var x2 = imgPos.left;
+                    var y2 = imgPos.top;
 
-                $gfWrapper.draggable({containment: [x1, y1, x2, y2]});
-                $gfWrapper.css({cursor: 'move'});
-            };
+                    $gfWrapper.draggable({containment: [x1, y1, x2, y2]});
+                    $gfWrapper.css({cursor: 'move'});
+                };
 
-            $('#gf-resizer').slider().on('change', function (e) {
-                $gfWrapper.draggable('destroy');
-                $gf.mapster('resize', 1000 * e.value.newValue, 1000 * e.value.newValue, 0);
+                $('#gf-resizer').slider().on('change', function (e) {
+                    $gfWrapper.draggable('destroy');
+                    $gf.mapster('resize', 1000 * e.value.newValue, 1000 * e.value.newValue, 0);
+                    doResize();
+                });
+                // первоначальный drag and drop.
                 doResize();
-            });
-            // первоначальный drag and drop.
-            doResize();
-            
+            }, 100);
+
         } Init();
         
     }());
