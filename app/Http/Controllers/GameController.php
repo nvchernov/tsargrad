@@ -83,20 +83,32 @@ class GameController extends Controller
         $data['resources'] = $c->getResources();
         $data['buildings'] = $c->buildings()->get()->all();
         $attack = $user->lastPveAttack();
-       /* if ($attack->status != 0)
+        if ( is_null($attack) || $attack->status != 0)
         {
-            $is = ( time() - $attack->updated_at->getTimestamp()  ) / 5000 * rand(0, 10);
-            if ($is > 1) {
-                $resurce
-                Resource::find(rand(1,3));
-                PveEnemyAttack::create([
-
-
-
-                ]);
+            if ( is_null($attack) )
+            {
+                $is = rand(0, 10) / 6;
             }
-            dd($is);
-        }*/
+            else
+            {
+                $is = ( time() - $attack->updated_at->getTimestamp()  ) / 1000 * rand(0, 10);
+                var_dump($is);
+            }
+            if ($is > 1) {
+                $resurce_id = rand(1,3);
+                $resurce = Resource::find($resurce_id);
+                $resource_count = $c->getResources($resurce->name)*rand(1,10)/10;
+                $attack = PveEnemyAttack::create([
+                    'demanded_resource_count' => $resource_count,
+                    'demanded_resource_id' => $resurce_id,
+                    'pve_enemy_id' => rand(1,5),
+                    'user_id' => $user->id,
+                    'status' => 0,
+                    'army_count' => $user->army->size * rand(1,200)/100,
+                    'army_count' => $user->army->level + rand(-1,1)
+                ]);
+           }
+        }
         // При заходе на карту пересчитываем ресурсы
         $c->calcCastleIncreaseResources();
         $data['attack'] = $attack;

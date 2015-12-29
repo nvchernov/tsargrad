@@ -8,6 +8,15 @@ use App\Models\User;
 class PveEnemyAttack extends Model
 {
     protected $table = 'pve_enemy_attacks';
+    protected $fillable = [
+        'demanded_resource_count',
+        'demanded_resource_id',
+        'pve_enemy_id',
+        'user_id' ,
+        'status',
+        'army_count',
+        'army_count'
+    ];
 
     public function enemy()
     {
