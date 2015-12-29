@@ -120,13 +120,16 @@ class AuthController extends Controller
         $data = Request::all();
         if ($data['password'] === $data['password_confirmation'])
         {
-            $new_user = $this->create($data);
-            if ($new_user !== null)
-            {
-                Auth::login($new_user);
-                return redirect($new_user->pathToProfile());
+//            var_dump(count(User::where('email', $data['email'])));
+            if (User::where('email', $data['email'])->count() === 0) {
+                $new_user = $this->create($data);
+                if ($new_user !== null) {
+                    Auth::login($new_user);
+                    return redirect($new_user->pathToProfile());
+                }
             }
+            return view('auth/register', ['error_message' => 'Такой email уже используется']);
         }
-        return redirect('auth/register');
+        return view('auth/register', ['error_message' => 'Пароли не совпадают']);
     }
 }
