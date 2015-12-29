@@ -204,12 +204,12 @@ class Castle extends Model
     public function getResources($resource = null)
     {
         if (isset($resource)) {
-            $cond = $this->createResCond($resource);
-            if ($cond == false) {
+            $res = Resource::extract($resource);
+            if (is_null($res)) {
                 return null;
             }
             // связка с pivot...
-            $rp = $this->resources()->where($cond)->first();
+            $rp = $this->resources()->find($res->id);
             return !is_null($rp) ? $rp->pivot->count : 0;
         }
         $arr = [];
