@@ -61,3 +61,4 @@ Route::post('game/armies/{id}/upgrade', 'GameController@postArmyUpgrade');
 Route::post('game/building/{id}/upgrade', 'GameController@upgradeBuildingLevel');
 Route::post('game/castles/{id}/recalc', 'GameController@requestRecalcRes');
 Route::post('game/spy/new', 'GameController@buySpy');
+Route::post('game/spy/{id}/upgrade', 'GameController@upgradeSpy');

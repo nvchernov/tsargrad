@@ -94,10 +94,17 @@
                 </div>
                 <div class="container-fluid">
                     <?php if(!empty($spies)) : ?>
-                        <table class="table table-bordered table-hover">
+                        <table class="text-center table table-bordered table-hover">
                         <?php foreach($spies as $spy): ?>
                             <tr>
-                                <td>Шпион #<?=$spy->id;?></td>
+                                <td style="vertical-align: middle;">
+                                    Шпион #<?=$spy->id;?> (<span class="badge"><?=$spy->level;?></span> уровня)
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <button type="button" class="btn btn-danger upgradeSpy" spy-id="<?=$spy->id;?>">
+                                        Улучшить за <?=$spy->costUpgrade();?> ед. золота
+                                    </button>
+                                </td>
                             </tr>
                         <?php endforeach; ?> 
                         </table>
@@ -134,6 +141,17 @@
         
         $(document).on('click', '#buy_new_spy', function() {
             $.post('/game/spy/new', function(data) { 
+                if(data == "no_costs") {
+                    alert('Не хватает ресурсов');
+                } else if (data == "success") {
+                    $('#my-spy-modal').load('/game #my-spy-modal .modal-dialog');                    
+                } 
+            });
+        });
+        
+        $(document).on('click', '.upgradeSpy', function() {
+            var idInitial = $(this).attr('spy-id');
+            $.post('/game/spy/' + idInitial + '/upgrade', function(data) { 
                 if(data == "no_costs") {
                     alert('Не хватает ресурсов');
                 } else if (data == "success") {

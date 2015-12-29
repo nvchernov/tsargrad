@@ -28,8 +28,8 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['except' => ['getIndex', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
-        $this->middleware('wants.json', ['except' => ['getIndex', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
     }
 
     /* Получить все локации...
@@ -289,6 +289,7 @@ class GameController extends Controller
     public function buySpy() {
         
         $user = Auth::user();
+        $user->castle->calcCastleIncreaseResources();
         // Стоимость шпиона первого уровня 200 голды
         if($user->castle->getResources('gold') > 200) {
             $spy = new Spy();
@@ -296,6 +297,23 @@ class GameController extends Controller
             $spy->ownCastle()->associate($user->castle);
             $spy->save();
             $user->castle->subResource('gold', 200);
+            return "success";
+        } else {
+            return "no_costs";
+        }
+        
+    }
+    
+    // Нанять шпиона
+    public function upgradeSpy($id) {
+        
+        $user = Auth::user();
+        $user->castle->calcCastleIncreaseResources();
+        $spy = Spy::find($id);
+        $cost = $spy->costUpgrade();
+        if($user->castle->getResources('gold') > $cost) {
+            $spy->levelUp();
+            $user->castle->subResource('gold', $cost);
             return "success";
         } else {
             return "no_costs";

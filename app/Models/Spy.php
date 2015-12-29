@@ -21,4 +21,9 @@ class Spy extends Model
     public function enemyCastle() {
         return $this->belongsTo('App\Models\Castle', 'enemy_castles_id');
     }
+    
+     public function levelUp() {
+        $this->level +=  1;
+        $this->save();
+    }
 }
