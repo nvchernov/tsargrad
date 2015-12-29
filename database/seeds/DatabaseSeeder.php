@@ -29,14 +29,12 @@ class DatabaseSeeder extends Seeder
         $this->call(CommentBlocksTableSeeder::class);
         $this->call(ResourcesTableSeeder::class);
         $this->call(CastlesTableSeeder::class);
-       // $this->call(CastleBuildingsSeeder::class);
         $this->call(ArmiesTableSeeder::class);
         $this->call(SquadsTableSeeder::class);
         $this->call(AdministratorsTableSeeder::class);
         $this->call(NewsTableSeeder::class);
         $this->call(LocationsTableSeeder::class);
         $this->call(PveEnemiesTableSeeder::class);
-        $this->call(PveEnemiesMessagesTableSeeder::class);
 
         Model::reguard();
     }
