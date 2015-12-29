@@ -33,6 +33,15 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
+                        <div id="my_spy">
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#my-spy-modal">
+                            Мои шпионы
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
                         <h3>Строения</h3>
                         <div id="my-buildings">
                             <table class="table table-bordered table-hover">
@@ -73,6 +82,21 @@
 </map>
 
 <div class="modal fade" id="enemy-castle-modal" tabindex="-1" role="dialog"></div>
+<div class="modal fade" id="my-spy-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Мои шпионы</h3>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>    
+</div>
 <?php if (is_null($attack) || $attack->status != 0): ?>
 <?php else: ?>
     <? echo view('pve_enemy_attack/battle',['attack' => $attack]); ?>
