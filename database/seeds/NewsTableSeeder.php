@@ -21,5 +21,29 @@ class NewsTableSeeder extends Seeder
             'photo' => '',
         ] );
 
+        News::create( [
+            'title' => 'Entry 2 Title' ,
+            'date' => Carbon::now(),
+            'published' => 1,
+            'text' => 'Entry 2 Text',
+            'photo' => '',
+        ] );
+
+        News::create( [
+            'title' => 'Entry 3 Title' ,
+            'date' => Carbon::now(),
+            'published' => 1,
+            'text' => 'Entry 3 Text',
+            'photo' => '',
+        ] );
+
+        News::create( [
+            'title' => 'Entry 4 Title' ,
+            'date' => Carbon::now(),
+            'published' => 1,
+            'text' => 'Entry 4 Text',
+            'photo' => '',
+        ] );
+
     }
 }

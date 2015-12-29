@@ -66,9 +66,15 @@
         <div class="panel-body">
             <h2>Новости</h2>
             <ul class="news">
-
+                <?php foreach( $news as $entry ) : ?>
+                    <li>
+                        <h3><?php echo $entry->title; ?></h3>
+                        <h4><?php echo $entry->date; ?></h4>
+                        <p><?php echo str_limit($entry->text,256); ?></p>
+                    </li>
+                <?php endforeach; ?>
             </ul>
-
+            <?php echo $news->render(); ?>
         </div>
     </div>
 </div>
