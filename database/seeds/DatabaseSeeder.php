@@ -37,7 +37,6 @@ class DatabaseSeeder extends Seeder
         $this->call(NewsTableSeeder::class);
         $this->call(LocationsTableSeeder::class);
         $this->call(PveEnemiesTableSeeder::class);
-        $this->call(PveEnemiesMessagesTableSeeder::class);
 
         Model::reguard();
     }
