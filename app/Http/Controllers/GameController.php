@@ -79,9 +79,18 @@ class GameController extends Controller
         $c = $data['castle'] = $user->castle;       
         $data['resources'] = $c->getResources();
         $data['buildings'] = $c->buildings()->get()->all();
+        
+        // При заходе на карту пересчитываем ресурсы
+        $c->calcCastleIncreaseResources();
 
         //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
         return view('game/index', $data);
+    }
+    
+    // Метод вызывающий пересчет ресурсов на уровне сервера для замка с id = $id
+    public function requestRecalcRes($id) {
+        $castle = Castle::find($id);
+        $castle->calcCastleIncreaseResources();
     }
 
     /**

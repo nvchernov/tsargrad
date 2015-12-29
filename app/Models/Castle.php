@@ -164,6 +164,18 @@ class Castle extends Model
 
         return false;
     }
+    
+    public function calcCastleIncreaseResources() {
+        
+        foreach($this->resources()->getResults() as $res) {            
+            $lastUpdateTime = $res->pivot->updated_at;            
+            $nowTime = \Carbon\Carbon::now();
+            $build = $this->getBuildingFromResName($res->name);
+            $needAddRes = $nowTime->diffInSeconds($lastUpdateTime) * $build->level;
+            $this->addResource($res->name, $needAddRes);
+        };
+        
+    }
 
     /**
      * Уменьшить ресурс на указанное число. Если это невозможно, то выкидывается исключение.
@@ -319,4 +331,11 @@ class Castle extends Model
         return Building::where('castles_id', $this->id)->where('buildings_id', 4)->first();
         
     }
+    
+    
+    public function getBuildingFromResName($resName) {
+        return $this->buildings()->where('buildings_id', BuildingType::where('resources_id', 
+                Resource::where('name', $resName)->first()->id)->first()->id)->first();
+    }
+    
 }
