@@ -236,6 +236,11 @@ class Squad extends Model
                     $oneSpiesHg->killMe();
                 }
             }
+            // Ищем шпиона, который проглядел нападение (если есть)
+            // TODO
+            $sph = SpyHistory::where('squads_id', $this->id)->where('detect', 0);
+            
+            
 
             // Запуск события, что отряд либо победил, либо был разгроблен.
             event(new SquadAssaulted($this, ['status' => $status, 'loots' => $loots]));
