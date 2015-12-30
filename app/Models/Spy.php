@@ -12,6 +12,8 @@ class Spy extends Model
     
     protected $table = 'spy';
     
+    public $timestamps = false;
+    
     protected $dates = ['deleted_at'];
     
     public function costUpgrade() {
