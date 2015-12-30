@@ -28,8 +28,8 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
-        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('ajax', ['except' => ['getIndex', 'changeLookingCastle', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('wants.json', ['except' => ['getIndex', 'changeLookingCastle', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
     }
 
     /* Получить все локации...
@@ -304,7 +304,7 @@ class GameController extends Controller
         
     }
     
-    // Нанять шпиона
+    // Апгрейд шпиона
     public function upgradeSpy($id) {
         
         $user = Auth::user();
@@ -319,6 +319,13 @@ class GameController extends Controller
             return "no_costs";
         }
         
+    }
+    
+    public function changeLookingCastle($id, $castle_id) {
+        $spy = Spy::find($id);
+        $castle = Castle::find($castle_id);
+        $spy->enemyCastle()->associate($castle);
+        $spy->save();
     }
     
 }

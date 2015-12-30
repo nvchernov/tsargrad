@@ -83,7 +83,7 @@
 
 <div class="modal fade" id="enemy-castle-modal" tabindex="-1" role="dialog"></div>
 <div class="modal fade" id="my-spy-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Мои шпионы</h3>
@@ -104,6 +104,27 @@
                                     <button type="button" class="btn btn-danger upgradeSpy" spy-id="<?=$spy->id;?>">
                                         Улучшить за <?=$spy->costUpgrade();?> ед. золота
                                     </button>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <select class="lookingCastle" data-spy-id="<?=$spy->id;?>">
+                                        <option value="0">---</option>
+                                        <?php foreach($castles as $oneCastle): ?>
+                                            <?php if($oneCastle->id == $user->castle->id): ?>
+                                                <?php continue; ?>
+                                            <?php endif; ?>
+                                        <option <?php if($spy->enemy_castles_id == $oneCastle->id): ?> selected="selected" <?php endif; ?> value="<?=$oneCastle->id?>">
+                                            Замок в координатах 
+                                            <?php $cords = $oneCastle->location()->first(); ?>
+                                            {<?=$cords->x;?>:<?=$cords->y;?>}
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php /* if(!is_null($spy->enemy_castles_id)): ?>
+                                    Следит за замком в координатах {
+                                        <?php $cordL = $spy->getEnemyCastleCoords();  ?>
+                                        <?=$cordL->x;?>;<?=$cordL->y;?>
+                                    }
+                                    <?php endif; */ ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?> 
@@ -158,6 +179,11 @@
                     $('#my-spy-modal').load('/game #my-spy-modal .modal-dialog');                    
                 } 
             });
+        });
+        
+        $(document).on('change', '.lookingCastle', function () {
+            var idInitial = $(this).attr('data-spy-id');
+            $.post('/game/spy/' + idInitial + '/changeCastle/' + $(this).val());
         });
        
         function recalcResources() {

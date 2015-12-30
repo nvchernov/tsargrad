@@ -22,8 +22,12 @@ class Spy extends Model
         return $this->belongsTo('App\Models\Castle', 'enemy_castles_id');
     }
     
-     public function levelUp() {
+    public function levelUp() {
         $this->level +=  1;
         $this->save();
+    }
+    
+    public function getEnemyCastleCoords() {
+        return $this->enemyCastle()->first()->location()->first();
     }
 }
