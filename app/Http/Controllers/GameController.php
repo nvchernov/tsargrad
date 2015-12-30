@@ -99,7 +99,7 @@ class GameController extends Controller
             if ($is > 1) {
                 $resurce_id = rand(1,3);
                 $resurce = Resource::find($resurce_id);
-                $resource_count = $c->getResources($resurce->name)*rand(1,10)/10;
+                $resource_count = intval($c->getResources($resurce->name)*rand(1,10)/10 + 1);
                 $attack = PveEnemyAttack::create([
                     'demanded_resource_count' => $resource_count,
                     'demanded_resource_id' => $resurce_id,

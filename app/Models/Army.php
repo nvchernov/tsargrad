@@ -77,8 +77,12 @@ class Army extends Model
 
     public function defend($level, $count)
     {
-        $dArmy = $this; // защищающиеся армия
         $now = Carbon::now();
+
+        Log::info('---------------------------------------------------------------------------------------------------');
+        Log::info("($now) Защита от орков");
+
+        $dArmy = $this; // защищающиеся армия
         // xa, ya - кол-во и уровень атакующих.
         // xd, yd, zd - кол-во, уровень войск и уровень фортификации защищающихся.
         $xa = $count;
@@ -116,7 +120,7 @@ class Army extends Model
                 $left = intval($left < 0 ? 0 : $left);
                 // Оставить только выживших...
                 $dArmy->update(['size' => $left]);
-                Log::info("Победили атакующие. Осталось в живых = $left");
+                Log::info("Победили орки. Осталось в живых = $left");
                 DB::commit();
                 return false;
             } elseif ($diff < 0) {
@@ -254,10 +258,10 @@ class Army extends Model
             // 
 
             $now = Carbon::now();
-            //Log::info('---------------------------------------------------------------------------------------------------');
-            //Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
-            //Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
-            //Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
+            Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
+            Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -304,8 +308,8 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            //Log::info('---------------------------------------------------------------------------------------------------');
-            //Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -349,8 +353,8 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            //Log::info('---------------------------------------------------------------------------------------------------');
-            //Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
