@@ -39,7 +39,7 @@ class Army extends Model
      */
     private static function formulaBuy($level, $count)
     {
-        return intval(exp($level / 10) * 5 * $count);
+        return intval(exp($level / 10) * 5) * $count;
     }
 
     /**
