@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Spy extends Model
 {
+    
+    use SoftDeletes;
+    
     protected $table = 'spy';
     
-    public $timestamps = false;
+    protected $dates = ['deleted_at'];
     
     public function costUpgrade() {
         return round(exp($this->level/7) * 200);    
@@ -29,5 +32,9 @@ class Spy extends Model
     
     public function getEnemyCastleCoords() {
         return $this->enemyCastle()->first()->location()->first();
+    }
+    
+    public function killMe() {
+        $this->delete();
     }
 }
