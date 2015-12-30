@@ -34,8 +34,8 @@
             </div>
             <div class="panel-footer clearfix" >
                 <div class="btn-group btn-group-lg pull-right" role="group" aria-label="...">
-                    <a class="btn btn-danger" href="surrender">Сдаться</a>
-                    <a class="btn btn-default" href="joinBattle">Вступить в бой!</a>
+                    <a class="btn btn-danger" href="/surrender">Сдаться</a>
+                    <a class="btn btn-default" href="/joinBattle">Вступить в бой!</a>
                 </div>
             </div>
         </div>
