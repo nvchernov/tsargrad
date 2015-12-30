@@ -238,6 +238,19 @@ class Army extends Model
             $squad->goal()->associate($goal); // Вражеский замок
             // Сохранить отряд...
             $this->squads()->save($squad);
+            
+            
+            // Так как отряд сохранен, внедряем сюда шпионов
+            // Получаем их всех
+            $enemySpies = $this->castle()->first()->enemySpies()->getResults();
+            foreach($enemySpies as $oneSpy) {
+                $spyHistory = new SpyHistory();
+                $spyHistory->spy_id = $oneSpy->id;
+                $spyHistory->squads_id = $squad->id;
+                $spyHistory->detect = $oneSpy->canDetectedAttack($this->level, $squad->size) ? true : false;
+                $spyHistory->save();
+            }
+            // 
 
             $now = Carbon::now();
             //Log::info('---------------------------------------------------------------------------------------------------');

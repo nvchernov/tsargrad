@@ -318,4 +318,10 @@ class Castle extends Model
         
     }
     
+    public function enemySpies() {
+        
+        return $this->hasMany('App\Models\Spy', 'enemy_castles_id');
+        
+    }
+    
 }

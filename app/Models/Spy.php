@@ -38,4 +38,13 @@ class Spy extends Model
     public function killMe() {
         $this->delete();
     }
+    
+    public function canDetectedAttack($attackLevel, $attackCount) {
+        if (($this->level / $attackLevel) * $attackCount > 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 }
