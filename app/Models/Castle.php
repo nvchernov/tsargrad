@@ -159,7 +159,7 @@ class Castle extends Model
      * @return bool
      * @throws GameException
      */
-    public function subResource($resource, $count)
+    public function subResource($resource, $count, $tozero = false)
     {
         // Нет пустой работе...
         if (!(is_numeric($count) && $count != 0)) {
@@ -182,7 +182,14 @@ class Castle extends Model
             return false;
         }
         if ($rp->pivot->count - $count < 0) {
-            throw new GameException('Не достаточно ресурсов.');
+            if (!$tozero)
+            {
+                throw new GameException('Не достаточно ресурсов.');
+            }
+            else
+            {
+                $count = $rp->pivot->count;
+            }
         }
         // Уменьшить ресурс...
         $rp->pivot->count -= $count;

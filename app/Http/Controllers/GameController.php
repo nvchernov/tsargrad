@@ -106,8 +106,8 @@ class GameController extends Controller
                     'pve_enemy_id' => rand(1,5),
                     'user_id' => $user->id,
                     'status' => 0,
-                    'army_count' => $user->army->size * rand(1,200)/100,
-                    'army_level' => $user->army->level
+                    'army_count' => intval($user->army->size * rand(1,200)/100 + 1),
+                    'army_level' => $user->army->level ?: 1
                 ]);
            }
         }
@@ -133,7 +133,8 @@ class GameController extends Controller
             $resource = Resource::find($attack->demanded_resource_id);
             $user->castle->subResource(
                 $resource->name,
-                $attack->demanded_resource_count
+                $attack->demanded_resource_count,
+                true
             );
             $attack->update();
             $user->update();
@@ -164,7 +165,8 @@ class GameController extends Controller
                 $attack->status = 1;
                 $user->castle->subResource(
                     $resource->name,
-                    $attack->demanded_resource_count
+                    $attack->demanded_resource_count,
+                    true
                 );
             }
         }

@@ -15,7 +15,7 @@ class PveEnemyAttack extends Model
         'user_id' ,
         'status',
         'army_count',
-        'army_count'
+        'army_level'
     ];
 
     public function enemy()
