@@ -3,8 +3,24 @@
 
 <link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
 
+<div class="container reports-spy">
+    <div class="row">
+        <?php if(!empty($reports_spy)): ?>
+            <?php foreach($reports_spy as $reportOneSquad): ?>
+                <div class="alert alert-danger" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    Внимание! Шпион #<?=$reportOneSquad[0]->id;?> сообщает о нападении! 
+                    Надвигается отряд "<?=$reportOneSquad[1]->name;?>". 
+                    Численность войска: <?=$reportOneSquad[1]->size;?>.
+                    Ожидаемое прибытие <?=$reportOneSquad[1]->battle_at;?>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>        
+</div>
+
 <div class="container"  style="display: <?php if (is_null($attack) || $attack->status != 0): ?> block;"  <?php else: ?> none;" <?php endif; ?>>
-    <div class="content">
+    <div class="content">    
         <div class="row">
             <div class="col-sm-9" style="text-align: center">
                 <h3>Средиземье</h3>

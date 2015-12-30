@@ -324,4 +324,25 @@ class Castle extends Model
         
     }
     
+    public function getActiveSpyDetected() {
+        
+        $ownSpies = $this->ownSpies()->getResults();
+        $arrayActiveReports = [];
+        foreach($ownSpies as $oneOwnSpy) {
+            $shForThatSpy = SpyHistory::where('spy_id', $oneOwnSpy->id)->where('detect', 1)->get()->all();
+            foreach($shForThatSpy as $oneSpyHistory) {
+                if(!empty($oneSpyHistory)) {
+                    $squad = Squad::find($oneSpyHistory->squads_id);
+                    if(!empty($squad)) {
+                        if($squad->battle_at > \Carbon\Carbon::now()) {
+                            $arrayActiveReports[] = [$oneOwnSpy, $squad];
+                        }
+                    }
+                }
+            }
+            
+        }
+        return $arrayActiveReports;
+    }
+    
 }

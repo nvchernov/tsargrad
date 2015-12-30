@@ -84,6 +84,7 @@ class GameController extends Controller
         $data['resources'] = $c->getResources();
         $data['buildings'] = $c->buildings()->get()->all();
         $data['spies'] = $c->ownSpies()->get()->all();
+        $data['reports_spy'] = $c->getActiveSpyDetected();
         $attack = $user->lastPveAttack();
         if ( is_null($attack) || $attack->status != 0)
         {
