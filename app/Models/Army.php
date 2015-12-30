@@ -247,6 +247,7 @@ class Army extends Model
                 $spyHistory = new SpyHistory();
                 $spyHistory->spy_id = $oneSpy->id;
                 $spyHistory->squads_id = $squad->id;
+                // Пытаемся обнаружить атаку
                 $spyHistory->detect = $oneSpy->canDetectedAttack($this->level, $squad->size) ? true : false;
                 $spyHistory->save();
             }

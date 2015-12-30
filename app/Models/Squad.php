@@ -225,6 +225,17 @@ class Squad extends Model
                 Log::info("Ничья. Все умерли.");
                 $status = 'draw';
             }
+            
+            // Участие шпионов во всем этом замесе
+            // Получаем шпионов замка
+            $spiesHg = $this->goal->ownSpies()->getResults();
+            foreach($spiesHg as $oneSpiesHg) {
+                // С вероятностью 50/50 шпион погибает
+                $rand = mt_rand(0,1);
+                if($rand) {
+                    $oneSpiesHg->killMe();
+                }
+            }
 
             // Запуск события, что отряд либо победил, либо был разгроблен.
             event(new SquadAssaulted($this, ['status' => $status, 'loots' => $loots]));
