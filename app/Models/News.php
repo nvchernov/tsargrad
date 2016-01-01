@@ -30,6 +30,11 @@ class News extends SleepingOwlModel implements ModelWithImageFieldsInterface
         ];
     }
 
+    public function getDates()
+    {
+        return array_merge(parent::getDates(), ['date']);
+    }
+
     public function scopeLast($query)
     {
         $query->orderBy('date', 'desc')->limit(4);
