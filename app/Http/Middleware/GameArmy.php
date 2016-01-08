@@ -18,22 +18,22 @@ class GameArmy
      */
     public function handle($request, Closure $next)
     {
-        // Получить все отряды, которые пора уже рассформировать...
-        $toDisband = Squad::readyToDisband()->get();
-        foreach ($toDisband as $s) {
+        // Получить все отряды, которым уже должны штурмовать вражеский замок...
+        $toAssault = Squad::readyToAssault()->get();
+        foreach ($toAssault as $s) {
             try {
-                $s->disband();
+                $s->assault();
             } catch (GameException $exc) {
                 // Нужно обрабатывать?
                 Log::error($exc->getMessage());
             }
         }
 
-        // Получить все отряды, которым уже должны штурмовать вражеский замок...
-        $toAssault = Squad::readyToAssault()->get();
-        foreach ($toAssault as $s) {
+        // Получить все отряды, которые пора уже рассформировать...
+        $toDisband = Squad::readyToDisband()->get();
+        foreach ($toDisband as $s) {
             try {
-                $s->assault();
+                $s->disband();
             } catch (GameException $exc) {
                 // Нужно обрабатывать?
                 Log::error($exc->getMessage());

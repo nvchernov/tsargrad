@@ -392,7 +392,7 @@ class Squad extends Model
         // Рассчитать время возвращения домой отряда...
         $minutes = Location::howMuchTime($castle, $goal);
         $minutes = intval($minutes * 1.15); // С учетом усталости отряда...
-        $end = $this->crusade_end_at = Carbon::now()->addMinutes($minutes); // дата возвращения отряда.
+        $end = $this->crusade_end_at = $this->battle_at->addMinutes($minutes); // дата возвращения отряда.
 
         $this->save();
 
