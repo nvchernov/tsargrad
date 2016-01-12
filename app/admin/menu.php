@@ -17,3 +17,4 @@
 
 //Admin::menu()->url('/')->label('Start page')->icon('fa-dashboard')->uses('\SleepingOwl\Admin\Controllers\DummyController@getIndex');
 Admin::menu(\App\Models\News::class)->icon('fa-hacker-news');
+Admin::menu(\App\Models\Mega::class)->icon('fa-archive');
