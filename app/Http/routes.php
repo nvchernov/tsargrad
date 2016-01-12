@@ -49,6 +49,8 @@ Route::get('comments/{id}/{page}', 'CommentBlocksController@comments');
 
 // General page
 Route::get('game', ['uses' => 'GameController@getIndex', 'as' => 'home']);
+Route::get('surrender',  'GameController@surrender');
+Route::get('joinBattle',  'GameController@joinBattle');
 
 Route::get('game/castles/{id}', 'GameController@getCastle');
 Route::get('game/armies/{id}', 'GameController@getArmy');
@@ -57,3 +59,7 @@ Route::post('game/armies/{id}/buy', 'GameController@postArmyBuy');
 Route::post('game/armies/{id}/upgrade', 'GameController@postArmyUpgrade');
 
 Route::post('game/building/{id}/upgrade', 'GameController@upgradeBuildingLevel');
+Route::post('game/castles/{id}/recalc', 'GameController@requestRecalcRes');
+Route::post('game/spy/new', 'GameController@buySpy');
+Route::post('game/spy/{id}/upgrade', 'GameController@upgradeSpy');
+Route::post('game/spy/{id}/changeCastle/{castle_id}', 'GameController@changeLookingCastle');

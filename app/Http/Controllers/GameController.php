@@ -8,11 +8,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Resource;
 use Auth;
 use App\Models\Castle;
 use App\Models\Army;
+use App\Models\Spy;
 use App\Models\Building;
+use App\Models\PveEnemyAttack;
 use Input;
+use Carbon\Carbon;
 
 /**
  * Class GameController
@@ -24,8 +28,8 @@ class GameController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('game.army');
-        $this->middleware('ajax', ['except' => ['getIndex', 'upgradeBuildingLevel']]);
-        $this->middleware('wants.json', ['except' => ['getIndex', 'upgradeBuildingLevel']]);
+        $this->middleware('ajax', ['except' => ['getIndex', 'changeLookingCastle', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
+        $this->middleware('wants.json', ['except' => ['getIndex', 'changeLookingCastle', 'upgradeSpy', 'buySpy', 'upgradeBuildingLevel', 'surrender', 'joinBattle', 'requestRecalcRes']]);
     }
 
     /* Получить все локации...
@@ -79,9 +83,96 @@ class GameController extends Controller
         $c = $data['castle'] = $user->castle;       
         $data['resources'] = $c->getResources();
         $data['buildings'] = $c->buildings()->get()->all();
-
-        //require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/game/index.php');
+        $data['spies'] = $c->ownSpies()->get()->all();
+        $data['reports_spy'] = $c->getActiveSpyDetected();
+        $attack = $user->lastPveAttack();
+        if ( is_null($attack) || $attack->status != 0)
+        {
+            if ( is_null($attack) )
+            {
+                $is = rand(0, 10) / 6;
+            }
+            else
+            {
+                $is = ( time() - $attack->updated_at->getTimestamp()  ) / 1000 * rand(0, 10);
+            }
+            if ($is > 1) {
+                $resurce_id = rand(1,3);
+                $resurce = Resource::find($resurce_id);
+                $resource_count = intval($c->getResources($resurce->name)*rand(1,10)/10 + 1);
+                $attack = PveEnemyAttack::create([
+                    'demanded_resource_count' => $resource_count,
+                    'demanded_resource_id' => $resurce_id,
+                    'pve_enemy_id' => rand(1,5),
+                    'user_id' => $user->id,
+                    'status' => 0,
+                    'army_count' => intval($user->army->size * rand(1,200)/100 + 1),
+                    'army_level' => $user->army->level ?: 1
+                ]);
+           }
+        }
+        // При заходе на карту пересчитываем ресурсы
+        $c->calcCastleIncreaseResources();
+        $data['attack'] = $attack;
         return view('game/index', $data);
+    }
+
+    // Метод вызывающий пересчет ресурсов на уровне сервера для замка с id = $id
+    public function requestRecalcRes($id) {
+        $castle = Castle::find($id);
+        $castle->calcCastleIncreaseResources();
+    }
+
+    public function surrender()
+    {
+        $user =  Auth::user();
+        $attack = $user->lastPveAttack();
+        if ( $attack->status == 0 )
+        {
+            $attack->status = 1;
+            $resource = Resource::find($attack->demanded_resource_id);
+            $user->castle->subResource(
+                $resource->name,
+                $attack->demanded_resource_count,
+                true
+            );
+            $attack->update();
+            $user->update();
+        }
+        return redirect('game');
+    }
+
+    public function joinBattle()
+    {
+        $user =  Auth::user();
+        // Препросчет актуальных ресурсов
+        $user->castle->calcCastleIncreaseResources();
+        $attack = $user->lastPveAttack();
+        if ( $attack->status == 0 )
+        {
+            $result = $user->castle->army->defend($attack->army_level, $attack->army_count);
+            $resource = Resource::find($attack->demanded_resource_id);
+            if ($result==true)
+            {
+                $attack->status = 2;
+                $user->castle->addResource(
+                    $resource->name,
+                    $attack->demanded_resource_count
+                );
+            }
+            else
+            {
+                $attack->status = 1;
+                $user->castle->subResource(
+                    $resource->name,
+                    $attack->demanded_resource_count,
+                    true
+                );
+            }
+        }
+        $attack->save();
+        $user->save();
+        return redirect('game');
     }
 
     /**
@@ -98,7 +189,8 @@ class GameController extends Controller
         $user = Auth::user();
         $data['army'] = $user->army;
         $c = $data['enemy_castle'] = Castle::find($id);
-        $data['enemy_resources'] = $c->getResources();
+        $c->calcCastleIncreaseResources();
+        $data['enemy_resources'] = $c->getResources();      
 
         return $this->ajaxResponse($data);
     }
@@ -152,6 +244,7 @@ class GameController extends Controller
         if (Input::has('count')) {
             try {
                 $army = Army::find($id);
+                $army->castle()->first()->calcCastleIncreaseResources();
                 $army->buy(Input::get('count'));
             } catch (\Exception $exc) {
                 return $this->ajaxError($exc->getMessage());
@@ -170,6 +263,7 @@ class GameController extends Controller
     {
         try {
             $army = Army::find($id);
+            $army->castle()->first()->calcCastleIncreaseResources();
             $army->upgrade();
         } catch (\Exception $exc) {
             return $this->ajaxError($exc->getMessage());
@@ -178,8 +272,9 @@ class GameController extends Controller
     }
     
     
-    public function upgradeBuildingLevel($id) {
+    public function upgradeBuildingLevel($id) {        
         $build = Building::find($id);
+        $build->castle()->first()->calcCastleIncreaseResources();
         $currentWood = $build->castle()->first()->getResources('wood');
         $currentGold = $build->castle()->first()->getResources('gold');
         $cost = $build->costUpdate();
@@ -192,4 +287,48 @@ class GameController extends Controller
             return "no_costs";
         }
     }
+    
+    // Нанять шпиона
+    public function buySpy() {
+        
+        $user = Auth::user();
+        $user->castle->calcCastleIncreaseResources();
+        // Стоимость шпиона первого уровня 200 голды
+        if($user->castle->getResources('gold') > 200) {
+            $spy = new Spy();
+            $spy->level = 1;
+            $spy->ownCastle()->associate($user->castle);
+            $spy->save();
+            $user->castle->subResource('gold', 200);
+            return "success";
+        } else {
+            return "no_costs";
+        }
+        
+    }
+    
+    // Апгрейд шпиона
+    public function upgradeSpy($id) {
+        
+        $user = Auth::user();
+        $user->castle->calcCastleIncreaseResources();
+        $spy = Spy::find($id);
+        $cost = $spy->costUpgrade();
+        if($user->castle->getResources('gold') > $cost) {
+            $spy->levelUp();
+            $user->castle->subResource('gold', $cost);
+            return "success";
+        } else {
+            return "no_costs";
+        }
+        
+    }
+    
+    public function changeLookingCastle($id, $castle_id) {
+        $spy = Spy::find($id);
+        $castle = Castle::find($castle_id);
+        $spy->enemyCastle()->associate($castle);
+        $spy->save();
+    }
+    
 }

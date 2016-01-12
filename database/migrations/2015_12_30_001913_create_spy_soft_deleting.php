@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePveEnemyMessagesTable extends Migration
+class CreateSpySoftDeleting extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +12,10 @@ class CreatePveEnemyMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pve_enemy_messages', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('message');
-            $table->timestamps();
+        Schema::table('spy', function($table){
+            $table->softDeletes();
         });
+        
     }
 
     /**
@@ -26,6 +25,6 @@ class CreatePveEnemyMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('pve_enemy_messages');
+        //
     }
 }

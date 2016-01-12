@@ -139,7 +139,10 @@ class Squad extends Model
         $this->continueOrException();
 
         $now = Carbon::now();
-
+        
+        // Пересчет ресурсов
+        $this->goal->calcCastleIncreaseResources();
+        
         // Расчет победителя сражения...
         $aArmy = $this->army; // атакующая армия
         $dArmy = $this->goal->armyOrCreate(); // защищающиеся армия
@@ -157,6 +160,27 @@ class Squad extends Model
 
         Log::info("Сила атак. отряда = $xa и уровень = $ya");
         Log::info("Сила защ. армии = $xd, уровень = $yd и фортифмкация = $zd");
+
+        // Участие шпионов во всем этом замесе
+        // Получаем шпионов замка
+        $spiesHg = $this->goal->ownSpies()->getResults();
+        //Log::info($spiesHg->toJson());
+        foreach($spiesHg as $oneSpiesHg) {
+            // С вероятностью 50/50 шпион погибает
+            $rand = mt_rand(0,1);
+            if($rand) {
+                $oneSpiesHg->killMe();
+            }
+        }
+
+        // Ищем шпиона, который проглядел нападение (если есть)
+        $sph = SpyHistory::where('squads_id', $this->id)->where('detect', 0)->get()->all();
+        foreach($sph as $oneSph) {
+            $spy = Spy::find($oneSph->spy_id);
+            if(!empty($spy)) {
+                $spy->killMe();
+            }
+        }
 
         if ($xd == 0) {
             // Защитников нет, досрочная победа атакующих...
@@ -222,6 +246,7 @@ class Squad extends Model
                 Log::info("Ничья. Все умерли.");
                 $status = 'draw';
             }
+            
 
             // Запуск события, что отряд либо победил, либо был разгроблен.
             event(new SquadAssaulted($this, ['status' => $status, 'loots' => $loots]));
@@ -367,7 +392,7 @@ class Squad extends Model
         // Рассчитать время возвращения домой отряда...
         $minutes = Location::howMuchTime($castle, $goal);
         $minutes = intval($minutes * 1.15); // С учетом усталости отряда...
-        $end = $this->crusade_end_at = Carbon::now()->addMinutes($minutes); // дата возвращения отряда.
+        $end = $this->crusade_end_at = $this->battle_at->addMinutes($minutes); // дата возвращения отряда.
 
         $this->save();
 

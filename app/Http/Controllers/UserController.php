@@ -6,6 +6,7 @@ use App\Models\Avatar;
 use Auth;
 use Request;
 use Input;
+use Validator;
 use App\Models\CommentBlock;
 use App\Models\User;
 use App\Models\Hair;
@@ -18,6 +19,28 @@ use Illuminate\Routing\Controller;
 
 class UserController extends Controller
 {
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'name' => 'required|min:4|max:200',
+            /*'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|confirmed|min:6',
+            'password_confirmation' => 'required|min:6',*/
+        ],[
+            //'required' => 'Все поля должны быть заполнены',
+            //'email.unique' => 'Такой email уже используется',
+            'name.min' => 'Имя полководца не должно быть меньше :min символов',
+            'name.max' => 'Имя полководца не должно быть больше :max символов',
+            //'password.min' => 'Пароль не может быть меньше :min символов',
+        ]);
+    }
+
     public function getProfile($id)
     {
         $user = User::find($id);
@@ -64,26 +87,44 @@ class UserController extends Controller
         $user = Auth::user();
 
         $avatar = Avatar::find($user->avatar_id);
-        $avatar->update(['mustache_id' => $data['mustache_id'],
-                         'amulet_id' => $data['amulet_id'],
-                         'hair_id' => $data['hair_id'],
-                         'flag_id' => $data['flag_id']]);
 
-        $page = Input::get('page');
-        $page = isset($page) ? Input::get('page') : 1;
-        $comment_block_id = $user->comment_block_id;
-        $block = CommentBlock::find($comment_block_id);
-        $comments = $block->getPage($page);
-        $page_count = $block->getPageCount();
+        $validator = $this->validator($data);
 
-        $message = 'Не удалось обновить профиль';
-        $is_error = true;
+        if ($validator->passes()) {
 
-        if ($user->update(['name' => $data['name'], 'castle_name' => $data['castle_name']])) {
-            $is_error = false;
-            $message = 'Профиль успешно обновлен';
+            $avatar->update(['mustache_id' => $data['mustache_id'],
+                'amulet_id' => $data['amulet_id'],
+                'hair_id' => $data['hair_id'],
+                'flag_id' => $data['flag_id']]);
+
+            $page = Input::get('page');
+            $page = isset($page) ? Input::get('page') : 1;
+            $comment_block_id = $user->comment_block_id;
+            $block = CommentBlock::find($comment_block_id);
+            $comments = $block->getPage($page);
+            $page_count = $block->getPageCount();
+
+            $message = 'Не удалось обновить профиль';
+            $is_error = true;
+
+            if ($user->update(['name' => $data['name'], 'castle_name' => $data['castle_name']])) {
+                $is_error = false;
+                $message = 'Профиль успешно обновлен';
+            }
+
+            return view('user/profile', ['user' => $user,
+                'block' => $block,
+                'comments' => $comments,
+                'page_count' => $page_count,
+                'page' => $page,
+                'avatar' => $avatar,
+                'hair_url' => Hair::find($avatar->hair_id)->image_url,
+                'mustache_url' => Mustache::find($avatar->mustache_id)->image_url,
+                'amulet_url' => Amulet::find($avatar->amulet_id)->image_url,
+                'flag_url' => Flag::find($avatar->flag_id)->image_url,
+                'is_error' => $is_error,
+                'message' => $message]);
         }
-
         return view('user/profile', ['user' => $user,
                                      'block' => $block,
                                      'comments' => $comments,
@@ -94,7 +135,7 @@ class UserController extends Controller
                                      'mustache_url' => Mustache::find($avatar->mustache_id)->image_url,
                                      'amulet_url' => Amulet::find($avatar->amulet_id)->image_url,
                                      'flag_url' => Flag::find($avatar->flag_id)->image_url,
-                                     'is_error' => $is_error,
-                                     'message' => $message]);
+                                     'is_error' => true,
+                                     'message' => $validator->messages()->first()]);
     }
 }

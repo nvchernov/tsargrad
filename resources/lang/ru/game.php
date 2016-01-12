@@ -10,7 +10,7 @@ return [
     'sawmill' => 'Лесопилка',
     'mine' => 'Золотая шахта',
     'farm' => 'Ферма',
-    'defenses' => 'Форты',
+    'defenses' => 'Стены',
     'name_building' => 'Название',
     'level' => 'Уровень',
 ];

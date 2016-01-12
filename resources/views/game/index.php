@@ -3,8 +3,24 @@
 
 <link rel="stylesheet" href="/plugins/bootstrap-slider/bootstrap-slider.min.css">
 
-<div class="container">
-    <div class="content">
+<div class="container reports-spy">
+    <div class="row">
+        <?php if(!empty($reports_spy)): ?>
+            <?php foreach($reports_spy as $reportOneSquad): ?>
+                <div class="alert alert-danger" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    Внимание! Шпион #<?=$reportOneSquad[0]->id;?> сообщает о нападении! 
+                    Надвигается отряд "<?=$reportOneSquad[1]->name;?>". 
+                    Численность войска: <?=$reportOneSquad[1]->size;?>.
+                    Ожидаемое прибытие <?=$reportOneSquad[1]->battle_at;?>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>        
+</div>
+
+<div class="container"  style="display: <?php if (is_null($attack) || $attack->status != 0): ?> block;"  <?php else: ?> none;" <?php endif; ?>>
+    <div class="content">    
         <div class="row">
             <div class="col-sm-9" style="text-align: center">
                 <h3>Средиземье</h3>
@@ -33,12 +49,21 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
+                        <div id="my_spy">
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#my-spy-modal">
+                            Мои шпионы
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
                         <h3>Строения</h3>
                         <div id="my-buildings">
                             <table class="table table-bordered table-hover">
                             <?php foreach($buildings as $build): ?>
                                 <tr>
-                                    <td class="text-center"><b><?=trans('game.'.$build->buildingType()->first()->building_name); ?> (<?=$build->level; ?> ур.)</b>
+                                    <td data-level="<?=$build->level;?>" id="<?=$build->buildingType()->first()->building_name;?>" class="text-center"><b><?=trans('game.'.$build->buildingType()->first()->building_name); ?> (<?=$build->level; ?> ур.)</b>
                                         <div class="small-top-line">
                                             Цена <span class="badge"><?=$build->level+1; ?></span> уровня<br/>
                                             <span class="badge"><?=$build->costUpdate();?></span> 
@@ -73,7 +98,67 @@
 </map>
 
 <div class="modal fade" id="enemy-castle-modal" tabindex="-1" role="dialog"></div>
-
+<div class="modal fade" id="my-spy-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Мои шпионы</h3>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid text-center" style="margin-bottom: 20px;">
+                    <button type="button" class="btn btn-danger" id="buy_new_spy">Нанять нового шпиона (200 ед. золота)</button>
+                </div>
+                <div class="container-fluid">
+                    <?php if(!empty($spies)) : ?>
+                        <table class="text-center table table-bordered table-hover">
+                        <?php foreach($spies as $spy): ?>
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    Шпион #<?=$spy->id;?> (<span class="badge"><?=$spy->level;?></span> уровня)
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <button type="button" class="btn btn-danger upgradeSpy" spy-id="<?=$spy->id;?>">
+                                        Улучшить за <?=$spy->costUpgrade();?> ед. золота
+                                    </button>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <select class="lookingCastle" data-spy-id="<?=$spy->id;?>">
+                                        <option value="0">---</option>
+                                        <?php foreach($castles as $oneCastle): ?>
+                                            <?php if($oneCastle->id == $user->castle->id): ?>
+                                                <?php continue; ?>
+                                            <?php endif; ?>
+                                        <option <?php if($spy->enemy_castles_id == $oneCastle->id): ?> selected="selected" <?php endif; ?> value="<?=$oneCastle->id?>">
+                                            Замок в координатах 
+                                            <?php $cords = $oneCastle->location()->first(); ?>
+                                            {<?=$cords->x;?>:<?=$cords->y;?>}
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php /* if(!is_null($spy->enemy_castles_id)): ?>
+                                    Следит за замком в координатах {
+                                        <?php $cordL = $spy->getEnemyCastleCoords();  ?>
+                                        <?=$cordL->x;?>;<?=$cordL->y;?>
+                                    }
+                                    <?php endif; */ ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?> 
+                        </table>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>    
+</div>
+<?php if (is_null($attack) || $attack->status != 0): ?>
+<?php else: ?>
+    <?php echo view('pve_enemy_attack/battle',['attack' => $attack]); ?>
+<?php endif; ?>
+<?php if (is_null($attack) || $attack->status != 0): ?>
 <script src="/plugins/image-mapster/jquery.imagemapster.min.js"></script>
 <script src="/plugins/jquery.ui/jquery-ui.min.js"></script>
 <script type="text/javascript">
@@ -90,6 +175,40 @@
                 }                
             });
         });
+        
+        $(document).on('click', '#buy_new_spy', function() {
+            $.post('/game/spy/new', function(data) { 
+                if(data == "no_costs") {
+                    alert('Не хватает ресурсов');
+                } else if (data == "success") {
+                    $('#my-spy-modal').load('/game #my-spy-modal .modal-dialog');                    
+                } 
+            });
+        });
+        
+        $(document).on('click', '.upgradeSpy', function() {
+            var idInitial = $(this).attr('spy-id');
+            $.post('/game/spy/' + idInitial + '/upgrade', function(data) { 
+                if(data == "no_costs") {
+                    alert('Не хватает ресурсов');
+                } else if (data == "success") {
+                    $('#my-spy-modal').load('/game #my-spy-modal .modal-dialog');                    
+                } 
+            });
+        });
+        
+        $(document).on('change', '.lookingCastle', function () {
+            var idInitial = $(this).attr('data-spy-id');
+            $.post('/game/spy/' + idInitial + '/changeCastle/' + $(this).val());
+        });
+       
+        function recalcResources() {
+            var arr  = [ ['wood', 'sawmill'], ['gold', 'mine'], ['food', 'farm']];
+            arr.forEach( function(item, i, arr) {
+                var prevValue = player.resources.get(item[0]).get('count');
+                player.resources.get(item[0]).set('count', prevValue + +$('#' + item[1]).attr('data-level'));                
+            });           
+        }; setInterval(recalcResources, 1000);
         
         function Init() {
             
@@ -203,5 +322,5 @@
         
     }());
 </script>
-
+<?php endif; ?>
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../resources/views/layout/master_footer.php'); ?>

@@ -15,6 +15,7 @@ class CreatePveEnemiesTable extends Migration
         Schema::create('pve_enemies', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('message');
             $table->timestamps();
         });
     }

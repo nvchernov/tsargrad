@@ -9,6 +9,7 @@ use Database\Seeders\AvatarDefaultSeeder,
     Database\Seeders\ResourcesTableSeeder,
     Database\Seeders\AdministratorsTableSeeder,
     Database\Seeders\NewsTableSeeder,
+    Database\Seeders\CastleBuildingsSeeder,
     Database\Seeders\LocationsTableSeeder,
     Database\Seeders\CommentBlocksTableSeeder,
     Database\Seeders\PveEnemiesTableSeeder,
@@ -36,7 +37,6 @@ class DatabaseSeeder extends Seeder
         $this->call(NewsTableSeeder::class);
         $this->call(LocationsTableSeeder::class);
         $this->call(PveEnemiesTableSeeder::class);
-        $this->call(PveEnemiesMessagesTableSeeder::class);
 
         Model::reguard();
     }

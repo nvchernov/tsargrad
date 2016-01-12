@@ -86,22 +86,7 @@ class Castle extends Model
         }
         return $army;
     }
-
-    private function createResCond($res)
-    {
-        $cond = [];
-        if (is_string($res)) {
-            $cond['name'] = $res;
-        } elseif ($res instanceof Resource) {
-            $cond['id'] = $res->id;
-        } elseif (is_numeric($res)){
-            $cond['id'] = $res;
-        } else {
-            return false;
-        }
-        return $cond;
-    }
-
+    
     /**
      * Добавить некоторое количество ресурса в замок.
      * Если такого ресурса еще не было в замке, то сначала создается новый ресурс в БД, а затем он появляется и в замке.
@@ -122,47 +107,48 @@ class Castle extends Model
             return $this->subResource($resource, abs($count));
         }
 
-        $cond = [];
-        if (is_string($resource)) {
-            $resName = $cond['name'] = $resource;
-        } elseif ($resource instanceof Resource) {
-            $resObj = $resource;
-            $cond['id'] = $resource->id;
-        } elseif (is_numeric($resource)){
-            $cond['id'] = $resource;
-        } else {
-            return false;
-        }
-
-        // связка с pivot...
-        $rp = $this->resources()->where($cond)->first();
-        if (isset($rp)) {
-            // Увеличить ресурс...
-            $rp->pivot->count += $count;
-            $saved = $rp->pivot->save();
-            if ($saved) {
-                event(new CUD($this->user, 'update', $rp, ['name' => $rp->name, 'count' => $rp->pivot->count]));
+        $res = Resource::extract($resource);
+        if (isset($res)) {
+            // связка с pivot...
+            $rp = $this->resources()->find($res->id);
+            if (isset($rp)) {
+                // Увеличить ресурс...
+                $rp->pivot->count += $count;
+                $saved = $rp->pivot->save();
+                if ($saved) {
+                    event(new CUD($this->user, 'update', $rp, ['name' => $rp->name, 'count' => $rp->pivot->count]));
+                }
+                return $saved;
             }
-            return $saved;
-        } elseif (!isset($resObj)) {
-            // Есть такой ресурс в БД?
-            $resObj = Resource::where($cond)->first();
-            if (is_null($resObj) && isset($resName)) {
+        } else {
+            if (is_string($resource)) {
                 // Если нет ресурса...
                 // Создать новый ресурс.
-                $resObj = Resource::create(['name' => $resName]);
+                $res = Resource::create(['name' => $resource]);
             }
         }
 
-        if (isset($resObj)) {
+        if (isset($res)) {
             // Добавить новый ресурс...
-            $this->resources()->attach($resObj->id, ['count' => $count]);
-            event(new CUD($this->user, 'update', $resObj, ['name' => $resObj->name, 'count' => $count]));
+            $this->resources()->attach($res->id, ['count' => $count]);
+            event(new CUD($this->user, 'update', $res, ['name' => $res->name, 'count' => $count]));
 
             return true;
         }
 
         return false;
+    }
+    
+    public function calcCastleIncreaseResources() {
+        
+        foreach($this->resources()->getResults() as $res) {            
+            $lastUpdateTime = $res->pivot->updated_at;            
+            $nowTime = \Carbon\Carbon::now();
+            $build = $this->getBuildingFromResName($res->name);
+            $needAddRes = $nowTime->diffInSeconds($lastUpdateTime) * $build->level;
+            $this->addResource($res->name, $needAddRes);
+        };
+        
     }
 
     /**
@@ -173,7 +159,7 @@ class Castle extends Model
      * @return bool
      * @throws GameException
      */
-    public function subResource($resource, $count)
+    public function subResource($resource, $count, $tozero = false)
     {
         // Нет пустой работе...
         if (!(is_numeric($count) && $count != 0)) {
@@ -185,18 +171,25 @@ class Castle extends Model
             return $this->addResource($resource, abs($count));
         }
 
-        $cond = $this->createResCond($resource);
-        if ($cond == false) {
+        $res = Resource::extract($resource);
+        if (is_null($res)) {
             return false;
         }
 
         // связка с pivot...
-        $rp = $this->resources()->where($cond)->first();
+        $rp = $this->resources()->find($res->id);
         if (is_null($rp)) {
             return false;
         }
         if ($rp->pivot->count - $count < 0) {
-            throw new GameException('Не достаточно ресурсов.');
+            if (!$tozero)
+            {
+                throw new GameException('Не достаточно ресурсов.');
+            }
+            else
+            {
+                $count = $rp->pivot->count;
+            }
         }
         // Уменьшить ресурс...
         $rp->pivot->count -= $count;
@@ -218,12 +211,12 @@ class Castle extends Model
     public function getResources($resource = null)
     {
         if (isset($resource)) {
-            $cond = $this->createResCond($resource);
-            if ($cond == false) {
+            $res = Resource::extract($resource);
+            if (is_null($res)) {
                 return null;
             }
             // связка с pivot...
-            $rp = $this->resources()->where($cond)->first();
+            $rp = $this->resources()->find($res->id);
             return !is_null($rp) ? $rp->pivot->count : 0;
         }
         $arr = [];
@@ -319,4 +312,44 @@ class Castle extends Model
         return Building::where('castles_id', $this->id)->where('buildings_id', 4)->first();
         
     }
+    
+    
+    public function getBuildingFromResName($resName) {
+        return $this->buildings()->where('buildings_id', BuildingType::where('resources_id', 
+                Resource::where('name', $resName)->first()->id)->first()->id)->first();
+    }
+    
+    public function ownSpies() {
+        
+        return $this->hasMany('App\Models\Spy', 'castles_id');
+        
+    }
+    
+    public function enemySpies() {
+        
+        return $this->hasMany('App\Models\Spy', 'enemy_castles_id');
+        
+    }
+    
+    public function getActiveSpyDetected() {
+        
+        $ownSpies = $this->ownSpies()->getResults();
+        $arrayActiveReports = [];
+        foreach($ownSpies as $oneOwnSpy) {
+            $shForThatSpy = SpyHistory::where('spy_id', $oneOwnSpy->id)->where('detect', 1)->get()->all();
+            foreach($shForThatSpy as $oneSpyHistory) {
+                if(!empty($oneSpyHistory)) {
+                    $squad = Squad::find($oneSpyHistory->squads_id);
+                    if(!empty($squad)) {
+                        if($squad->battle_at > \Carbon\Carbon::now()) {
+                            $arrayActiveReports[] = [$oneOwnSpy, $squad];
+                        }
+                    }
+                }
+            }
+            
+        }
+        return $arrayActiveReports;
+    }
+    
 }

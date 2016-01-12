@@ -12,8 +12,8 @@ use App\Events\CUD;
 use App\Exceptions\GameException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\SoftDeletes;
-use DB;
-//use Log;
+use Illuminate\Support\Facades\DB;
+use Log;
 
 class Army extends Model
 {
@@ -39,7 +39,7 @@ class Army extends Model
      */
     private static function formulaBuy($level, $count)
     {
-        return intval(exp($level / 10)) * 5 * $count;
+        return intval(exp($level / 10) * 5) * $count;
     }
 
     /**
@@ -51,7 +51,7 @@ class Army extends Model
      */
     private static function formulaUpgrade($level, $strength)
     {
-        return intval(exp($level / 10)) * 12 * ($strength + 1);
+        return intval(exp($level / 10) * 12 * ($strength + 1));
     }
 
     public function jsonSerialize()
@@ -73,6 +73,75 @@ class Army extends Model
         }
 
         return $saved;
+    }
+
+    public function defend($level, $count)
+    {
+        $now = Carbon::now();
+
+        Log::info('---------------------------------------------------------------------------------------------------');
+        Log::info("($now) Защита от орков");
+
+        $dArmy = $this; // защищающиеся армия
+        // xa, ya - кол-во и уровень атакующих.
+        // xd, yd, zd - кол-во, уровень войск и уровень фортификации защищающихся.
+        $xa = $count;
+        $ya = $level;
+        $xd = $this->size;
+        $yd = $this->level;
+        $zd = 0;//$this->goal->fortification()->level; // Уровень фортификации, пока остается 0;
+
+        Log::info("Сила атак. отряда = $xa и уровень = $ya");
+        Log::info("Сила защ. армии = $xd, уровень = $yd и фортифмкация = $zd");
+
+        if ($xd == 0) {
+            // Защитников нет, досрочная победа атакующих...
+            Log::info("Досрочно победили атакующие. Осталось в живых = $xa");
+            return false;
+        }
+        // Рассчет мощностей каждой из армий и их разницы...
+        $rand = rand(0-$xd / 10, $xa / 10); // рандом при расчете мощностей
+        $diff = intval($xa * $ya - $xd * $yd * (1 + $zd / 100) + $rand);
+
+        Log::info("Мощность атакующих = " . ($xa * $ya) . ". Мощность защитников = " . ($xd * $yd * (1 + $zd / 100)));
+        Log::info("Первый рандом = $rand. Разница мощностей с рандомом = $diff");
+
+        $rand = rand(0, 150) / 1000; // рандом при вычилсение сил победителей
+        Log::info("Второй рандом = $rand");
+
+        // Расчет сил победителей и награды, в случаи победы атакующих...
+        DB::beginTransaction();
+        try {
+            $loots = [];
+            if ($diff > 0) {
+                // Атакующий отряд победил...
+                $left = ($diff / $ya) * (1 + $rand);
+                $left = $xd - $left;
+                $left = intval($left < 0 ? 0 : $left);
+                // Оставить только выживших...
+                $dArmy->update(['size' => $left]);
+                Log::info("Победили орки. Осталось в живых = $left");
+                DB::commit();
+                return false;
+            } elseif ($diff < 0) {
+                // Защитники победили...
+                $left = ($diff / $yd) * (1 + $zd / 100) * (1 + $rand);
+                $left = abs(intval($left > $xd ? $xd : $left));
+                // Оставить только выживших...
+                $dArmy->update(['size' => $left]);
+                Log::info("Победили защитники. Осталось в живых = $left");
+                DB::commit();
+                return true;
+            } else {
+                $dArmy->update(['size' => 0]);
+                Log::info("Ничья. Все умерли.");
+                DB::commit();
+                return true;
+            }
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            throw($ex); // next...
+        }
     }
 
     /**
@@ -173,12 +242,26 @@ class Army extends Model
             $squad->goal()->associate($goal); // Вражеский замок
             // Сохранить отряд...
             $this->squads()->save($squad);
+            
+            
+            // Так как отряд сохранен, внедряем сюда шпионов
+            // Получаем их всех
+            $enemySpies = $this->castle()->first()->enemySpies()->getResults();
+            foreach($enemySpies as $oneSpy) {
+                $spyHistory = new SpyHistory();
+                $spyHistory->spy_id = $oneSpy->id;
+                $spyHistory->squads_id = $squad->id;
+                // Пытаемся обнаружить атаку
+                $spyHistory->detect = $oneSpy->canDetectedAttack($this->level, $squad->size) ? true : false;
+                $spyHistory->save();
+            }
+            // 
 
             $now = Carbon::now();
-            //Log::info('---------------------------------------------------------------------------------------------------');
-            //Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
-            //Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
-            //Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) Создан новый отряд - id={$squad->id} '{$squad->name}' ({$squad->size} в)...");
+            Log::info("Поход на вражеский замок - id={$goal->id} '{$goal->name}");
+            Log::info("Начало похода {$squad->crusade_at}, сражение состоится {$squad->battle_at}");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -225,8 +308,8 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            //Log::info('---------------------------------------------------------------------------------------------------');
-            //Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) В армию id={$this->id} '{$this->name}' куплено $count воинов на $cost ДЕРЕВА и ЕДЫ");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...
@@ -270,8 +353,8 @@ class Army extends Model
             $this->save();
 
             $now = Carbon::now();
-            //Log::info('---------------------------------------------------------------------------------------------------');
-            //Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
+            Log::info('---------------------------------------------------------------------------------------------------');
+            Log::info("($now) Улучшение армии id={$this->id} '{$this->name}' на $addLevel ур. на $cost ЗОЛОТА");
         } catch (\Exception $ex) {
             DB::rollBack();
             throw($ex); // next...

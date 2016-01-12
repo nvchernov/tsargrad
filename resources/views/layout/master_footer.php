@@ -6,7 +6,7 @@
  * Time: 15:34
  */
 ?>
-<footer  role="contentinfo">
+<footer class="row-fluid" role="contentinfo">
     <div class="container">
         <hr>
         <p class="text-center" style="color:white;">

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Auth;
+use Request;
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
@@ -31,5 +34,20 @@ class PasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+
+    public function postReset()
+    {
+        $data = Request::all();
+        $user = User::where('email', '=', $data['email'])->first();
+        if ($user !== null) {
+            if ($data['password'] === $data['password_confirmation']) {
+                $user->update(['password' => bcrypt($data['password'])]);
+                Auth::login($user);
+                return redirect('/game');
+            }
+            return view('auth/reset', ['error_message' => 'Пароли не совпадают.']);
+        }
+        return view('auth/reset', ['error_message' => 'Пользователь не найден.']);
     }
 }
