@@ -63,3 +63,7 @@ Route::post('game/castles/{id}/recalc', 'GameController@requestRecalcRes');
 Route::post('game/spy/new', 'GameController@buySpy');
 Route::post('game/spy/{id}/upgrade', 'GameController@upgradeSpy');
 Route::post('game/spy/{id}/changeCastle/{castle_id}', 'GameController@changeLookingCastle');
+
+// Почта
+Route::resource('post', 'PostController',
+                ['except' => ['edit', 'update', 'show']]);
